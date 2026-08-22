@@ -36,3 +36,20 @@ export function formatDate(iso: string): string {
 export function formatWeekdayShort(iso: string): string {
   return weekdayFormatter.format(parseIsoDateUtc(iso));
 }
+
+const dateTimeFormatter = new Intl.DateTimeFormat("de-AT", {
+  day: "numeric",
+  month: "short",
+  hour: "2-digit",
+  minute: "2-digit",
+});
+
+/**
+ * Echter Zeitstempel (`timestamptz`, z. B. `audit_log.created_at`) → de-AT,
+ * z. B. "22. Aug., 18:51". Bewusst OHNE `parseIsoDateUtc()` — der Trick dort
+ * ist nur für reine Kalenderdaten ohne Uhrzeit nötig (sonst verschiebt die
+ * lokale Zeitzone den Tag); ein echter Zeitstempel hat seine Zeitzone schon.
+ */
+export function formatDateTime(isoTimestamp: string): string {
+  return dateTimeFormatter.format(new Date(isoTimestamp));
+}

@@ -55,6 +55,64 @@ export async function getReservationById(ctx: Pick<ModuleContext, "hotelId">, id
   return data as Reservation;
 }
 
+const RESERVATION_SOURCE_LABELS: Record<string, string> = {
+  direct: "Direktbuchung",
+  channel_manager: "Kanal-Sync",
+  phone: "Telefon",
+  walk_in: "Walk-in",
+};
+
+/** Menschenlesbarer Text pro `audit_log`-Eintrag. Unbekannte Aktionen fallen auf den rohen Aktionsnamen zurück. */
+function describeAuditAction(action: string, newData: Record<string, unknown> | null): string {
+  switch (action) {
+    case "reservation.created": {
+      const source = newData?.source as string | undefined;
+      const label = source ? (RESERVATION_SOURCE_LABELS[source] ?? source) : undefined;
+      return label ? `Buchung eingegangen · ${label}` : "Buchung eingegangen";
+    }
+    case "reservation.checked_out":
+      return "Check-out";
+    default:
+      return action;
+  }
+}
+
+export interface ReservationHistoryEntry {
+  action: string;
+  description: string;
+  createdAt: string;
+}
+
+/**
+ * Read: Verlauf einer Reservierung aus dem echten `audit_log` (jeder
+ * Schreibpfad über `executeWrite()` protokolliert dort automatisch,
+ * siehe `modules/_shared/write.ts`) — keine separate Verlaufs-Tabelle,
+ * keine erfundenen Einträge. Aktuell meist nur "Buchung eingegangen",
+ * da Check-in/Verschieben/Stornieren erst Schritt 3/4 sind.
+ */
+export async function getReservationHistory(
+  ctx: Pick<ModuleContext, "hotelId">,
+  reservationId: string
+): Promise<ReservationHistoryEntry[]> {
+  await assertModuleEnabled(ctx.hotelId, "pms");
+
+  const service = createServiceClient();
+  const { data, error } = await service
+    .from("audit_log")
+    .select("action, new_data, created_at")
+    .eq("hotel_id", ctx.hotelId)
+    .eq("resource_type", "reservation")
+    .eq("resource_id", reservationId)
+    .order("created_at", { ascending: true });
+  if (error) throw error;
+
+  return (data ?? []).map((row) => ({
+    action: row.action as string,
+    description: describeAuditAction(row.action as string, row.new_data as Record<string, unknown> | null),
+    createdAt: row.created_at as string,
+  }));
+}
+
 /** Reservierung inkl. Gastname und Zimmer — Ergebnisform von `listReservationsInRange()`. */
 export interface ReservationWithDetails extends Reservation {
   guest: { first_name: string; last_name: string } | null;

@@ -447,7 +447,7 @@ export function CalendarBoard({
                     key={reservation.id}
                     type="button"
                     onClick={() => setSelectedReservationId(reservation.id)}
-                    title={`${guestName} · ${meta.label} · ${reservation.reservation_no}`}
+                    aria-label={`${guestName} · ${meta.label} · ${reservation.reservation_no}`}
                     className={`m-1 truncate rounded px-2 py-1 text-left text-xs font-medium ${meta.barClassName} ${
                       selectedReservationId === reservation.id ? "ring-2 ring-accent" : ""
                     }`}
@@ -461,8 +461,12 @@ export function CalendarBoard({
           </div>
         )}
       </div>
-      </div>
 
+      {/* Als Seitenpanel RECHTS neben dem Gitter (Design-Referenz §5, Screen
+       * 1/2), nicht darunter — sonst verliert man beim Scrollen den Bezug
+       * zur angeklickten Buchung (Review-Fund, 22.08.2026). Eigenes
+       * `overflow-y-auto` im Panel selbst, falls der Inhalt (Verlauf) länger
+       * wird als die Gitter-Höhe von `max-h-[70vh]`. */}
       {selectedReservation && (
         <ReservationDetailPanel
           reservation={selectedReservation}
@@ -470,6 +474,7 @@ export function CalendarBoard({
           onClose={() => setSelectedReservationId(null)}
         />
       )}
+      </div>
     </div>
   );
 }

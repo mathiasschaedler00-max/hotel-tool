@@ -40,6 +40,50 @@ export async function getFolioById(ctx: Pick<ModuleContext, "hotelId">, id: stri
 }
 
 /**
+ * Read: offener Saldo über alle (nicht gelöschten) Folios einer Reservierung,
+ * in Cent. `charge`/`adjustment` erhöhen den Saldo, `payment` senkt ihn.
+ *
+ * Ehrlicher Stand (22.08.2026): `folio_postings` hat noch keinen einzigen
+ * Schreibpfad (Schritt 5 ist noch nicht gebaut) — diese Funktion liefert
+ * also aktuell für JEDE Reservierung 0 Cent zurück, nicht weil bereits
+ * alles beglichen wäre, sondern weil noch nirgends etwas gebucht wurde.
+ * Trotzdem eine echte Query gegen echte (aktuell leere) Tabellen, keine
+ * erfundene Zahl — sobald Schritt 5 Postings erzeugt, stimmt der Wert.
+ */
+export async function getOpenBalanceForReservation(
+  ctx: Pick<ModuleContext, "hotelId">,
+  reservationId: string
+): Promise<number> {
+  await assertModuleEnabled(ctx.hotelId, "pms");
+
+  const service = createServiceClient();
+  const { data: folios, error: folioError } = await service
+    .from("folios")
+    .select("id")
+    .eq("hotel_id", ctx.hotelId)
+    .eq("reservation_id", reservationId)
+    .is("deleted_at", null);
+  if (folioError) throw folioError;
+
+  const folioIds = (folios ?? []).map((f) => f.id as string);
+  if (folioIds.length === 0) return 0;
+
+  const { data: postings, error: postingsError } = await service
+    .from("folio_postings")
+    .select("posting_type, amount_cents")
+    .in("folio_id", folioIds)
+    .is("deleted_at", null);
+  if (postingsError) throw postingsError;
+
+  let balanceCents = 0;
+  for (const p of postings ?? []) {
+    if (p.posting_type === "payment") balanceCents -= p.amount_cents as number;
+    else balanceCents += p.amount_cents as number; // charge | adjustment
+  }
+  return balanceCents;
+}
+
+/**
  * Write: Folio für eine Reservierung eröffnen.
  *
  * ⚠️ Cross-Tenant-Fix (Phase 1, Schritt 2): `reservationId`/`guestId` werden
