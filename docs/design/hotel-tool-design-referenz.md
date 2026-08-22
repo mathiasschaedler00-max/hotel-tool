@@ -17,26 +17,68 @@ Diese Datei fasst zusammen, was im Claude-Design-Prototyp über mehrere Iteratio
 
 Diese Farb-Bedeutungen dürfen sich zwischen Screens NICHT unterscheiden:
 
-| Farbe | Bedeutung | Wo verwendet |
-|---|---|---|
-| Grün (Punkt) | Zimmer frei | Belegungsplan, Zimmerliste |
-| Blau (Balken, gefüllt) | Belegt / In-House | Belegungsplan-Buchungsbalken |
-| Blau (Balken, umrandet/hell) | Reserviert | Belegungsplan-Buchungsbalken |
-| Gestrichelter Rahmen | Option (unbestätigte Buchung) | Belegungsplan |
-| Gold/Bernstein (Punkt) | Reinigung offen | Zimmerstatus (NICHT für Buchungsbalken – Farbkonflikt vermeiden, siehe unten) |
-| Rot (Balken/Rahmen) | Gesperrt / Wartung | Belegungsplan, Housekeeping "Überfällig" |
-| Kupfer/Bernstein (Buttons) | Primäraktion | "Neue Buchung", "Fertig", "Senden" etc. |
-| Violett | KI-generierter Inhalt (Vorschlag, Hinweis, Antwort) | Überall, wo KI beteiligt ist – IMMER mit Label "KI-VORSCHLAG" o.ä. gekennzeichnet, nie unmarkiert |
-| Grün (Button) | Vollständig abgeschlossene Aktion | z.B. Housekeeping-Fertig-Button bei 100% abgehakter Checkliste |
+**Die Form sagt, welches Konzept gemeint ist (siehe §3): PUNKT = Zimmer-Zustand, BALKEN = Buchung oder Zeitraum-Sperre.**
 
-**Wichtige gelernte Lektion aus der Iteration:** Gold/Bernstein darf NICHT gleichzeitig Buchungsstatus UND Zimmerstatus UND Akzentfarbe sein – das hat in einer frühen Version zu Verwechslungen geführt. Farbe = eindeutig eine Bedeutung pro Kontext.
+**Punkte** (vor der Zimmernummer) – Zimmer-Zustand, `rooms.status`, §3.1:
 
-## 3. Rooms-Status – Bestätigung für Schema
+| Farbe | Bedeutung |
+|---|---|
+| Grün (Punkt) | Zimmer frei |
+| Blau (Punkt) | Zimmer belegt (abgeleitet, nicht händisch gesetzt) |
+| Gold/Bernstein (Punkt) | Reinigung offen |
+| Rot (Punkt) | Wartung / gesperrt |
 
-Der Belegungsplan nutzt exakt sechs Zimmerstatus, dargestellt als farbiger Punkt vor der Zimmernummer:
-**frei · reserviert · belegt · Reinigung · Wartung · gesperrt**
+**Balken** (im Kalender, über einen Zeitraum) – Buchung §3.2 bzw. Sperre §3.3:
 
-Das deckt sich mit der gemeldeten Schema-Lücke (`rooms.status`) – die Migration auf sechs Werte ist korrekt und notwendig.
+| Darstellung | Bedeutung |
+|---|---|
+| Blau, gefüllt | Belegt / In-House (`checked_in`) |
+| Blau, umrandet/hell | Reserviert (`confirmed`) |
+| Gestrichelter Rahmen | Option (unbestätigte Buchung) |
+| Gedämpft/grau | Abgereist (`checked_out`) |
+| Rot, gefüllt | Zeitraum-Sperre („Wartung / Sperre") – braucht `room_blocks`, siehe §3.3 |
+
+**Sonstige Farben** (kontextunabhängig):
+
+| Farbe | Bedeutung |
+|---|---|
+| Kupfer/Bernstein (Buttons) | Primäraktion – "Neue Buchung", "Fertig", "Senden" |
+| Violett | KI-generierter Inhalt – IMMER mit Label "KI-VORSCHLAG" o.ä., nie unmarkiert |
+| Grün (Button) | Vollständig abgeschlossene Aktion (z.B. Housekeeping-Fertig bei 100% Checkliste) |
+| Rot (Rahmen/Banner) | Warnung / Überfällig (z.B. Housekeeping "Überfällig", Sicherheitsprüfung Check-in) |
+
+**Zwei gelernte Lektionen aus der Iteration:**
+1. Gold/Bernstein darf NICHT gleichzeitig Buchungsstatus UND Zimmerstatus UND Akzentfarbe sein – das hat in einer frühen Version zu Verwechslungen geführt.
+2. Rot bedeutet je nach Form etwas anderes: als **Balken** eine Zeitraum-Sperre, als **Punkt** den aktuellen Zimmer-Zustand, als **Rahmen/Banner** eine Warnung. Immer die Form mitlesen.
+
+## 3. Status-Modell – DREI getrennte Konzepte, niemals ein Feld
+
+> ⚠️ **Korrektur (22.08.2026).** Eine frühere Fassung dieses Abschnitts behauptete, der Belegungsplan nutze „exakt sechs Zimmerstatus" (frei/reserviert/belegt/Reinigung/Wartung/gesperrt) und bestätigte eine `rooms.status`-Migration auf sechs Werte. **Das war falsch** und hat direkt dazu geführt, dass in der Zimmerverwaltung ein Dropdown mit allen sechs Werten gebaut wurde. Es sind drei verschiedene Konzepte, die nur zufällig alle im Belegungsplan sichtbar sind.
+
+### 3.1 Zimmer-Zustand → `rooms.status`
+Der **physische Zustand des Zimmers jetzt gerade**, unabhängig von jeder Buchung.
+**Nur diese vier Werte:** `frei` · `Reinigung` · `Wartung` · `gesperrt`
+
+Darstellung: farbiger **Punkt** vor der Zimmernummer (Belegungsplan + Zimmerliste).
+Nur diese vier dürfen im Zimmer-Dropdown der Zimmerverwaltung stehen.
+
+### 3.2 Buchungsstatus → `reservations.status`
+Der Zustand **einer Reservierung**, mit eigenem Zeitraum.
+**Werte:** `confirmed` (reserviert) · `checked_in` (belegt/In-House) · `checked_out` (abgereist) · `cancelled` · `no_show` · optional `option` (unbestätigt)
+
+Darstellung: **Balken** im Kalender über den Buchungszeitraum.
+Wird **nie** händisch am Zimmer gesetzt, sondern folgt immer aus der Reservierung.
+
+### 3.3 Zeitraum-Sperre → eigene Tabelle `room_blocks` (existiert noch nicht)
+Ein Zimmer, das **für einen Zeitraum** nicht verkaufbar ist (z. B. „101 ist vom 5.–8. wegen Renovierung gesperrt").
+Darstellung im Prototyp: **roter Balken** über mehrere Tage („Wartung / Sperre").
+
+⚠️ Das ist **nicht dasselbe** wie `rooms.status = 'Wartung'`: Der Zimmer-Zustand (3.1) ist ein Momentanwert ohne Datum, die Sperre hier hat Anfang und Ende. Der Prototyp zeigt beides, das Schema kennt bisher nur den Momentanwert. Laut Phase-1-Plan ist `room_blocks` bewusst zurückgestellt („nachrüsten, wenn Wartungsplanung gebraucht wird") – **bis dahin gibt es im Belegungsplan keine roten Zeitraum-Balken**, auch wenn der Prototyp sie zeigt.
+
+### Merksatz
+Ein Zimmer kann gleichzeitig **frei** (3.1, heute sauber und leer), **reserviert** (3.2, für nächste Woche gebucht) und **gesperrt** (3.3, ab übernächstem Monat Renovierung) sein. Drei Wahrheiten nebeneinander – deshalb drei Felder, nicht eins.
+
+Der Überbuchungsschutz (Phase 1, Schritt 3) prüft **ausschließlich 3.2 und 3.3** über Zeiträume, niemals 3.1.
 
 ## 4. KI-Element-Konvention (gilt für jede KI-Ausgabe im System)
 
@@ -47,7 +89,7 @@ Das deckt sich mit der gemeldeten Schema-Lücke (`rooms.status`) – die Migrati
 ## 5. Die 8 Referenz-Screens
 
 ### Screen 1 – Belegungsplan (Tape Chart)
-Desktop. Horizontale Zeitachse (Tage) × vertikale Zimmerliste. Buchungen als farbige Balken (Statusfarben s.o.), Drag&Drop zum Verschieben. Kategorie-Filter links (Standard/Komfort/Suite), Legende darunter. Auslastungs-% pro Tag in der Kopfzeile, Heute-Linie sichtbar. Sofortsuche oben ("Gast, Zimmer oder Buchungsnr."). KI-Vorschlagskarte (violett) unten links bei Preisempfehlungen, mit Annehmen/Anpassen/Ablehnen. Klick auf Balken öffnet das Detail-Panel rechts (siehe Screen 2), NICHT direkt den Check-in-Ablauf.
+Desktop. **Kopfbereich als EINE zusammenhängende Werkzeugleiste, nicht auf mehrere Stellen verteilt:** Datum-Navigation (‹ Heute ›), Zeitraum-Umschalter (7T/14T/31T), Sofortsuche ("Gast, Zimmer oder Buchungsnr.") und "Neue Buchung"-Button gehören alle in dieselbe obere Zeile, nebeneinander sichtbar und bedienbar, ohne dass man z.B. für die Suche in eine andere Sidebar wechseln muss. Darunter: horizontale Zeitachse (Tage) × vertikale Zimmerliste. Buchungen als farbige Balken (Statusfarben s.o.), Drag&Drop zum Verschieben. Kategorie-Filter links (Standard/Komfort/Suite, als Checkbox + Label + Anzahl, kompakt), Legende darunter. Auslastungs-% pro Tag in der Kopfzeile der Tagesspalten, Heute-Linie sichtbar. KI-Vorschlagskarte (violett) unten links bei Preisempfehlungen, mit Annehmen/Anpassen/Ablehnen. Klick auf Balken öffnet das Detail-Panel rechts (siehe Screen 2), NICHT direkt den Check-in-Ablauf. **Scroll-Verhalten:** Bei vielen Zimmerzeilen bleibt die Datums-Kopfzeile beim vertikalen Scrollen sichtbar (sticky), damit die Orientierung nicht verloren geht.
 
 ### Screen 2 – Rezeptions-Dashboard
 Desktop. Drei Spalten: Ankünfte / Abreisen / In-House, mit Sofortsuche oben. Jede Gast-Karte zeigt Name, Zimmer, Buchungsnr., und – konsistent gelabelt – einen Betrag: "Fällig bei Anreise" (Ankünfte), "Offen bei Abreise" (Abreisen), "Offener Saldo" (In-House). Immer mit Betrag anzeigen, auch 0,00 € (grau), nie das Feld weglassen. Rechts: Heute-Kennzahlen (Auslastung, erwartete Ankünfte, offene Aufgaben, offene Salden) + Liste offener Aufgaben + kompakter KI-Hinweis-Teaser mit Link zur vollständigen KI-Rezeption-Ansicht (Navigation, Badge mit Anzahl).
@@ -100,6 +142,8 @@ Drei Spalten. Links: Posteingang aller Kanäle (WhatsApp/Mail/Web-Chat-Icons), p
 5. **Jede zerstörerische Aktion** (Storno, Löschen) braucht eine Bestätigung.
 6. **Responsive-Grundsatz**: Backoffice-Screens (1, 2, 3, 5-Desktop, 7) primär Desktop/1440px; Mitarbeiter- und Gäste-Screens (4, 5-Mobile, 6) primär Mobile/390px.
 7. **Datenkonsistenz zwischen Screens**: Kennzahlen, die auf mehreren Screens auftauchen (z.B. "offene Aufgaben"), müssen aus derselben Datenquelle stammen – das war in der Prototyp-Phase mit Zufallsdaten gelegentlich inkonsistent, ist aber sobald echte Daten aus dem Backend kommen automatisch gelöst, da es dieselbe Quelle ist.
+8. **Statuskonzepte nie vermischen** (siehe §3): Zimmer-Zustand, Buchungsstatus und Zeitraum-Sperre sind drei getrennte Felder in drei getrennten Tabellen. Wenn eine Aufzählung in diesem Dokument oder im Masterplan Werte aus mehreren dieser Konzepte in einer Zeile listet, ist das eine Abkürzung der Beschreibung – **niemals** eine Vorgabe für ein gemeinsames Datenbankfeld oder ein gemeinsames Dropdown. Im Zweifel nachfragen statt zusammenlegen.
+9. **Kopfbereiche als zusammenhängende Werkzeugleiste** (siehe Screen 1): Navigation, Zeitraumwahl, Suche und Primäraktion gehören nebeneinander in eine obere Leiste, nicht über Sidebar und Kopfzeile verteilt.
 
 ---
 
