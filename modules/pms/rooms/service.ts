@@ -4,7 +4,7 @@ import { NotFoundError } from "@modules/_shared/errors";
 import { assertModuleEnabled } from "@modules/entitlements/service";
 import { requirePermission } from "@modules/rbac/permissions";
 import { createServiceClient } from "@lib/supabase/service";
-import type { UpdateRoomStatusInput } from "./schema";
+import type { UpdateRoomStatusInput, roomStatusValues } from "./schema";
 
 export interface Room {
   id: string;
@@ -12,7 +12,7 @@ export interface Room {
   room_type_id: string;
   room_number: string;
   floor: string | null;
-  status: "available" | "occupied" | "out_of_order";
+  status: (typeof roomStatusValues)[number];
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
