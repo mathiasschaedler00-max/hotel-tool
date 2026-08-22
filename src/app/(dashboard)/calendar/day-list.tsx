@@ -2,7 +2,7 @@ import Link from "next/link";
 import { formatDate } from "@lib/format";
 import type { Room } from "@modules/pms/rooms/service";
 import type { ReservationWithDetails } from "@modules/pms/reservations/service";
-import { ROOM_STATUS_META, type RoomStatus } from "../rooms/room-status";
+import { ROOM_STATUS_META, getRoomDisplayStatus, type RoomStatus } from "../rooms/room-status";
 import { isVisibleOnCalendar } from "./reservation-status";
 
 function addDays(iso: string, days: number): string {
@@ -23,8 +23,8 @@ const DOT_COLOR_CLASSES: Record<string, string> = {
 };
 
 /** Gleiche Farb-/Label-Zuordnung wie `room-list.tsx#StatusDot` (aus `room-status.ts` importiert, nicht neu definiert). */
-function StatusDot({ status }: { status: RoomStatus }) {
-  const meta = ROOM_STATUS_META[status];
+function StatusDot({ status, isCheckedInToday }: { status: RoomStatus; isCheckedInToday: boolean }) {
+  const meta = getRoomDisplayStatus(status, isCheckedInToday);
   const colorClass = DOT_COLOR_CLASSES[meta.color];
   return (
     <span
@@ -63,6 +63,17 @@ export function DayList({
     if (!isVisibleOnCalendar(r.status)) continue;
     if (r.check_in_date <= date && date < r.check_out_date) {
       reservationByRoom.set(r.room_id, r);
+    }
+  }
+
+  // Für den Zimmer-Punkt: "Belegt" (blau) ist rein abgeleitet aus dem
+  // TATSÄCHLICHEN Heute, unabhängig vom gerade angezeigten `date` (siehe
+  // room-status.ts#getRoomDisplayStatus) — der Punkt zeigt immer den realen
+  // Ist-Zustand des Zimmers, auch wenn man sich einen anderen Tag ansieht.
+  const checkedInTodayRoomIds = new Set<string>();
+  for (const r of reservations) {
+    if (r.status === "checked_in" && r.room_id && r.check_in_date <= today && today < r.check_out_date) {
+      checkedInTodayRoomIds.add(r.room_id);
     }
   }
 
@@ -128,7 +139,7 @@ export function DayList({
 
             return (
               <li key={room.id} className="flex items-center gap-3 rounded-lg border border-line bg-surface p-3">
-                <StatusDot status={room.status} />
+                <StatusDot status={room.status} isCheckedInToday={checkedInTodayRoomIds.has(room.id)} />
                 <span className="w-10 shrink-0 font-mono text-sm font-semibold text-text">{room.room_number}</span>
                 {/* Zeilenumbruch statt Kürzen (`truncate`) — das Abreisedatum ist
                  * eine für den Betrieb kritische Information und darf nicht

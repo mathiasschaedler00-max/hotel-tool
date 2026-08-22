@@ -18,3 +18,31 @@ export const ROOM_STATUS_META = {
 export type RoomStatus = keyof typeof ROOM_STATUS_META;
 
 export const ROOM_STATUS_ORDER: RoomStatus[] = ["available", "cleaning", "maintenance", "blocked"];
+
+export interface RoomDisplayStatus {
+  label: string;
+  color: "green" | "blue" | "yellow" | "red";
+  filled: boolean;
+}
+
+/**
+ * "Belegt" (blau) für den Zimmer-Punkt — Mathias, 22.08.2026: rein zur
+ * Anzeigezeit abgeleitet, NIE in `rooms.status` gespeichert (das bleibt
+ * strikt bei den vier Werten oben). Wird nur hier verwendet, taucht
+ * bewusst NICHT in `ROOM_STATUS_META`/`ROOM_STATUS_ORDER` auf (die bilden
+ * exakt den DB-Wertebereich + das Dropdown ab).
+ */
+const OCCUPIED_DISPLAY: RoomDisplayStatus = { label: "Belegt", color: "blue", filled: true };
+
+/**
+ * Priorität bei Konflikt (Mathias, 22.08.2026): Wartung/gesperrt (rot) >
+ * Reinigung (gold) > belegt (blau, abgeleitet) > frei (grün) — ein
+ * Problemzustand darf nie von einer Belegung überdeckt werden.
+ */
+export function getRoomDisplayStatus(roomStatus: RoomStatus, isCheckedInToday: boolean): RoomDisplayStatus {
+  if (roomStatus === "maintenance" || roomStatus === "blocked" || roomStatus === "cleaning") {
+    return ROOM_STATUS_META[roomStatus];
+  }
+  if (isCheckedInToday) return OCCUPIED_DISPLAY;
+  return ROOM_STATUS_META.available;
+}

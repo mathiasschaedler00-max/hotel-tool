@@ -1,7 +1,18 @@
 import { getActiveHotelId } from "@lib/hotel-context";
 import { getHotelById } from "@modules/pms/hotels/service";
 import { listRooms } from "@modules/pms/rooms/service";
+import { listReservationsInRange } from "@modules/pms/reservations/service";
 import { RoomList } from "./room-list";
+
+function todayIso(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function addDays(iso: string, days: number): string {
+  const d = new Date(`${iso}T00:00:00.000Z`);
+  d.setUTCDate(d.getUTCDate() + days);
+  return d.toISOString().slice(0, 10);
+}
 
 /**
  * Zimmerverwaltung + Zimmerstatus — Phase 1, Schritt 1. Kein eigener
@@ -24,14 +35,25 @@ export default async function RoomsPage() {
     );
   }
 
-  const [hotel, rooms] = await Promise.all([getHotelById(hotelId), listRooms({ hotelId })]);
+  const today = todayIso();
+  const [hotel, rooms, reservationsToday] = await Promise.all([
+    getHotelById(hotelId),
+    listRooms({ hotelId }),
+    listReservationsInRange({ hotelId }, today, addDays(today, 1)),
+  ]);
+
+  // "Belegt" (blau) ist ein rein abgeleiteter Anzeigestatus (siehe
+  // room-status.ts#getRoomDisplayStatus) — nie in rooms.status gespeichert.
+  const checkedInTodayRoomIds = new Set(
+    reservationsToday.filter((r) => r.status === "checked_in" && r.room_id).map((r) => r.room_id as string)
+  );
 
   return (
     <div className="min-h-full flex-1 bg-bg p-4 sm:p-8">
       <div className="mx-auto max-w-2xl">
         <h1 className="mb-1 text-xl font-semibold text-text">{hotel.name}</h1>
         <p className="mb-6 text-sm text-text-2">Zimmerverwaltung</p>
-        <RoomList rooms={rooms} />
+        <RoomList rooms={rooms} checkedInTodayRoomIds={checkedInTodayRoomIds} />
       </div>
     </div>
   );

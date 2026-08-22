@@ -6,7 +6,7 @@ import { formatDate, formatWeekdayShort } from "@lib/format";
 import type { Room } from "@modules/pms/rooms/service";
 import type { RoomType } from "@modules/pms/room-types/service";
 import type { ReservationWithDetails } from "@modules/pms/reservations/service";
-import { ROOM_STATUS_META, type RoomStatus } from "../rooms/room-status";
+import { getRoomDisplayStatus, type RoomStatus } from "../rooms/room-status";
 import { RESERVATION_STATUS_META, isVisibleOnCalendar } from "./reservation-status";
 import { ReservationDetailPanel } from "./reservation-detail-panel";
 
@@ -46,8 +46,8 @@ function occupancyColorClass(pct: number): string {
 }
 
 /** Gleiche Farb-/Label-Zuordnung wie `room-list.tsx#StatusDot` (aus `room-status.ts` importiert, nicht neu definiert). */
-function RoomStatusDot({ status }: { status: RoomStatus }) {
-  const meta = ROOM_STATUS_META[status];
+function RoomStatusDot({ status, isCheckedInToday }: { status: RoomStatus; isCheckedInToday: boolean }) {
+  const meta = getRoomDisplayStatus(status, isCheckedInToday);
   const colorClass = DOT_COLOR_CLASSES[meta.color];
   return (
     <span
@@ -158,6 +158,25 @@ export function CalendarBoard({
   }, [columns, reservationsInRange, rooms.length]);
 
   const todayColIndex = today >= rangeFrom && today < rangeToExclusive ? daysBetween(rangeFrom, today) + 2 : null;
+
+  // Für den Zimmer-Punkt: "Belegt" (blau) ist rein abgeleitet, siehe
+  // room-status.ts#getRoomDisplayStatus — nutzt bewusst `reservations` (die
+  // volle, ungefilterte Liste), nicht `reservationsInRange` (auf den
+  // sichtbaren Zeitraum zugeschnitten), damit der Punkt auch dann noch
+  // stimmt, wenn gerade eine andere Woche/ein anderer Monat angezeigt wird.
+  // Bekannte Grenze: liegt "heute" außerhalb dessen, was `listReservationsInRange()`
+  // serverseitig überhaupt geladen hat (Vereinigung aus Desktop-Fenster +
+  // mobilem Einzeltag, siehe page.tsx), fehlt der Punkt trotzdem — kein
+  // eigener "immer heute mitladen"-Query gebaut, um den Umfang klein zu halten.
+  const checkedInTodayRoomIds = useMemo(() => {
+    const ids = new Set<string>();
+    for (const r of reservations) {
+      if (r.status === "checked_in" && r.room_id && r.check_in_date <= today && today < r.check_out_date) {
+        ids.add(r.room_id);
+      }
+    }
+    return ids;
+  }, [reservations, today]);
 
   const rowDescriptors: RowDescriptor[] = [];
   let rowCursor = 2; // Zeile 1 = Datums-Kopfzeile
@@ -324,6 +343,9 @@ export function CalendarBoard({
               <span className="inline-block h-2.5 w-2.5 shrink-0 rounded-full bg-green" /> Zimmer frei
             </li>
             <li className="flex items-center gap-2">
+              <span className="inline-block h-2.5 w-2.5 shrink-0 rounded-full bg-blue" /> Zimmer belegt (abgeleitet)
+            </li>
+            <li className="flex items-center gap-2">
               <span className="inline-block h-2.5 w-2.5 shrink-0 rounded-full bg-yellow" /> Reinigung offen
             </li>
             <li className="flex items-center gap-2">
@@ -397,7 +419,7 @@ export function CalendarBoard({
                   className="sticky left-0 z-10 flex items-center gap-2 border-r border-b border-line bg-surface-3 px-3 py-1"
                   style={{ gridColumn: 1, gridRow: d.row }}
                 >
-                  <RoomStatusDot status={d.room.status} />
+                  <RoomStatusDot status={d.room.status} isCheckedInToday={checkedInTodayRoomIds.has(d.room.id)} />
                   <span className="font-mono text-sm font-semibold text-text">{d.room.room_number}</span>
                   {d.room.floor && <span className="text-xs text-text-3">Etage {d.room.floor}</span>}
                 </div>

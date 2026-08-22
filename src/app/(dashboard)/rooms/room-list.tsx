@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ROOM_STATUS_META, ROOM_STATUS_ORDER, type RoomStatus } from "./room-status";
+import { ROOM_STATUS_META, ROOM_STATUS_ORDER, getRoomDisplayStatus, type RoomStatus } from "./room-status";
 
 interface RoomRow {
   id: string;
@@ -17,8 +17,9 @@ const DOT_COLOR_CLASSES: Record<string, string> = {
   red: "bg-red",
 };
 
-function StatusDot({ status }: { status: RoomStatus }) {
-  const meta = ROOM_STATUS_META[status];
+/** Zeigt den ABGELEITETEN Anzeigestatus (inkl. "Belegt", siehe room-status.ts#getRoomDisplayStatus) — nicht den rohen `rooms.status`. */
+function StatusDot({ status, isCheckedInToday }: { status: RoomStatus; isCheckedInToday: boolean }) {
+  const meta = getRoomDisplayStatus(status, isCheckedInToday);
   const colorClass = DOT_COLOR_CLASSES[meta.color];
   return (
     <span
@@ -32,7 +33,15 @@ function StatusDot({ status }: { status: RoomStatus }) {
   );
 }
 
-function RoomCard({ room, onStatusChange }: { room: RoomRow; onStatusChange: (id: string, status: RoomStatus) => Promise<void> }) {
+function RoomCard({
+  room,
+  isCheckedInToday,
+  onStatusChange,
+}: {
+  room: RoomRow;
+  isCheckedInToday: boolean;
+  onStatusChange: (id: string, status: RoomStatus) => Promise<void>;
+}) {
   const [saving, setSaving] = useState(false);
   const [localStatus, setLocalStatus] = useState(room.status);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -60,8 +69,8 @@ function RoomCard({ room, onStatusChange }: { room: RoomRow; onStatusChange: (id
         {room.floor && <span className="text-xs text-text-3">Etage {room.floor}</span>}
       </div>
       <div className="flex flex-1 items-center gap-2">
-        <StatusDot status={localStatus} />
-        <span className="text-sm text-text-2">{ROOM_STATUS_META[localStatus].label}</span>
+        <StatusDot status={localStatus} isCheckedInToday={isCheckedInToday} />
+        <span className="text-sm text-text-2">{getRoomDisplayStatus(localStatus, isCheckedInToday).label}</span>
       </div>
       <select
         value={localStatus}
@@ -81,7 +90,7 @@ function RoomCard({ room, onStatusChange }: { room: RoomRow; onStatusChange: (id
   );
 }
 
-export function RoomList({ rooms }: { rooms: RoomRow[] }) {
+export function RoomList({ rooms, checkedInTodayRoomIds }: { rooms: RoomRow[]; checkedInTodayRoomIds: Set<string> }) {
   async function handleStatusChange(id: string, status: RoomStatus) {
     const res = await fetch(`/api/v1/pms/rooms/${id}/status`, {
       method: "PATCH",
@@ -101,7 +110,12 @@ export function RoomList({ rooms }: { rooms: RoomRow[] }) {
   return (
     <div className="flex flex-col gap-3">
       {rooms.map((room) => (
-        <RoomCard key={room.id} room={room} onStatusChange={handleStatusChange} />
+        <RoomCard
+          key={room.id}
+          room={room}
+          isCheckedInToday={checkedInTodayRoomIds.has(room.id)}
+          onStatusChange={handleStatusChange}
+        />
       ))}
     </div>
   );
