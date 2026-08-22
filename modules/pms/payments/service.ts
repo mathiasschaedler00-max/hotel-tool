@@ -3,6 +3,7 @@ import type { ModuleContext } from "@modules/_shared/context";
 import { executeWrite } from "@modules/_shared/write";
 import { assertModuleEnabled } from "@modules/entitlements/service";
 import { requirePermission } from "@modules/rbac/permissions";
+import { assertBelongsToHotel } from "@modules/_shared/tenant-guard";
 import { createServiceClient } from "@lib/supabase/service";
 import type { RecordPaymentInput } from "./schema";
 
@@ -37,6 +38,14 @@ export async function listPaymentsForFolio(ctx: Pick<ModuleContext, "hotelId">, 
 
 /**
  * Write: Zahlung erfassen.
+ *
+ * ⚠️ Cross-Tenant-Fix (Phase 1, Schritt 2): `folioId`/`reservationId` werden
+ * jetzt — jeweils nur wenn gesetzt (beide sind optional, siehe
+ * `recordPaymentSchema`) — VOR dem Insert gegen `ctx.hotelId` geprüft (siehe
+ * `modules/_shared/tenant-guard.ts#assertBelongsToHotel()`) — vorher wurden
+ * beide Fremdschlüssel ungeprüft übernommen, exakt dieselbe Lücke, die im
+ * Phase-0-Abnahmetest für `reservations` gefunden und gefixt wurde.
+ *
  * TODO: Geschäftsregeln aus Teil A ergänzen — Teilzahlungen, Rückerstattungs-
  * logik, Verknüpfung zu Fiskal-/Belegpflichten (RKSV).
  */
@@ -50,6 +59,13 @@ export async function recordPayment(ctx: ModuleContext, input: RecordPaymentInpu
     resourceType: "payment",
     action: "payment.recorded",
     mutate: async (client) => {
+      if (input.folioId) {
+        await assertBelongsToHotel(client, ctx.hotelId, "folios", input.folioId, "folio");
+      }
+      if (input.reservationId) {
+        await assertBelongsToHotel(client, ctx.hotelId, "reservations", input.reservationId, "reservation");
+      }
+
       const { rows } = await client.query<Payment>(
         `insert into payments (id, hotel_id, folio_id, reservation_id, amount_cents, method, status)
          values ($1,$2,$3,$4,$5,$6,'completed') returning *`,

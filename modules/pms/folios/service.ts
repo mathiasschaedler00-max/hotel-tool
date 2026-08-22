@@ -4,6 +4,7 @@ import { executeWrite } from "@modules/_shared/write";
 import { NotFoundError } from "@modules/_shared/errors";
 import { assertModuleEnabled } from "@modules/entitlements/service";
 import { requirePermission } from "@modules/rbac/permissions";
+import { assertBelongsToHotel } from "@modules/_shared/tenant-guard";
 import { createServiceClient } from "@lib/supabase/service";
 import type { OpenFolioInput } from "./schema";
 
@@ -40,6 +41,13 @@ export async function getFolioById(ctx: Pick<ModuleContext, "hotelId">, id: stri
 
 /**
  * Write: Folio für eine Reservierung eröffnen.
+ *
+ * ⚠️ Cross-Tenant-Fix (Phase 1, Schritt 2): `reservationId`/`guestId` werden
+ * jetzt VOR dem Insert gegen `ctx.hotelId` geprüft (siehe
+ * `modules/_shared/tenant-guard.ts#assertBelongsToHotel()`) — vorher wurden
+ * beide Fremdschlüssel ungeprüft übernommen, exakt dieselbe Lücke, die im
+ * Phase-0-Abnahmetest für `reservations` gefunden und gefixt wurde.
+ *
  * TODO: Geschäftsregeln aus Teil A ergänzen — RKSV-Signaturkette
  * (`prev_signature_hash` → `signature_hash`), Fiskal-Pflichtfelder,
  * Regeln für mehrere Folios pro Reservierung (z. B. Gruppenbuchungen).
@@ -54,6 +62,9 @@ export async function openFolio(ctx: ModuleContext, input: OpenFolioInput): Prom
     resourceType: "folio",
     action: "folio.opened",
     mutate: async (client) => {
+      await assertBelongsToHotel(client, ctx.hotelId, "reservations", input.reservationId, "reservation");
+      await assertBelongsToHotel(client, ctx.hotelId, "guests", input.guestId, "guest");
+
       const { rows } = await client.query<Folio>(
         `insert into folios (id, hotel_id, reservation_id, guest_id, status)
          values ($1,$2,$3,$4,'open') returning *`,

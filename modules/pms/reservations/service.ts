@@ -1,11 +1,11 @@
 import { randomUUID } from "node:crypto";
-import type { PoolClient } from "pg";
 import type { ModuleContext } from "@modules/_shared/context";
 import { executeWrite } from "@modules/_shared/write";
 import { ConflictError, NotFoundError } from "@modules/_shared/errors";
 import { EVENTS } from "@modules/_shared/topics";
 import { assertModuleEnabled } from "@modules/entitlements/service";
 import { requirePermission } from "@modules/rbac/permissions";
+import { assertBelongsToHotel } from "@modules/_shared/tenant-guard";
 import { createServiceClient } from "@lib/supabase/service";
 import type { CreateReservationInput, CheckOutInput } from "./schema";
 
@@ -55,34 +55,42 @@ export async function getReservationById(ctx: Pick<ModuleContext, "hotelId">, id
   return data as Reservation;
 }
 
+/** Reservierung inkl. Gastname und Zimmer — Ergebnisform von `listReservationsInRange()`. */
+export interface ReservationWithDetails extends Reservation {
+  guest: { first_name: string; last_name: string } | null;
+  room: { room_number: string; floor: string | null } | null;
+}
+
 /**
- * Prueft, dass eine referenzierte Ressource (guest/room_type/room) wirklich
- * zu `hotelId` gehoert, BEVOR sie in eine neue Reservierung uebernommen wird.
+ * Read: Reservierungen, deren Zeitraum `[check_in_date, check_out_date)` den
+ * angefragten Bereich `[from, to)` überschneidet — inkl. Gastname (Join auf
+ * `guests`) und Zimmer (Join auf `rooms`), ein Query statt N+1. Datenquelle
+ * für den Belegungsplan (Phase 1, Schritt 2).
  *
- * Bugfix (gefunden im Phase-0-Abnahmetest, Punkt 2 "Mandantentrennung"):
- * `createReservation()` hat `input.guestId`/`input.roomTypeId`/`input.roomId`
- * bisher ungeprueft in die Insert-Values uebernommen. `ctx.hotelId` bestimmt
- * zwar den `hotel_id`-Wert der neuen Reservierung selbst, aber nichts hat
- * verhindert, dass ein Aufrufer mit gueltigem Hotel-A-Kontext eine Guest-/
- * RoomType-/Room-ID referenziert, die tatsaechlich zu Hotel B gehoert — eine
- * cross-tenant Referenz, die die zweite Verteidigungslinie (Vorgabe #2,
- * RBAC/Modul-Ebene) haette abfangen muessen, aber nicht abgefangen hat.
- * Wirft `NotFoundError` (nicht `ForbiddenError`) — aus Sicht von `ctx.hotelId`
- * existiert die Ressource schlicht nicht, analog zu `getReservationById()` &
- * Co., die dieselbe Semantik fuer nicht zum Hotel gehoerende IDs verwenden.
+ * Konsistent mit `listRooms()` (`modules/pms/rooms/service.ts`): reiner Read,
+ * daher nur `assertModuleEnabled()`, kein `requirePermission()`.
+ *
+ * Überlappungs-Bedingung für zwei halboffene Intervalle: `check_in_date < to`
+ * UND `check_out_date > from` (Standard-Intervall-Überschneidungstest).
  */
-async function assertBelongsToHotel(
-  client: PoolClient,
-  hotelId: string,
-  table: "guests" | "room_types" | "rooms",
-  id: string,
-  resourceLabel: string
-): Promise<void> {
-  const { rows } = await client.query(
-    `select 1 from ${table} where id = $1 and hotel_id = $2 and deleted_at is null`,
-    [id, hotelId]
-  );
-  if (rows.length === 0) throw new NotFoundError(resourceLabel);
+export async function listReservationsInRange(
+  ctx: Pick<ModuleContext, "hotelId">,
+  from: string,
+  to: string
+): Promise<ReservationWithDetails[]> {
+  await assertModuleEnabled(ctx.hotelId, "pms");
+
+  const service = createServiceClient();
+  const { data, error } = await service
+    .from("reservations")
+    .select("*, guest:guests(first_name,last_name), room:rooms(room_number,floor)")
+    .eq("hotel_id", ctx.hotelId)
+    .is("deleted_at", null)
+    .lt("check_in_date", to)
+    .gt("check_out_date", from)
+    .order("check_in_date", { ascending: true });
+  if (error) throw error;
+  return (data ?? []) as unknown as ReservationWithDetails[];
 }
 
 /**
@@ -105,8 +113,9 @@ export async function createReservation(ctx: ModuleContext, input: CreateReserva
     action: "reservation.created",
     mutate: async (client) => {
       // Hotel-Zugehoerigkeit der referenzierten Ressourcen pruefen (siehe
-      // `assertBelongsToHotel()` oben) — VOR dem Insert, innerhalb derselben
-      // Transaktion, damit ein Fehlschlag hier den gesamten Write rollbackt.
+      // `modules/_shared/tenant-guard.ts#assertBelongsToHotel()`) — VOR dem
+      // Insert, innerhalb derselben Transaktion, damit ein Fehlschlag hier
+      // den gesamten Write rollbackt.
       await assertBelongsToHotel(client, ctx.hotelId, "guests", input.guestId, "guest");
       await assertBelongsToHotel(client, ctx.hotelId, "room_types", input.roomTypeId, "room_type");
       if (input.roomId) {

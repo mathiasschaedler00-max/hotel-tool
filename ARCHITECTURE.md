@@ -32,25 +32,38 @@ hotel-tool/
 ├── supabase/migrations/         # SQL-Migrationen, echte supabase-CLI-Timestamps
 ├── modules/                     # die "eigene, saubere Schicht" (Vorgabe #1)
 │   ├── _shared/                 # ModuleContext, Fehler-Hierarchie, executeWrite(),
-│   │                            # Topic-Registry, Response-Envelope
+│   │                            # Topic-Registry, Response-Envelope, tenant-guard.ts
+│   │                            # (assertBelongsToHotel(), für alle Module nutzbar)
 │   ├── entitlements/            # Modul-Schalter-Durchsetzung (404-Hiding)
 │   ├── rbac/                    # Rollen→Permission-Matrix, requirePermission()
 │   ├── audit/                   # writeAudit()/writeAiDecision(), von write.ts genutzt
 │   ├── notifications/           # E-Mail-Queue (enqueueEmail + Job-Handler-Platzhalter)
-│   ├── pms/                     # hotels, rooms, guests, reservations, folios, payments
+│   ├── pms/                     # hotels, rooms, room-types, guests, reservations,
+│   │                            # folios, payments
 │   └── housekeeping/tasks/      # Aufgaben, subscribed auf booking.checked_out
 ├── lib/                         # dünne Infrastruktur-Adapter, KEINE Businesslogik
 │   ├── supabase/{client,server,service}.ts
 │   ├── db/pool.ts               # roher pg.Pool (Transaction-Pooler) für Mehrschritt-TX
 │   ├── queue/boss.ts             # pg-boss-Singleton + typisierte send/publish/subscribe
-│   └── hotel-context.ts          # Cookie-basierte "aktives Hotel"-Auswahl
+│   ├── hotel-context.ts          # Cookie-basierte "aktives Hotel"-Auswahl
+│   └── format.ts                 # formatEuro()/formatDate() (de-AT), zentral fürs UI
 ├── worker/index.ts               # bootet pg-boss, registriert alle modules/*/jobs.ts
+├── scripts/
+│   ├── verify-foundation/        # Phase-0-Abnahmetest (8 Punkte)
+│   ├── verify-phase1/            # Phase-1-Verifikation, ein Skript pro Schritt
+│   └── seed-demo.ts              # Demo-Daten fürs Dev-Hotel (Zimmer/Kategorien/
+│                                  # Reservierungen) — NIE gegen echte Kundendaten
 └── src/
     ├── proxy.ts                  # Next 16: Nachfolger von middleware.ts (Auth/2FA-Guard).
     │                              # Liegt bewusst hier (Ebene von `app/`), NICHT unter
     │                              # `src/app/proxy.ts` wie im Architekturplan-Text —
     │                              # siehe Kommentar am Dateikopf für die Begründung.
-    └── app/api/v1/pms/reservations/  # dünne Route-Handler
+    └── app/
+        ├── api/v1/pms/reservations/     # dünne Route-Handler
+        └── (dashboard)/                 # Route Group (ändert die URL nicht):
+            ├── layout.tsx               # Seitennavigation, Hotel-Umschalter
+            ├── rooms/                   # Zimmerverwaltung (Schritt 1)
+            └── calendar/                # Belegungsplan / Tape Chart (Schritt 2)
 ```
 
 ## Architecture Decision Records
@@ -75,11 +88,27 @@ Typo, Komponenten) implementiert – nicht Teil von Phase 0.
 
 ## Offene Punkte / was noch fehlt
 
-- Kein echtes Supabase-Projekt (nur `supabase init`-Scaffolding lokal).
-- Kein Worker-Hosting (Fly.io/Railway/Hetzner o. Ä. — Entscheidung offen).
-- Keine echten Tests gegen eine laufende Datenbank (die 8-Punkte-Verifikation
-  aus dem Architekturplan ist noch nicht durchgeführt).
+- **Supabase-Projekt**: läuft real, Region Frankfurt (Projekt "HotelOS",
+  `qgpxgevccqywwxxqmqfk`). Aktuell auf dem Free Plan — kein Point-in-Time-
+  Recovery, keine automatischen täglichen Backups. Das ist ein **Pflicht-Gate
+  vor Phase-1-Schritt 6** (Zahlungen/echte Gästedaten), siehe
+  `/Users/mathias/.claude/plans/teil-b-die-staged-codd.md`, Abschnitt
+  "PFLICHT-GATE vor Schritt 6".
+- **Worker-Hosting**: läuft real auf Fly.io (`hotel-tool-worker`, Region
+  `fra`), bootet pg-boss und registriert alle `modules/*/jobs.ts`.
+- **Tests**: Die 8-Punkte-Phase-0-Abnahme (`scripts/verify-foundation/`) ist
+  gegen die echte Supabase-DB durchgeführt (22.08.2026), inklusive eines
+  Backup/Restore-Tests (siehe `RETENTION.md` — lief allerdings gegen eine
+  faktisch leere Datenbank, ein erneuter Restore-Test ist Teil des
+  Pflicht-Gates vor Schritt 6). Phase 1 führt das Testmuster unter
+  `scripts/verify-phase1/` fort.
 - Teil A (Rollen-/Rechte-Matrix im Detail, Fiskal-/RKSV-Anforderungen,
   Storno-Regeln) und Teil D (vollständiger Modul-Katalog) liegen noch nicht
   vor — alle betroffenen Stellen sind im Code mit `// TODO: Geschäftsregeln
   aus Teil A ergänzen` bzw. "Annahme — Teil A/D prüfen" markiert.
+- **Phase 1** läuft in 11 vorgegebenen Schritten (siehe Plan-Datei oben).
+  Aktueller Stand: Schritt 1 (Zimmerverwaltung + Zimmerstatus) und Schritt 2
+  (Buchungskalender / Tape Chart V1, inkl. App-Shell unter
+  `src/app/(dashboard)/`) sind umgesetzt. Schritte 3–11 (Reservierungen
+  inkl. Überbuchungsschutz, Check-in/-out, Folio, Zahlungen, Fiskalisierung,
+  Night Audit, Rezeption, Debitoren, Buchhaltungs-Export) stehen noch aus.
