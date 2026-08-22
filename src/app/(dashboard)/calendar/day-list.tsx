@@ -109,20 +109,19 @@ export function DayList({
             const reservation = reservationByRoom.get(room.id);
             let statusText: string;
 
+            let guestName: string | null = null;
             if (reservation) {
-              const guestName = reservation.guest
+              guestName = reservation.guest
                 ? `${reservation.guest.first_name} ${reservation.guest.last_name}`
                 : "Ohne Gast";
-              let shortStatus: string;
               if (reservation.check_in_date === date) {
                 const nights = daysBetween(reservation.check_in_date, reservation.check_out_date);
-                shortStatus = `Anreise heute · ${nights} ${nights === 1 ? "Nacht" : "Nächte"}`;
+                statusText = `Anreise heute · ${nights} ${nights === 1 ? "Nacht" : "Nächte"}`;
               } else if (reservation.check_out_date === date) {
-                shortStatus = "Abreise heute";
+                statusText = "Abreise heute";
               } else {
-                shortStatus = `In-House · bis ${formatDate(reservation.check_out_date)}`;
+                statusText = `In-House · bis ${formatDate(reservation.check_out_date)}`;
               }
-              statusText = `${guestName} — ${shortStatus}`;
             } else {
               statusText = room.status === "available" ? "Frei" : ROOM_STATUS_META[room.status].label;
             }
@@ -130,8 +129,14 @@ export function DayList({
             return (
               <li key={room.id} className="flex items-center gap-3 rounded-lg border border-line bg-surface p-3">
                 <StatusDot status={room.status} />
-                <span className="w-12 shrink-0 font-mono text-sm font-semibold text-text">{room.room_number}</span>
-                <span className="truncate text-sm text-text-2">{statusText}</span>
+                <span className="w-10 shrink-0 font-mono text-sm font-semibold text-text">{room.room_number}</span>
+                {/* Zeilenumbruch statt Kürzen (`truncate`) — das Abreisedatum ist
+                 * eine für den Betrieb kritische Information und darf nicht
+                 * abgeschnitten werden (bei 390px sonst z.B. "bis 24. ..."). */}
+                <span className="min-w-0 flex-1 text-sm text-text-2">
+                  {guestName && <span className="block font-medium text-text">{guestName}</span>}
+                  <span className="block">{statusText}</span>
+                </span>
               </li>
             );
           })}
