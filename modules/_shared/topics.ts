@@ -1,0 +1,36 @@
+/**
+ * Zentrale Registry aller pg-boss-Namen (Event-Topics + Queues).
+ *
+ * pg-boss deckt zwei Rollen ab:
+ * - Queue (`boss.send`/`boss.work`): direkte Background-Jobs, ein Producer,
+ *   ein Consumer, gleicher Name für Queue == Job-Typ.
+ * - Pub/Sub (`boss.publish`/`boss.subscribe`): Event-Bus (K3). Ein Publisher
+ *   veröffentlicht unter einem Event-Namen; beliebig viele Queues können sich
+ *   unabhängig voneinander auf dieses Event registrieren (Fan-out), ohne dass
+ *   der Publisher sie kennt — "CheckOut passiert → System kann reagieren".
+ *
+ * Alle Publisher/Subscriber importieren ausschließlich aus dieser Datei,
+ * damit Namen nicht auseinanderlaufen.
+ */
+
+/** Event-Namen für `boss.publish()` / `boss.subscribe()`. */
+export const EVENTS = {
+  /** Publisher: modules/pms/reservations/service.ts (checkOut()). */
+  BOOKING_CHECKED_OUT: "booking.checked_out",
+  /** Aktuell kein Subscriber — reserviert für spätere Verwendung (z. B. Channel-Manager-Sync). */
+  RESERVATION_CREATED: "reservation.created",
+} as const;
+
+export type EventTopic = (typeof EVENTS)[keyof typeof EVENTS];
+
+/** Queue-Namen für `boss.send()` / `boss.work()` (inkl. der Fan-out-Queues von Subscribern). */
+export const QUEUES = {
+  /** Direkte Queue, Producer: modules/notifications/service.ts (enqueueEmail()). */
+  NOTIFICATIONS_SEND_EMAIL: "notifications.send-email",
+  /** Scheduled (cron pro Hotel, Europe/Vienna) — siehe worker/index.ts. */
+  PMS_NIGHT_AUDIT_RUN_FOR_HOTEL: "pms.night-audit.run-for-hotel",
+  /** Subscriber-Queue für EVENTS.BOOKING_CHECKED_OUT, siehe modules/housekeeping/tasks/jobs.ts. */
+  HOUSEKEEPING_ON_BOOKING_CHECKED_OUT: "housekeeping.on-booking-checked-out",
+} as const;
+
+export type QueueName = (typeof QUEUES)[keyof typeof QUEUES];
