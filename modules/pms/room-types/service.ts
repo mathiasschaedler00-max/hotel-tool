@@ -1,10 +1,12 @@
 import { randomUUID } from "node:crypto";
 import type { ModuleContext } from "@modules/_shared/context";
 import { executeWrite } from "@modules/_shared/write";
+import { NotFoundError } from "@modules/_shared/errors";
 import { assertModuleEnabled } from "@modules/entitlements/service";
 import { requirePermission } from "@modules/rbac/permissions";
 import { createServiceClient } from "@lib/supabase/service";
-import type { CreateRoomTypeInput } from "./schema";
+import { EVENTS } from "@modules/_shared/topics";
+import type { CreateRoomTypeInput, UpdateRoomTypeInput } from "./schema";
 
 export interface RoomType {
   id: string;
@@ -14,6 +16,7 @@ export interface RoomType {
   capacity_adults: number;
   capacity_children: number;
   base_rate_cents: number;
+  description: string | null;
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
@@ -56,8 +59,8 @@ export async function createRoomType(ctx: ModuleContext, input: CreateRoomTypeIn
     action: "room_type.created",
     mutate: async (client) => {
       const { rows } = await client.query<RoomType>(
-        `insert into room_types (id, hotel_id, name, code, capacity_adults, capacity_children, base_rate_cents)
-         values ($1,$2,$3,$4,$5,$6,$7)
+        `insert into room_types (id, hotel_id, name, code, capacity_adults, capacity_children, base_rate_cents, description)
+         values ($1,$2,$3,$4,$5,$6,$7,$8)
          returning *`,
         [
           roomTypeId,
@@ -67,9 +70,55 @@ export async function createRoomType(ctx: ModuleContext, input: CreateRoomTypeIn
           input.capacityAdults,
           input.capacityChildren,
           input.baseRateCents,
+          input.description ?? null,
         ]
       );
       return { resourceId: roomTypeId, after: rows[0] };
     },
+    event: { topic: EVENTS.ROOM_TYPE_CREATED, payload: { roomTypeId, name: input.name } },
+  });
+}
+
+/**
+ * Write: Stammdaten einer Kategorie ändern (Screen 8-Ergänzung
+ * "Kategorien-Verwaltung", Auftrag 23.08.2026). `base_rate_cents` ist
+ * bewusst nur die Basisrate — Saison-/Wochentagspreise (Raten-Management,
+ * Schritt 3/V4) und dynamische Anpassung (Revenue-KI, Phase 5) kommen
+ * später, hier nicht vorwegnehmen.
+ */
+export async function updateRoomType(ctx: ModuleContext, input: UpdateRoomTypeInput): Promise<RoomType> {
+  await assertModuleEnabled(ctx.hotelId, "pms");
+  requirePermission(ctx, "pms.room_types.write");
+
+  return executeWrite<RoomType>(ctx, {
+    resourceType: "room_type",
+    action: "room_type.updated",
+    mutate: async (client) => {
+      const { rows: beforeRows } = await client.query<RoomType>(
+        `select * from room_types where id = $1 and hotel_id = $2 and deleted_at is null for update`,
+        [input.roomTypeId, ctx.hotelId]
+      );
+      const before = beforeRows[0];
+      if (!before) throw new NotFoundError("room_type");
+
+      const { rows } = await client.query<RoomType>(
+        `update room_types set
+           name = $2, code = $3, capacity_adults = $4, capacity_children = $5,
+           base_rate_cents = $6, description = $7
+         where id = $1
+         returning *`,
+        [
+          input.roomTypeId,
+          input.name,
+          input.code ?? null,
+          input.capacityAdults,
+          input.capacityChildren,
+          input.baseRateCents,
+          input.description ?? null,
+        ]
+      );
+      return { resourceId: input.roomTypeId, before, after: rows[0] };
+    },
+    event: { topic: EVENTS.ROOM_TYPE_UPDATED, payload: { roomTypeId: input.roomTypeId } },
   });
 }

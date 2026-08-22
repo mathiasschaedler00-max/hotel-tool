@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import { formatEuro } from "@lib/format";
 import type { RoomType } from "@modules/pms/room-types/service";
@@ -84,18 +85,23 @@ export function RoomList({
       <div className="min-w-0 flex-1">
         <div className="mb-3 flex items-center justify-between gap-3">
           <p className="text-sm text-text-2">{rooms.length} Zimmer</p>
-          <button
-            type="button"
-            onClick={() => {
-              setSelectedRoomId(null);
-              setIsCreating(true);
-            }}
-            disabled={roomTypes.length === 0}
-            title={roomTypes.length === 0 ? "Erst eine Kategorie anlegen (aktuell nur per SQL möglich)" : undefined}
-            className="min-h-9 rounded-md bg-accent px-3 text-sm font-semibold text-on-accent hover:bg-accent-hi disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            Zimmer hinzufügen
-          </button>
+          <div className="flex items-center gap-3">
+            <Link href="/rooms/categories" className="text-sm text-text-2 underline hover:text-text">
+              Kategorien verwalten
+            </Link>
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedRoomId(null);
+                setIsCreating(true);
+              }}
+              disabled={roomTypes.length === 0}
+              title={roomTypes.length === 0 ? "Erst eine Kategorie anlegen" : undefined}
+              className="min-h-9 rounded-md bg-accent px-3 text-sm font-semibold text-on-accent hover:bg-accent-hi disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Zimmer hinzufügen
+            </button>
+          </div>
         </div>
 
         {rooms.length === 0 ? (

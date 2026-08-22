@@ -205,8 +205,18 @@ export function RoomEditPanel({
           </label>
         )}
 
+        {/* Eigene Info-Zeile mit blauem Punkt (Review-Fund, 23.08.2026: als
+         * loser Kleintext ohne erkennbaren Bezug zu unklar) — macht sichtbar,
+         * dass das die ABGELEITETE Belegung ist, nicht Teil der
+         * Zustands-Auswahl darüber (§3.1 vs. §3.2 nie vermischen). */}
         {!isCreating && isCheckedInToday && (
-          <p className="text-xs text-text-2">{getRoomDisplayStatus(room.status, true).label} · Gast im Haus</p>
+          <div className="flex items-center gap-2 rounded-md bg-blue-bg px-3 py-2 text-xs text-text">
+            <span aria-hidden className="inline-block h-2.5 w-2.5 shrink-0 rounded-full bg-blue" />
+            <span>
+              {getRoomDisplayStatus(room.status, true).label} · Gast im Haus{" "}
+              <span className="text-text-3">(abgeleitet, kein Zimmerzustand)</span>
+            </span>
+          </div>
         )}
 
         {needsOccupiedConfirm && (
