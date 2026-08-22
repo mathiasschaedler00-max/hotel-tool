@@ -72,13 +72,16 @@ export default async function CalendarPage({
   ]);
 
   return (
-    <div className="min-h-full flex-1 bg-bg">
-      <div className="border-b border-line px-4 py-4 sm:px-8">
+    // h-full + flex-col: Voraussetzung dafür, dass das Gitter unten seine
+    // volle verfügbare Höhe kennt und selbst scrollen kann, statt einer
+    // festen vh-Schätzung zu folgen (Review-Fund, 22.08.2026).
+    <div className="flex h-full flex-col bg-bg">
+      <div className="shrink-0 border-b border-line px-4 py-4 sm:px-8">
         <h1 className="text-xl font-semibold text-text">{hotel.name}</h1>
         <p className="text-sm text-text-2">Belegungsplan</p>
       </div>
 
-      <div className="hidden sm:block">
+      <div className="hidden min-h-0 flex-1 sm:block">
         <CalendarBoard
           roomTypes={roomTypes}
           rooms={rooms}

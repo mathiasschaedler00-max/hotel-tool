@@ -17,7 +17,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const [hotels, activeHotelId] = await Promise.all([getUserHotels(), getActiveHotelId()]);
 
   return (
-    <div className="flex min-h-full flex-1 flex-col sm:flex-row">
+    <div className="flex h-full min-h-0 flex-col sm:flex-row">
       <nav className="flex shrink-0 flex-col gap-4 bg-nav px-4 py-4 sm:w-56 sm:px-3 sm:py-6">
         <div className="px-1">
           <span className="text-sm font-semibold tracking-wide text-nav-text">Hotel Tool</span>
@@ -47,7 +47,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
         </ul>
       </nav>
 
-      <main className="min-h-full min-w-0 flex-1 bg-bg">{children}</main>
+      <main className="min-h-0 min-w-0 flex-1 overflow-y-auto bg-bg">{children}</main>
     </div>
   );
 }

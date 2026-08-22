@@ -76,7 +76,7 @@ export function ReservationDetailPanel({
   }, [reservation.id]);
 
   return (
-    <aside className="flex w-full shrink-0 flex-col gap-4 overflow-y-auto rounded-lg border border-line bg-surface p-4 shadow-[var(--shadow-token)] sm:w-72 sm:max-h-[70vh]">
+    <aside className="flex w-full min-h-0 shrink-0 flex-col gap-4 overflow-y-auto rounded-lg border border-line bg-surface p-4 shadow-[var(--shadow-token)] sm:w-72">
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
           <h2 className="truncate text-base font-semibold text-text">{guestName}</h2>

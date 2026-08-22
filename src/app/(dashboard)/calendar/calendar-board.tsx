@@ -230,12 +230,12 @@ export function CalendarBoard({
   }, [rooms]);
 
   return (
-    <div className="flex flex-col gap-3 p-4 sm:p-6">
+    <div className="flex h-full flex-col gap-3 p-4 sm:p-6">
       {/* Eine gemeinsame Werkzeugleiste (Datum-Navigation, Zeitraum-Umschalter,
        * Sofortsuche, "Neue Buchung") statt Suche separat in der Sidebar —
        * so wie im echten Prototyp (docs/design/hotel-os-prototype-source.html,
        * <header>-Block), nach Review korrigiert. */}
-      <div className="flex flex-wrap items-center gap-3 rounded-lg border border-line bg-surface px-3 py-2">
+      <div className="flex shrink-0 flex-wrap items-center gap-3 rounded-lg border border-line bg-surface px-3 py-2">
         <div className="flex items-center gap-0.5 rounded-md bg-surface-2 p-0.5">
           <Link
             href={`/calendar?from=${prevFrom}&days=${days}`}
@@ -303,8 +303,8 @@ export function CalendarBoard({
         </button>
       </div>
 
-      <div className="flex flex-col gap-3 sm:flex-row">
-      <aside className="flex shrink-0 flex-col gap-5 sm:w-52">
+      <div className="flex min-h-0 flex-1 flex-col gap-3 sm:flex-row">
+      <aside className="flex shrink-0 flex-col gap-5 overflow-y-auto sm:w-52">
         {roomTypes.length > 0 && (
           <div>
             <p className="mb-1.5 text-[10px] font-medium tracking-wide text-text-3 uppercase">Kategorien</p>
@@ -355,12 +355,15 @@ export function CalendarBoard({
         </div>
       </aside>
 
-      {/* `max-h-[70vh]` + `overflow-y-auto` machen dieses Element zum
-       * eigenen vertikalen Scroll-Viewport (statt der ganzen Seite) — nur
-       * dadurch kann `sticky top-0` auf der Datums-Kopfzeile unten
-       * überhaupt etwas bewirken. Ohne begrenzte Höhe würde der Container
-       * beliebig mitwachsen und nie selbst scrollen. */}
-      <div className="min-w-0 flex-1 overflow-x-auto overflow-y-auto rounded-lg border border-line bg-surface shadow-[var(--shadow-token)] max-h-[70vh]">
+      {/* `flex-1 min-h-0` statt einer festen `max-h-[Xvh]`-Schätzung (Review-
+       * Fund, 22.08.2026: eine vh-basierte Höhe war je nach Fenstergröße
+       * unzuverlässig und hat das Gitter teils zu früh abgeschnitten). Füllt
+       * exakt die verbleibende Höhe der Flex-Zeile — dafür muss der ganze
+       * Eltern-Baum bis zum `<body>` durchgängig `h-full`/`min-h-0` sein
+       * (siehe layout.tsx-Dateien). `overflow-y-auto` macht diesen
+       * Container zum eigenen Scroll-Viewport, erst dadurch kann
+       * `sticky top-0` auf der Datums-Kopfzeile unten etwas bewirken. */}
+      <div className="min-h-0 min-w-0 flex-1 overflow-x-auto overflow-y-auto rounded-lg border border-line bg-surface shadow-[var(--shadow-token)]">
         {rooms.length === 0 ? (
           <p className="p-6 text-sm text-text-2">Noch keine Zimmer angelegt.</p>
         ) : visibleRooms.length === 0 ? (
@@ -448,7 +451,7 @@ export function CalendarBoard({
                     type="button"
                     onClick={() => setSelectedReservationId(reservation.id)}
                     aria-label={`${guestName} · ${meta.label} · ${reservation.reservation_no}`}
-                    className={`m-1 truncate rounded px-2 py-1 text-left text-xs font-medium ${meta.barClassName} ${
+                    className={`m-1 block w-full min-w-0 truncate rounded px-2 py-1 text-left text-xs font-medium ${meta.barClassName} ${
                       selectedReservationId === reservation.id ? "ring-2 ring-accent" : ""
                     }`}
                     style={{ gridColumn: `${startCol} / span ${span}`, gridRow: rowIndex }}
@@ -466,7 +469,8 @@ export function CalendarBoard({
        * 1/2), nicht darunter — sonst verliert man beim Scrollen den Bezug
        * zur angeklickten Buchung (Review-Fund, 22.08.2026). Eigenes
        * `overflow-y-auto` im Panel selbst, falls der Inhalt (Verlauf) länger
-       * wird als die Gitter-Höhe von `max-h-[70vh]`. */}
+       * wird als die Zeilenhöhe (Flex-Stretch macht es gleich hoch wie das
+       * Gitter daneben). */}
       {selectedReservation && (
         <ReservationDetailPanel
           reservation={selectedReservation}

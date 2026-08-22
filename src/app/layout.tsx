@@ -28,7 +28,13 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="de"
       className={`${ibmPlexSans.variable} ${ibmPlexMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      {/* h-full + overflow-hidden statt min-h-full: die Seite selbst
+       * scrollt NIE — jede Route bestimmt ihre eigene(n) Scroll-Region(en)
+       * (siehe (dashboard)/layout.tsx#main). Grund: eine feste vh-Schätzung
+       * fürs Belegungsplan-Gitter war fragil und je nach Fensterhöhe
+       * unzuverlässig (Review-Fund, 22.08.2026) — "die verfügbare Höhe
+       * exakt ausfüllen" braucht einen durchgängig gefüllten Eltern-Baum. */}
+      <body className="flex h-full flex-col overflow-hidden">{children}</body>
     </html>
   );
 }
