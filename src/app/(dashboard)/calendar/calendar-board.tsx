@@ -9,6 +9,7 @@ import type { ReservationWithDetails } from "@modules/pms/reservations/service";
 import { getRoomDisplayStatus, type RoomStatus } from "../rooms/room-status";
 import { RESERVATION_STATUS_META, isVisibleOnCalendar } from "./reservation-status";
 import { ReservationDetailPanel } from "./reservation-detail-panel";
+import { NewReservationPanel } from "./new-reservation-panel";
 
 const ROOM_COL_PX = 168;
 const DAY_COL_MIN_PX = 68;
@@ -120,6 +121,7 @@ export function CalendarBoard({
   const [selectedTypeIds, setSelectedTypeIds] = useState<Set<string>>(() => new Set(roomTypes.map((rt) => rt.id)));
   const [query, setQuery] = useState("");
   const [selectedReservationId, setSelectedReservationId] = useState<string | null>(null);
+  const [isCreatingReservation, setIsCreatingReservation] = useState(false);
 
   // "Zeitraum wählen": bewusst KEIN schwebendes Popover mehr (Review-Fund,
   // 22.08.2026: hat auch nach dem Klick-daneben-schließt-Fix noch das Gitter
@@ -405,16 +407,15 @@ export function CalendarBoard({
           />
         </div>
 
-        {/* "Neue Buchung" existiert im Prototyp als Werkzeugleisten-Button —
-         * hier bewusst NICHT verkabelt: das manuelle Anlegen von Reservierungen
-         * ist explizit Schritt 3, nicht Schritt 2. Optisch schon an der
-         * richtigen Stelle, damit die Werkzeugleiste beim Schritt-3-Umbau
-         * nicht nochmal umgebaut werden muss. */}
         <button
           type="button"
-          disabled
-          title="Reservierungen manuell anlegen kommt in Schritt 3"
-          className="min-h-9 cursor-not-allowed rounded-md bg-accent px-3 text-xs font-semibold text-on-accent opacity-50"
+          onClick={() => {
+            setSelectedReservationId(null);
+            setIsCreatingReservation(true);
+          }}
+          disabled={roomTypes.length === 0}
+          title={roomTypes.length === 0 ? "Erst eine Kategorie anlegen" : undefined}
+          className="min-h-9 rounded-md bg-accent px-3 text-xs font-semibold text-on-accent hover:bg-accent-hi disabled:cursor-not-allowed disabled:opacity-50"
         >
           Neue Buchung
         </button>
@@ -482,7 +483,10 @@ export function CalendarBoard({
                 <button
                   key={r.id}
                   type="button"
-                  onClick={() => setSelectedReservationId(r.id)}
+                  onClick={() => {
+                    setIsCreatingReservation(false);
+                    setSelectedReservationId(r.id);
+                  }}
                   className={`rounded px-2 py-1 text-left text-xs font-medium ${meta.barClassName} ${
                     selectedReservationId === r.id ? "ring-2 ring-accent" : ""
                   }`}
@@ -722,7 +726,10 @@ export function CalendarBoard({
                   <button
                     key={reservation.id}
                     type="button"
-                    onClick={() => setSelectedReservationId(reservation.id)}
+                    onClick={() => {
+                      setIsCreatingReservation(false);
+                      setSelectedReservationId(reservation.id);
+                    }}
                     aria-label={barLabel}
                     title={isCompact ? barLabel : undefined}
                     className={`m-1 block w-full min-w-0 truncate rounded text-left text-xs font-medium ${meta.barClassName} ${
@@ -757,7 +764,16 @@ export function CalendarBoard({
           key={selectedReservation.id}
           reservation={selectedReservation}
           room={selectedRoom}
+          roomTypes={roomTypes}
           onClose={() => setSelectedReservationId(null)}
+        />
+      )}
+      {isCreatingReservation && (
+        <NewReservationPanel
+          roomTypes={roomTypes}
+          defaultCheckIn={today}
+          defaultCheckOut={addDays(today, 1)}
+          onClose={() => setIsCreatingReservation(false)}
         />
       )}
       </div>
