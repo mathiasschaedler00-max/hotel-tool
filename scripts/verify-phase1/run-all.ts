@@ -9,6 +9,7 @@
 import { printFinalReport, closeSharedPool } from "./_lib";
 import { setupFixtures } from "../verify-foundation/01-setup";
 import { testCrossTenantFoliosPayments } from "./01-cross-tenant-folios-payments";
+import { testRoomManagement } from "./02-room-management";
 import { getBoss } from "@lib/queue/boss";
 
 async function main(): Promise<void> {
@@ -20,6 +21,14 @@ async function main(): Promise<void> {
     await testCrossTenantFoliosPayments(fixtures);
   } catch (e) {
     console.error("Schritt 2 (Cross-Tenant-Fix) abgebrochen:", e instanceof Error ? e.message : e);
+  }
+
+  // Läuft gegen das Demo Hotel, braucht keine der oben angelegten
+  // Testhotel-Fixtures (Schritt 1 ist kein Cross-Tenant-Test).
+  try {
+    await testRoomManagement();
+  } catch (e) {
+    console.error("Schritt 1 (Zimmerverwaltung + Kategorien) abgebrochen:", e instanceof Error ? e.message : e);
   }
 
   printFinalReport();
