@@ -1,0 +1,13 @@
+app = "hotel-tool-worker"
+primary_region = "fra"
+
+[build]
+  dockerfile = "worker/Dockerfile"
+
+[processes]
+  worker = "npm run worker"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "256mb"
+  processes = ["worker"]

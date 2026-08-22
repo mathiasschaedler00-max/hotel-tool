@@ -1,0 +1,12 @@
+node_modules
+.next
+.git
+.env
+.env.local
+.env*.local
+src
+public
+scripts
+docs
+supabase
+*.md
