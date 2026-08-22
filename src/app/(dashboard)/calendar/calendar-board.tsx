@@ -512,12 +512,21 @@ export function CalendarBoard({
 
             {rowDescriptors.map((d) =>
               d.kind === "category" ? (
+                // Die Zeile selbst spannt bewusst die volle Gitterbreite (Band
+                // bleibt beim horizontalen Scrollen durchgängig sichtbar) —
+                // nur das Label bekommt zusätzlich sein eigenes `sticky
+                // left-0`, sonst wandert der Text mit der linken Kante DIESES
+                // Divs (die bei Spalte 1 liegt) aus dem sichtbaren Bereich,
+                // sobald man über die Zimmerspalte hinausscrollt (Review-Fund,
+                // 22.08.2026).
                 <div
                   key={`cat-${d.roomType.id}`}
-                  className="border-b border-line bg-surface-2 px-3 py-1 text-xs font-semibold tracking-wide text-text-2 uppercase"
+                  className="border-b border-line bg-surface-2 py-1"
                   style={{ gridColumn: "1 / -1", gridRow: d.row }}
                 >
-                  {d.roomType.name}
+                  <div className="sticky left-0 z-10 w-fit px-3 text-xs font-semibold tracking-wide text-text-2 uppercase">
+                    {d.roomType.name}
+                  </div>
                 </div>
               ) : (
                 <div
