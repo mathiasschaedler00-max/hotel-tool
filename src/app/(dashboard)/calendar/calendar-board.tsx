@@ -111,21 +111,23 @@ export function CalendarBoard({
   const [query, setQuery] = useState("");
   const [selectedReservationId, setSelectedReservationId] = useState<string | null>(null);
 
-  // "Zeitraum wählen"-Popover: bleibt als natives <details> ohne JS
-  // funktionsfähig (GET-Formular), schließt sich zusätzlich bei Klick
-  // daneben/Escape — sonst liegt es unbegrenzt über dem Gitter (Review-Fund,
-  // 22.08.2026: "verdeckt die Anzeige mit den anderen Sachen").
-  const rangePickerRef = useRef<HTMLDetailsElement>(null);
+  // "Zeitraum wählen": bewusst KEIN schwebendes Popover mehr (Review-Fund,
+  // 22.08.2026: hat auch nach dem Klick-daneben-schließt-Fix noch das Gitter
+  // verdeckt, solange es offen war). Rendert sich stattdessen als normaler
+  // Block UNTER der Werkzeugleiste und schiebt das Gitter nach unten — kein
+  // Overlay, also nichts, was irgendetwas verdecken kann. Schließt sich
+  // weiterhin bei Klick außerhalb der ganzen Werkzeugleiste oder Escape.
+  const [isRangePickerOpen, setIsRangePickerOpen] = useState(false);
+  const toolbarRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
+    if (!isRangePickerOpen) return;
     function handlePointerDown(e: MouseEvent) {
-      if (rangePickerRef.current?.open && !rangePickerRef.current.contains(e.target as Node)) {
-        rangePickerRef.current.open = false;
+      if (toolbarRef.current && !toolbarRef.current.contains(e.target as Node)) {
+        setIsRangePickerOpen(false);
       }
     }
     function handleKeyDown(e: KeyboardEvent) {
-      if (e.key === "Escape" && rangePickerRef.current) {
-        rangePickerRef.current.open = false;
-      }
+      if (e.key === "Escape") setIsRangePickerOpen(false);
     }
     document.addEventListener("mousedown", handlePointerDown);
     document.addEventListener("keydown", handleKeyDown);
@@ -133,7 +135,7 @@ export function CalendarBoard({
       document.removeEventListener("mousedown", handlePointerDown);
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, []);
+  }, [isRangePickerOpen]);
 
   // Nur Reservierungen, die diesen (Desktop-)Zeitraum tatsächlich überschneiden
   // — die Server-Query liefert ggf. mehr (siehe page.tsx: eine gemeinsame
@@ -270,7 +272,7 @@ export function CalendarBoard({
        * Sofortsuche, "Neue Buchung") statt Suche separat in der Sidebar —
        * so wie im echten Prototyp (docs/design/hotel-os-prototype-source.html,
        * <header>-Block), nach Review korrigiert. */}
-      <div className="flex shrink-0 flex-col gap-2">
+      <div ref={toolbarRef} className="flex shrink-0 flex-col gap-2">
       <div className="flex flex-wrap items-center gap-3 rounded-lg border border-line bg-surface px-3 py-2">
         {/* Zeitraum wird oben angezeigt (Auftrag 22.08.2026) — gilt für
          * Schnellwahl UND frei gewählten Zeitraum gleichermaßen, da beide
@@ -317,47 +319,19 @@ export function CalendarBoard({
 
         {/* "Zeitraum wählen": Von–Bis-Auswahl für gezielte Zeiträume (z. B.
          * 1.–20. Dezember), ohne sich per Pfeil dorthin klicken zu müssen.
-         * Als <details>-Popover mit reinem GET-Formular gebaut — braucht kein
-         * Client-JS, landet direkt in den URL-Suchparametern (`from`/`to`),
-         * genau wie die übrigen Zeitraum-Steuerelemente hier. */}
-        <details ref={rangePickerRef} className="relative text-xs">
-          <summary className="flex min-h-8 list-none items-center justify-center rounded-md bg-surface-2 px-3 text-text-2 hover:bg-surface [&::-webkit-details-marker]:hidden">
-            Zeitraum wählen
-          </summary>
-          <form
-            method="GET"
-            action="/calendar"
-            className="absolute top-full left-0 z-40 mt-1 flex w-64 flex-col gap-2 rounded-lg border border-line bg-surface p-3 shadow-[var(--shadow-token)]"
-          >
-            <label className="flex flex-col gap-1 text-text-2">
-              Von
-              <input
-                type="date"
-                name="from"
-                defaultValue={rangeFrom}
-                required
-                className="min-h-9 rounded-md border border-line bg-surface-3 px-2 text-text focus:border-focus focus:outline-none"
-              />
-            </label>
-            <label className="flex flex-col gap-1 text-text-2">
-              Bis
-              <input
-                type="date"
-                name="to"
-                defaultValue={rangeToInclusive}
-                required
-                className="min-h-9 rounded-md border border-line bg-surface-3 px-2 text-text focus:border-focus focus:outline-none"
-              />
-            </label>
-            <p className="text-[11px] text-text-3">Max. {MAX_DESKTOP_DAYS} Tage — längere Auswahl wird gekürzt.</p>
-            <button
-              type="submit"
-              className="min-h-9 rounded-md bg-accent px-3 font-semibold text-on-accent hover:bg-accent-hi"
-            >
-              Anwenden
-            </button>
-          </form>
-        </details>
+         * Klappt als normaler Block UNTER der Werkzeugleiste auf (siehe unten)
+         * statt als schwebendes Popover — das lag vorher über dem Gitter und
+         * hat die Anzeige verdeckt (Review-Fund, 22.08.2026). */}
+        <button
+          type="button"
+          onClick={() => setIsRangePickerOpen((v) => !v)}
+          aria-expanded={isRangePickerOpen}
+          className={`flex min-h-8 items-center justify-center rounded-md px-3 text-xs ${
+            isRangePickerOpen ? "bg-accent text-on-accent" : "bg-surface-2 text-text-2 hover:bg-surface"
+          }`}
+        >
+          Zeitraum wählen
+        </button>
 
         <div className="flex-1" />
 
@@ -389,6 +363,42 @@ export function CalendarBoard({
           Neue Buchung
         </button>
       </div>
+
+      {isRangePickerOpen && (
+        <form
+          method="GET"
+          action="/calendar"
+          className="flex flex-wrap items-end gap-3 rounded-lg border border-line bg-surface p-3 text-xs shadow-[var(--shadow-token)]"
+        >
+          <label className="flex flex-col gap-1 text-text-2">
+            Von
+            <input
+              type="date"
+              name="from"
+              defaultValue={rangeFrom}
+              required
+              className="min-h-9 rounded-md border border-line bg-surface-3 px-2 text-text focus:border-focus focus:outline-none"
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-text-2">
+            Bis
+            <input
+              type="date"
+              name="to"
+              defaultValue={rangeToInclusive}
+              required
+              className="min-h-9 rounded-md border border-line bg-surface-3 px-2 text-text focus:border-focus focus:outline-none"
+            />
+          </label>
+          <button
+            type="submit"
+            className="min-h-9 rounded-md bg-accent px-3 font-semibold text-on-accent hover:bg-accent-hi"
+          >
+            Anwenden
+          </button>
+          <p className="text-[11px] text-text-3">Max. {MAX_DESKTOP_DAYS} Tage — längere Auswahl wird gekürzt.</p>
+        </form>
+      )}
 
       {rangeWasClamped && (
         <p className="text-xs text-text-2">
