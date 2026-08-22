@@ -1,11 +1,14 @@
 import { z } from "zod";
 
 /**
- * Sechs Werte, bestätigt gegen docs/design/hotel-tool-design-referenz.md §3
- * (deckungsgleich mit dem Belegungsplan-Prototyp) — siehe Migration
- * `20260822200000_room_status_six_values.sql`.
+ * Vier echte Zimmer-/Housekeeping-Zustände (Korrektur nach Review, siehe
+ * Migration `20260822210000_room_status_only_housekeeping_states.sql`).
+ * "Reserviert"/"Belegt" sind bewusst KEIN Zimmerstatus mehr — die werden aus
+ * `reservations.status` abgeleitet und im Belegungsplan über die
+ * Buchungsbalken dargestellt (siehe `reservation-status.ts`), nicht mehr
+ * hier manuell am Zimmer setzbar.
  */
-export const roomStatusValues = ["available", "reserved", "occupied", "cleaning", "maintenance", "blocked"] as const;
+export const roomStatusValues = ["available", "cleaning", "maintenance", "blocked"] as const;
 
 export const updateRoomStatusSchema = z.object({
   roomId: z.string().uuid(),

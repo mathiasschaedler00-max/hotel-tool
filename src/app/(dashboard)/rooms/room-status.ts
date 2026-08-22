@@ -1,17 +1,15 @@
 /**
- * Zimmerstatus → Farbe/Label, gemäß docs/design/hotel-tool-design-referenz.md
- * §2+§3. Die Referenz definiert vier Farb-"Bedeutungsgruppen" (grün/blau/
- * gelb/rot) für sechs Zustände — reserviert/belegt teilen sich Blau,
- * Wartung/gesperrt teilen sich Rot. Um trotzdem alle sechs unterscheidbar zu
- * halten, ohne die Farbregel zu verletzen ("eine Farbe = eine Bedeutung pro
- * Kontext"), wird innerhalb einer Farbgruppe zusätzlich gefüllt/umrandet
- * unterschieden — genau das Muster, das der Belegungsplan-Prototyp für
- * belegt (gefüllt) vs. reserviert (umrandet/hell) ohnehin schon verwendet.
+ * Zimmerstatus → Farbe/Label — nur noch die vier echten Housekeeping-/
+ * Betriebszustände (Korrektur nach Review, siehe Migration
+ * `20260822210000_room_status_only_housekeeping_states.sql`). "Reserviert"/
+ * "Belegt" sind bewusst KEIN Zimmerstatus mehr, sondern leiten sich aus
+ * `reservations.status` ab (Buchungsbalken im Belegungsplan, siehe
+ * `reservation-status.ts`) — daher hier auch keine Blau-Töne mehr, Blau
+ * bleibt ausschließlich dem Buchungsstatus vorbehalten (§2 "eine Farbe =
+ * eine Bedeutung pro Kontext").
  */
 export const ROOM_STATUS_META = {
   available: { label: "Frei", color: "green", filled: true },
-  reserved: { label: "Reserviert", color: "blue", filled: false },
-  occupied: { label: "Belegt", color: "blue", filled: true },
   cleaning: { label: "Reinigung", color: "yellow", filled: true },
   maintenance: { label: "Wartung", color: "red", filled: true },
   blocked: { label: "Gesperrt", color: "red", filled: false },
@@ -19,11 +17,4 @@ export const ROOM_STATUS_META = {
 
 export type RoomStatus = keyof typeof ROOM_STATUS_META;
 
-export const ROOM_STATUS_ORDER: RoomStatus[] = [
-  "available",
-  "reserved",
-  "occupied",
-  "cleaning",
-  "maintenance",
-  "blocked",
-];
+export const ROOM_STATUS_ORDER: RoomStatus[] = ["available", "cleaning", "maintenance", "blocked"];
