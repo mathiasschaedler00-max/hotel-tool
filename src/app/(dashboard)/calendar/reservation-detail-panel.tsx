@@ -57,7 +57,6 @@ export function ReservationDetailPanel({
 
   useEffect(() => {
     let cancelled = false;
-    setState({ status: "loading" });
     fetch(`/api/v1/pms/reservations/${reservation.id}/detail`)
       .then(async (res) => {
         const body = await res.json();

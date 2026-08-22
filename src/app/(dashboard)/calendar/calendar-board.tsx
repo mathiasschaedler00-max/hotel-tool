@@ -12,6 +12,12 @@ import { ReservationDetailPanel } from "./reservation-detail-panel";
 
 const ROOM_COL_PX = 168;
 const DAY_COL_MIN_PX = 68;
+const DAY_COL_COMPACT_PX = 28;
+const MAX_DESKTOP_DAYS = 90;
+// Ab hier ("Zeitraum wählen" mit mehr als der größten Schnellwahl 31T)
+// bekämen Gästenamen im Balken ohnehin keinen brauchbaren Platz mehr — dann
+// automatisch auf reine Farbbalken ohne Text umschalten (Auftrag 22.08.2026).
+const COMPACT_THRESHOLD_DAYS = 31;
 
 function addDays(iso: string, days: number): string {
   const d = new Date(`${iso}T00:00:00.000Z`);
@@ -85,6 +91,7 @@ export function CalendarBoard({
   rangeFrom,
   days,
   today,
+  rangeWasClamped = false,
 }: {
   roomTypes: RoomType[];
   rooms: Room[];
@@ -92,9 +99,13 @@ export function CalendarBoard({
   rangeFrom: string;
   days: number;
   today: string;
+  rangeWasClamped?: boolean;
 }) {
   const rangeToExclusive = useMemo(() => addDays(rangeFrom, days), [rangeFrom, days]);
+  const rangeToInclusive = useMemo(() => addDays(rangeFrom, days - 1), [rangeFrom, days]);
   const columns = useMemo(() => Array.from({ length: days }, (_, i) => addDays(rangeFrom, i)), [rangeFrom, days]);
+  const isCompact = days > COMPACT_THRESHOLD_DAYS;
+  const dayColPx = isCompact ? DAY_COL_COMPACT_PX : DAY_COL_MIN_PX;
 
   const [selectedTypeIds, setSelectedTypeIds] = useState<Set<string>>(() => new Set(roomTypes.map((rt) => rt.id)));
   const [query, setQuery] = useState("");
@@ -235,7 +246,15 @@ export function CalendarBoard({
        * Sofortsuche, "Neue Buchung") statt Suche separat in der Sidebar —
        * so wie im echten Prototyp (docs/design/hotel-os-prototype-source.html,
        * <header>-Block), nach Review korrigiert. */}
-      <div className="flex shrink-0 flex-wrap items-center gap-3 rounded-lg border border-line bg-surface px-3 py-2">
+      <div className="flex shrink-0 flex-col gap-2">
+      <div className="flex flex-wrap items-center gap-3 rounded-lg border border-line bg-surface px-3 py-2">
+        {/* Zeitraum wird oben angezeigt (Auftrag 22.08.2026) — gilt für
+         * Schnellwahl UND frei gewählten Zeitraum gleichermaßen, da beide
+         * intern auf dasselbe rangeFrom+days-Modell abgebildet werden. */}
+        <span className="font-mono text-sm font-medium text-text">
+          {formatDate(rangeFrom)} – {formatDate(rangeToInclusive)}
+        </span>
+
         <div className="flex items-center gap-0.5 rounded-md bg-surface-2 p-0.5">
           <Link
             href={`/calendar?from=${prevFrom}&days=${days}`}
@@ -272,6 +291,50 @@ export function CalendarBoard({
           ))}
         </div>
 
+        {/* "Zeitraum wählen": Von–Bis-Auswahl für gezielte Zeiträume (z. B.
+         * 1.–20. Dezember), ohne sich per Pfeil dorthin klicken zu müssen.
+         * Als <details>-Popover mit reinem GET-Formular gebaut — braucht kein
+         * Client-JS, landet direkt in den URL-Suchparametern (`from`/`to`),
+         * genau wie die übrigen Zeitraum-Steuerelemente hier. */}
+        <details className="relative text-xs">
+          <summary className="flex min-h-8 list-none items-center justify-center rounded-md bg-surface-2 px-3 text-text-2 hover:bg-surface [&::-webkit-details-marker]:hidden">
+            Zeitraum wählen
+          </summary>
+          <form
+            method="GET"
+            action="/calendar"
+            className="absolute top-full left-0 z-40 mt-1 flex w-64 flex-col gap-2 rounded-lg border border-line bg-surface p-3 shadow-[var(--shadow-token)]"
+          >
+            <label className="flex flex-col gap-1 text-text-2">
+              Von
+              <input
+                type="date"
+                name="from"
+                defaultValue={rangeFrom}
+                required
+                className="min-h-9 rounded-md border border-line bg-surface-3 px-2 text-text focus:border-focus focus:outline-none"
+              />
+            </label>
+            <label className="flex flex-col gap-1 text-text-2">
+              Bis
+              <input
+                type="date"
+                name="to"
+                defaultValue={rangeToInclusive}
+                required
+                className="min-h-9 rounded-md border border-line bg-surface-3 px-2 text-text focus:border-focus focus:outline-none"
+              />
+            </label>
+            <p className="text-[11px] text-text-3">Max. {MAX_DESKTOP_DAYS} Tage — längere Auswahl wird gekürzt.</p>
+            <button
+              type="submit"
+              className="min-h-9 rounded-md bg-accent px-3 font-semibold text-on-accent hover:bg-accent-hi"
+            >
+              Anwenden
+            </button>
+          </form>
+        </details>
+
         <div className="flex-1" />
 
         <div className="relative">
@@ -301,6 +364,13 @@ export function CalendarBoard({
         >
           Neue Buchung
         </button>
+      </div>
+
+      {rangeWasClamped && (
+        <p className="text-xs text-text-2">
+          Der gewählte Zeitraum war länger als {MAX_DESKTOP_DAYS} Tage und wurde auf {MAX_DESKTOP_DAYS} Tage gekürzt.
+        </p>
+      )}
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col gap-3 sm:flex-row">
@@ -372,7 +442,7 @@ export function CalendarBoard({
           <div
             className="relative grid"
             style={{
-              gridTemplateColumns: `${ROOM_COL_PX}px repeat(${days}, minmax(${DAY_COL_MIN_PX}px, 1fr))`,
+              gridTemplateColumns: `${ROOM_COL_PX}px repeat(${days}, minmax(${dayColPx}px, 1fr))`,
               gridTemplateRows: `64px repeat(${totalRows - 1}, auto)`,
             }}
           >
@@ -383,13 +453,22 @@ export function CalendarBoard({
             {columns.map((day, i) => (
               <div
                 key={day}
-                className="sticky top-0 z-20 border-b border-line bg-surface-3 px-2 py-2 text-center"
+                title={`${formatWeekdayShort(day)} ${formatDate(day)} · ${occupancyByDay[i]}% belegt`}
+                className={`sticky top-0 z-20 border-b border-line bg-surface-3 text-center ${
+                  isCompact ? "px-0.5 py-2" : "px-2 py-2"
+                }`}
                 style={{ gridColumn: i + 2, gridRow: 1 }}
               >
-                <div className="text-xs font-medium text-text-2">
-                  {formatWeekdayShort(day)} {formatDate(day)}
-                </div>
-                <div className="font-mono text-xs text-text-3">{occupancyByDay[i]}%</div>
+                {isCompact ? (
+                  <div className="font-mono text-[10px] text-text-2">{day.slice(8, 10)}</div>
+                ) : (
+                  <>
+                    <div className="text-xs font-medium text-text-2">
+                      {formatWeekdayShort(day)} {formatDate(day)}
+                    </div>
+                    <div className="font-mono text-xs text-text-3">{occupancyByDay[i]}%</div>
+                  </>
+                )}
                 <div className="mt-1 h-1 w-full overflow-hidden rounded-full bg-surface-2" aria-hidden>
                   <div
                     className={`h-full rounded-full ${occupancyColorClass(occupancyByDay[i])}`}
@@ -445,18 +524,27 @@ export function CalendarBoard({
                   ? `${reservation.guest.first_name} ${reservation.guest.last_name}`
                   : "Ohne Gast";
                 const nights = daysBetween(reservation.check_in_date, reservation.check_out_date);
+                const barLabel = `${guestName} · ${meta.label} · ${reservation.reservation_no}`;
                 return (
                   <button
                     key={reservation.id}
                     type="button"
                     onClick={() => setSelectedReservationId(reservation.id)}
-                    aria-label={`${guestName} · ${meta.label} · ${reservation.reservation_no}`}
-                    className={`m-1 block w-full min-w-0 truncate rounded px-2 py-1 text-left text-xs font-medium ${meta.barClassName} ${
-                      selectedReservationId === reservation.id ? "ring-2 ring-accent" : ""
-                    }`}
+                    aria-label={barLabel}
+                    title={isCompact ? barLabel : undefined}
+                    className={`m-1 block w-full min-w-0 truncate rounded text-left text-xs font-medium ${meta.barClassName} ${
+                      isCompact ? "px-1 py-1" : "px-2 py-1"
+                    } ${selectedReservationId === reservation.id ? "ring-2 ring-accent" : ""}`}
                     style={{ gridColumn: `${startCol} / span ${span}`, gridRow: rowIndex }}
                   >
-                    {guestName} · {nights}N
+                    {/* Ab COMPACT_THRESHOLD_DAYS reine Farbbalken ohne Text (Auftrag
+                     * 22.08.2026, Punkt 3) — Name bleibt über aria-label/title und
+                     * Klick auf den Balken (Detail-Panel) weiter zugänglich. */}
+                    {!isCompact && (
+                      <>
+                        {guestName} · {nights}N
+                      </>
+                    )}
                   </button>
                 );
               });
@@ -473,6 +561,7 @@ export function CalendarBoard({
        * Gitter daneben). */}
       {selectedReservation && (
         <ReservationDetailPanel
+          key={selectedReservation.id}
           reservation={selectedReservation}
           room={selectedRoom}
           onClose={() => setSelectedReservationId(null)}
