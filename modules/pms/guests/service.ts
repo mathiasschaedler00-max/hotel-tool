@@ -5,7 +5,8 @@ import { NotFoundError } from "@modules/_shared/errors";
 import { assertModuleEnabled } from "@modules/entitlements/service";
 import { requirePermission } from "@modules/rbac/permissions";
 import { createServiceClient } from "@lib/supabase/service";
-import type { CreateGuestInput } from "./schema";
+import { getPoolForReads } from "@lib/db/pool";
+import type { CreateGuestInput, UpdateGuestInput } from "./schema";
 
 /**
  * Öffentlich sichtbare Gast-Spalten. `document_number_encrypted` bewusst NICHT
@@ -103,6 +104,54 @@ export async function createGuest(ctx: ModuleContext, input: CreateGuestInput): 
         ]
       );
       return { resourceId: guestId, after: rows[0] };
+    },
+  });
+}
+
+/**
+ * Read: Gastsuche für die Buchungsstrecke (Auftrag Schritt 3 — ohne
+ * Gastsuche ist keine Buchung am Empfang möglich). Über den rohen Pool
+ * statt Supabase-JS `.or()`, damit die Suchbegriffe sauber parametrisiert
+ * bleiben (kein PostgREST-Filter-String-Interpolation-Risiko).
+ */
+export async function searchGuests(ctx: Pick<ModuleContext, "hotelId">, query: string): Promise<Guest[]> {
+  await assertModuleEnabled(ctx.hotelId, "pms");
+
+  const pool = getPoolForReads();
+  const pattern = `%${query}%`;
+  const { rows } = await pool.query<Guest>(
+    `select ${GUEST_COLUMNS} from guests
+     where hotel_id = $1 and deleted_at is null
+       and (first_name ilike $2 or last_name ilike $2 or email ilike $2)
+     order by last_name, first_name
+     limit 20`,
+    [ctx.hotelId, pattern]
+  );
+  return rows;
+}
+
+/** Write: Gast-Stammdaten ändern (Name/Kontakt) — nicht die Ausweisnummer, dafür ist der separate Reveal-Flow (TODO oben) zuständig. */
+export async function updateGuest(ctx: ModuleContext, input: UpdateGuestInput): Promise<Guest> {
+  await assertModuleEnabled(ctx.hotelId, "pms");
+  requirePermission(ctx, "pms.guests.write");
+
+  return executeWrite<Guest>(ctx, {
+    resourceType: "guest",
+    action: "guest.updated",
+    mutate: async (client) => {
+      const { rows: beforeRows } = await client.query<Guest>(
+        `select ${GUEST_COLUMNS} from guests where id = $1 and hotel_id = $2 and deleted_at is null for update`,
+        [input.guestId, ctx.hotelId]
+      );
+      const before = beforeRows[0];
+      if (!before) throw new NotFoundError("guest");
+
+      const { rows } = await client.query<Guest>(
+        `update guests set first_name = $2, last_name = $3, email = $4, phone = $5, nationality = $6
+         where id = $1 returning ${GUEST_COLUMNS}`,
+        [input.guestId, input.firstName, input.lastName, input.email, input.phone, input.nationality]
+      );
+      return { resourceId: input.guestId, before, after: rows[0] };
     },
   });
 }

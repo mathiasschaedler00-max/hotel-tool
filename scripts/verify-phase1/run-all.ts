@@ -11,6 +11,7 @@ import { setupFixtures } from "../verify-foundation/01-setup";
 import { testCrossTenantFoliosPayments } from "./01-cross-tenant-folios-payments";
 import { testRoomManagement } from "./02-room-management";
 import { testOverbookingProtection } from "./03-overbooking-protection";
+import { testReservationLifecycle } from "./04-reservation-lifecycle";
 import { getBoss } from "@lib/queue/boss";
 
 async function main(): Promise<void> {
@@ -36,6 +37,12 @@ async function main(): Promise<void> {
     await testOverbookingProtection();
   } catch (e) {
     console.error("Schritt 3 (Überbuchungsschutz) abgebrochen:", e instanceof Error ? e.message : e);
+  }
+
+  try {
+    await testReservationLifecycle();
+  } catch (e) {
+    console.error("Schritt 3 (Reservierungs-Lebenszyklus) abgebrochen:", e instanceof Error ? e.message : e);
   }
 
   printFinalReport();

@@ -19,6 +19,12 @@ export const EVENTS = {
   BOOKING_CHECKED_OUT: "booking.checked_out",
   /** Aktuell kein Subscriber — reserviert für spätere Verwendung (z. B. Channel-Manager-Sync). */
   RESERVATION_CREATED: "reservation.created",
+  /** Publisher: modules/pms/reservations/service.ts. Gleiche Einordnung wie ROOM_*: kein Subscriber nötig, Audit-Log deckt Historie ab. */
+  RESERVATION_UPDATED: "reservation.updated",
+  RESERVATION_MOVED: "reservation.moved",
+  RESERVATION_CANCELLED: "reservation.cancelled",
+  /** Publisher: modules/pms/group-bookings/service.ts (createGroupBooking()). */
+  GROUP_BOOKING_CREATED: "group_booking.created",
   /**
    * Publisher: modules/pms/rooms/service.ts (createRoom()/updateRoom()/
    * deactivateRoom()). Aktuell kein Subscriber — das Audit-Log deckt die

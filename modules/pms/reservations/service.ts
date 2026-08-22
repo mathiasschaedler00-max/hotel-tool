@@ -9,19 +9,27 @@ import { assertBelongsToHotel } from "@modules/_shared/tenant-guard";
 import { createServiceClient } from "@lib/supabase/service";
 import { getPoolForReads } from "@lib/db/pool";
 import type { Room } from "@modules/pms/rooms/service";
-import type { CreateReservationInput, CheckOutInput } from "./schema";
+import type {
+  CreateReservationInput,
+  CheckOutInput,
+  UpdateReservationInput,
+  MoveReservationInput,
+  CancelReservationInput,
+} from "./schema";
 
 /**
  * Postgres-Fehlercode für eine verletzte EXCLUDE-Constraint (siehe Migration
  * `20260823010000_no_double_booking_constraint.sql`). `pg` wirft rohe
  * Fehlerobjekte mit `.code` = SQLSTATE, kein eigener Fehlertyp — deshalb hier
- * ein einfacher Typ-Guard statt `instanceof`.
+ * ein einfacher Typ-Guard statt `instanceof`. Exportiert, weil
+ * `modules/pms/group-bookings/service.ts` denselben Insert-Pfad (und damit
+ * dieselbe Fehlerübersetzung) braucht.
  */
-function isExclusionViolation(e: unknown): boolean {
+export function isExclusionViolation(e: unknown): boolean {
   return typeof e === "object" && e !== null && "code" in e && (e as { code: unknown }).code === "23P01";
 }
 
-function nightsBetween(checkInDate: string, checkOutDate: string): number {
+export function nightsBetween(checkInDate: string, checkOutDate: string): number {
   return Math.round((Date.parse(`${checkOutDate}T00:00:00Z`) - Date.parse(`${checkInDate}T00:00:00Z`)) / 86_400_000);
 }
 
@@ -41,13 +49,14 @@ export interface Reservation {
   children: number;
   rate_cents: number;
   notes: string | null;
+  cancel_reason: string | null;
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
 }
 
-/** Menschenlesbare, von der UUID getrennte Kennung (K6). Annahme — Teil A prüfen (Format). */
-function generateReservationNo(checkInDate: string): string {
+/** Menschenlesbare, von der UUID getrennte Kennung (K6). Annahme — Teil A prüfen (Format). Exportiert für group-bookings/service.ts. */
+export function generateReservationNo(checkInDate: string): string {
   const compact = checkInDate.replaceAll("-", "");
   const suffix = randomUUID().slice(0, 6).toUpperCase();
   return `RES-${compact}-${suffix}`;
@@ -88,6 +97,14 @@ function describeAuditAction(action: string, newData: Record<string, unknown> | 
     }
     case "reservation.checked_out":
       return "Check-out";
+    case "reservation.updated":
+      return "Belegungsdaten geändert";
+    case "reservation.moved":
+      return "Verschoben";
+    case "reservation.cancelled": {
+      const reason = newData?.cancel_reason as string | undefined;
+      return reason ? `Storniert · ${reason}` : "Storniert";
+    }
     default:
       return action;
   }
@@ -329,6 +346,135 @@ export async function checkOut(ctx: ModuleContext, input: CheckOutInput): Promis
     },
     event: {
       topic: EVENTS.BOOKING_CHECKED_OUT,
+      payload: { reservationId: input.reservationId, hotelId: ctx.hotelId },
+    },
+  });
+}
+
+/**
+ * Ändert Belegungsdaten (Personenzahl, Notiz, Preis) — bewusst NICHT Zimmer
+ * oder Zeitraum, dafür ist `moveReservation()` zuständig. Volles Replace
+ * (nicht partial-patch), gleiche Überlegung wie schon bei `updateRoom()`:
+ * das Formular schickt immer alle Felder mit.
+ */
+export async function updateReservation(ctx: ModuleContext, input: UpdateReservationInput): Promise<Reservation> {
+  await assertModuleEnabled(ctx.hotelId, "pms");
+  requirePermission(ctx, "pms.reservations.write");
+
+  return executeWrite<Reservation>(ctx, {
+    resourceType: "reservation",
+    action: "reservation.updated",
+    mutate: async (client) => {
+      const { rows: beforeRows } = await client.query<Reservation>(
+        `select * from reservations where id = $1 and hotel_id = $2 and deleted_at is null for update`,
+        [input.reservationId, ctx.hotelId]
+      );
+      const before = beforeRows[0];
+      if (!before) throw new NotFoundError("reservation");
+
+      const { rows } = await client.query<Reservation>(
+        `update reservations set adults = $2, children = $3, notes = $4, rate_cents = $5 where id = $1 returning *`,
+        [input.reservationId, input.adults, input.children, input.notes, input.rateCents]
+      );
+      return { resourceId: input.reservationId, before, after: rows[0] };
+    },
+    event: {
+      topic: EVENTS.RESERVATION_UPDATED,
+      payload: { reservationId: input.reservationId, hotelId: ctx.hotelId },
+    },
+  });
+}
+
+/**
+ * Verschiebt eine Reservierung (Zimmer und/oder Zeitraum) — z. B. per Drag &
+ * Drop im Belegungsplan. Beide Felder optional, nur mitschicken was sich
+ * ändert. Der eigentliche Schutz ist die `no_double_booking`-Constraint
+ * (siehe `createReservation()` für dieselbe SQLSTATE-23P01-Übersetzung) —
+ * `roomId: null` erlaubt ausdrücklich das Entfernen der Zimmerzuweisung
+ * (Reservierung wird dadurch "nicht zugewiesen", siehe Belegungsplan-Bereich
+ * dafür).
+ */
+export async function moveReservation(ctx: ModuleContext, input: MoveReservationInput): Promise<Reservation> {
+  await assertModuleEnabled(ctx.hotelId, "pms");
+  requirePermission(ctx, "pms.reservations.write");
+
+  return executeWrite<Reservation>(ctx, {
+    resourceType: "reservation",
+    action: "reservation.moved",
+    mutate: async (client) => {
+      const { rows: beforeRows } = await client.query<Reservation>(
+        `select * from reservations where id = $1 and hotel_id = $2 and deleted_at is null for update`,
+        [input.reservationId, ctx.hotelId]
+      );
+      const before = beforeRows[0];
+      if (!before) throw new NotFoundError("reservation");
+
+      const nextRoomId = input.roomId !== undefined ? input.roomId : before.room_id;
+      const nextCheckIn = input.checkInDate ?? before.check_in_date;
+      const nextCheckOut = input.checkOutDate ?? before.check_out_date;
+      if (nextRoomId) {
+        await assertBelongsToHotel(client, ctx.hotelId, "rooms", nextRoomId, "room");
+      }
+
+      try {
+        const { rows } = await client.query<Reservation>(
+          `update reservations set room_id = $2, check_in_date = $3, check_out_date = $4 where id = $1 returning *`,
+          [input.reservationId, nextRoomId, nextCheckIn, nextCheckOut]
+        );
+        return { resourceId: input.reservationId, before, after: rows[0] };
+      } catch (e) {
+        if (isExclusionViolation(e)) {
+          throw new ConflictError("Zimmer ist im gewählten Zeitraum bereits belegt", {
+            roomId: nextRoomId,
+            checkInDate: nextCheckIn,
+            checkOutDate: nextCheckOut,
+          });
+        }
+        throw e;
+      }
+    },
+    event: {
+      topic: EVENTS.RESERVATION_MOVED,
+      payload: { reservationId: input.reservationId, hotelId: ctx.hotelId },
+    },
+  });
+}
+
+/**
+ * Storniert eine Reservierung — mit Grund (Design-Regel §6.5: jede
+ * zerstörerische Aktion braucht eine Bestätigung; der Grund gehört zur
+ * Nachvollziehbarkeit dazu). Kein Hard-Delete — `status = 'cancelled'` gibt
+ * das Zimmer über die `no_double_booking`-Constraint automatisch wieder
+ * frei (die filtert explizit auf `status in ('confirmed','checked_in')`).
+ */
+export async function cancelReservation(ctx: ModuleContext, input: CancelReservationInput): Promise<Reservation> {
+  await assertModuleEnabled(ctx.hotelId, "pms");
+  requirePermission(ctx, "pms.reservations.write");
+
+  return executeWrite<Reservation>(ctx, {
+    resourceType: "reservation",
+    action: "reservation.cancelled",
+    mutate: async (client) => {
+      const { rows: beforeRows } = await client.query<Reservation>(
+        `select * from reservations where id = $1 and hotel_id = $2 and deleted_at is null for update`,
+        [input.reservationId, ctx.hotelId]
+      );
+      const before = beforeRows[0];
+      if (!before) throw new NotFoundError("reservation");
+      if (before.status === "cancelled" || before.status === "checked_out") {
+        throw new ConflictError(`Reservierung kann im Status "${before.status}" nicht storniert werden`, {
+          currentStatus: before.status,
+        });
+      }
+
+      const { rows } = await client.query<Reservation>(
+        `update reservations set status = 'cancelled', cancel_reason = $2 where id = $1 returning *`,
+        [input.reservationId, input.reason]
+      );
+      return { resourceId: input.reservationId, before, after: rows[0] };
+    },
+    event: {
+      topic: EVENTS.RESERVATION_CANCELLED,
       payload: { reservationId: input.reservationId, hotelId: ctx.hotelId },
     },
   });

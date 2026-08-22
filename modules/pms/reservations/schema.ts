@@ -33,3 +33,44 @@ export const checkOutSchema = z.object({
 });
 
 export type CheckOutInput = z.infer<typeof checkOutSchema>;
+
+/**
+ * Ändert NUR Belegungsdaten (Personenzahl, Notiz, Preis-Override) — nicht
+ * Zimmer/Zeitraum, dafür ist `moveReservation()` zuständig (eigene Funktion,
+ * weil dort der Überbuchungsschutz greifen muss).
+ */
+export const updateReservationSchema = z.object({
+  reservationId: z.string().uuid(),
+  adults: z.number().int().min(1),
+  children: z.number().int().min(0),
+  notes: z.string().nullable(),
+  rateCents: z.number().int().min(0),
+});
+
+export type UpdateReservationInput = z.infer<typeof updateReservationSchema>;
+
+/**
+ * Verschiebt eine Reservierung (Zimmer und/oder Zeitraum). Beide Felder
+ * optional — nur mitschicken, was sich ändert; die `no_double_booking`-
+ * Constraint sichert gegen Überschneidungen ab (siehe service.ts).
+ */
+export const moveReservationSchema = z
+  .object({
+    reservationId: z.string().uuid(),
+    roomId: z.string().uuid().nullable().optional(),
+    checkInDate: isoDate.optional(),
+    checkOutDate: isoDate.optional(),
+  })
+  .refine((v) => !(v.checkInDate && v.checkOutDate) || v.checkOutDate > v.checkInDate, {
+    message: "checkOutDate muss nach checkInDate liegen",
+    path: ["checkOutDate"],
+  });
+
+export type MoveReservationInput = z.infer<typeof moveReservationSchema>;
+
+export const cancelReservationSchema = z.object({
+  reservationId: z.string().uuid(),
+  reason: z.string().min(1),
+});
+
+export type CancelReservationInput = z.infer<typeof cancelReservationSchema>;

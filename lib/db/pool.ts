@@ -1,4 +1,23 @@
-import { Pool, type PoolClient } from "pg";
+import { Pool, type PoolClient, types } from "pg";
+
+/**
+ * Postgres-`date`-Spalten (OID 1082) parst `node-postgres` standardmäßig zu
+ * einem JS-`Date`-Objekt (Mitternacht, lokale Zeitzone) — der Rest der
+ * Codebasis geht überall von reinen "YYYY-MM-DD"-Strings aus (siehe
+ * `lib/format.ts#parseIsoDateUtc`, jede Datums-Arithmetik in den Modulen,
+ * `generateReservationNo()`). Deaktiviert diesen Auto-Parser global, damit
+ * `date`-Spalten roh als String zurückkommen — konsistent mit dem, was
+ * Supabase-JS/PostgREST für Reads ohnehin liefert (das serialisiert
+ * `date`-Spalten nativ als String, nie als Objekt).
+ *
+ * Gefunden über `scripts/verify-phase1/04-reservation-lifecycle.ts`:
+ * `moveReservation()`/`createGroupBooking()` gaben `check_in_date` als
+ * `Date`-Objekt zurück, worauf `generateReservationNo()` mit
+ * `TypeError: checkInDate.replaceAll is not a function` abstürzte — bis
+ * jetzt unbemerkt, weil noch keine Oberfläche das Rückgabeobjekt eines
+ * raw-pg-Schreibpfads direkt weiterverarbeitet hat.
+ */
+types.setTypeParser(1082, (value) => value);
 
 /**
  * Roher `pg`-Pool über den Supabase Transaction-Pooler (Supavisor, Port 6543).

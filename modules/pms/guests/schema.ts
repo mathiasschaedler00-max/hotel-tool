@@ -11,3 +11,15 @@ export const createGuestSchema = z.object({
 });
 
 export type CreateGuestInput = z.infer<typeof createGuestSchema>;
+
+/** Volles Replace (nicht partial-patch) — gleiche Überlegung wie updateRoom(). */
+export const updateGuestSchema = z.object({
+  guestId: z.string().uuid(),
+  firstName: z.string().min(1),
+  lastName: z.string().min(1),
+  email: z.string().email().nullable(),
+  phone: z.string().nullable(),
+  nationality: z.string().nullable(),
+});
+
+export type UpdateGuestInput = z.infer<typeof updateGuestSchema>;
