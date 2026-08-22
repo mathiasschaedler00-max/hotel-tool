@@ -1,0 +1,2435 @@
+<!DOCTYPE html>
+<html><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="76748fad-a6cc-4e3f-94ac-77006a857b25"></script>
+
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<style>/* cyrillic-ext */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("3a4cbda8-c810-4349-a8f5-f3e84f52c7d8") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("6366e62a-791c-40c3-9510-99fb547b84c1") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("17220601-d16d-4c78-b16f-5281b26c0859") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("1d3c6a63-1f9f-4740-9900-bb92db813049") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("0b10164e-8091-4c7b-94fd-5267ce8b8c79") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("80c9190f-00e4-4032-ba04-41cbe25a3950") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("c0db6835-8c4e-4f22-8d8b-b9b58dd8fca6") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("ab9680d8-efc6-44ea-8d42-4e6b28946be5") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("eab7fc1f-f339-4a55-b9e2-0ee488d71250") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("26eb26cd-9275-4e0b-b073-998e10bc9e72") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("ba65304b-0251-418a-8ca4-a22ea531b4c3") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("9fe48af4-b87f-47cb-9e62-a19cff7b0363") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("f7915c20-3de0-437f-add9-9200848afdff") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("14f75d62-22bb-452c-ae99-626cfe03e7cd") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("32a357b7-8cc8-40a1-a3e6-8ba6f429de39") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("bcad0d9a-7ed4-4f53-8fcc-268d2326d735") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("aeba31c4-cf8c-4f12-a3ba-269fb8556ba4") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* greek */
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("aa89b101-8dcb-4386-b818-d33f2e471629") format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("c7103642-d0a3-490a-adcb-e09f3d368cf2") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("d966fea8-c4db-4463-930b-23b1b0d1a1f0") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("6a33e9dd-73bb-4234-ab20-b5c4628a4de7") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 500;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("bcad0d9a-7ed4-4f53-8fcc-268d2326d735") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 500;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("aeba31c4-cf8c-4f12-a3ba-269fb8556ba4") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* greek */
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 500;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("aa89b101-8dcb-4386-b818-d33f2e471629") format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 500;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("c7103642-d0a3-490a-adcb-e09f3d368cf2") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 500;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("d966fea8-c4db-4463-930b-23b1b0d1a1f0") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 500;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("6a33e9dd-73bb-4234-ab20-b5c4628a4de7") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 600;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("bcad0d9a-7ed4-4f53-8fcc-268d2326d735") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 600;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("aeba31c4-cf8c-4f12-a3ba-269fb8556ba4") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* greek */
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 600;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("aa89b101-8dcb-4386-b818-d33f2e471629") format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 600;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("c7103642-d0a3-490a-adcb-e09f3d368cf2") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 600;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("d966fea8-c4db-4463-930b-23b1b0d1a1f0") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 600;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("6a33e9dd-73bb-4234-ab20-b5c4628a4de7") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 700;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("bcad0d9a-7ed4-4f53-8fcc-268d2326d735") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 700;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("aeba31c4-cf8c-4f12-a3ba-269fb8556ba4") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* greek */
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 700;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("aa89b101-8dcb-4386-b818-d33f2e471629") format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 700;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("c7103642-d0a3-490a-adcb-e09f3d368cf2") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 700;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("d966fea8-c4db-4463-930b-23b1b0d1a1f0") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 700;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("6a33e9dd-73bb-4234-ab20-b5c4628a4de7") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+</style>
+<style>
+:root{
+--bg:#F6F2EC;--surface:#FFFFFF;--surface2:#EFE9E0;--surface3:#F9F6F1;--line:#DDD5C8;--line2:#EAE3D8;
+--text:#1A2330;--text2:#5B6675;--text3:#8A939F;
+--nav:#111C28;--nav2:#1B2836;--navText:#E9EEF4;--navMuted:#8FA0B1;
+--accent:#9A5C2C;--accentHi:#B4703A;--onAccent:#FFFFFF;
+--green:#2E7D5B;--greenBg:#E4F0EA;--blue:#2C5D8F;--blueBg:#E4EBF4;--yellow:#B4861A;--yellowBg:#F6EED8;--red:#B03A32;--redBg:#F6E4E2;--violet:#6242B8;--violetBg:#EEE9FB;--violetLine:#C9BCF0;
+--shadow:0 1px 2px rgba(20,30,45,.07),0 10px 28px rgba(20,30,45,.07);
+--focus:#2C5D8F;
+}
+html.theme-dark{
+--bg:#0D141C;--surface:#151F2A;--surface2:#1D2836;--surface3:#111A24;--line:#2A3745;--line2:#222E3B;
+--text:#E7EDF4;--text2:#94A2B2;--text3:#6F7D8C;
+--nav:#0A1118;--nav2:#151F2A;--navText:#E7EDF4;--navMuted:#7E8C9B;
+--accent:#CF8A4F;--accentHi:#E09A5D;--onAccent:#1A1206;
+--green:#4FAE81;--greenBg:#12241C;--blue:#6398D0;--blueBg:#132234;--yellow:#DDB246;--yellowBg:#26200E;--red:#DC6B63;--redBg:#2A1614;--violet:#A38CE6;--violetBg:#1E1934;--violetLine:#3B3163;
+--shadow:0 1px 2px rgba(0,0,0,.5),0 10px 28px rgba(0,0,0,.35);
+--focus:#6398D0;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:var(--accent);text-decoration:none}
+a:hover{color:var(--accentHi);text-decoration:underline}
+button{font-family:inherit}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+::selection{background:var(--violetBg)}
+@keyframes shimmer{0%{background-position:-320px 0}100%{background-position:320px 0}}
+@keyframes toastIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</helmet>
+
+<div style="display:flex;height:100vh;overflow:hidden;font-size:14px">
+
+  <nav style="width:232px;flex:none;background:var(--nav);color:var(--navText);display:flex;flex-direction:column;border-right:1px solid var(--nav2)">
+    <div style="padding:18px 18px 14px;display:flex;align-items:center;gap:10px">
+      <div style="width:28px;height:28px;border-radius:7px;background:var(--accent);color:var(--onAccent);display:grid;place-items:center;font-weight:700;font-size:13px">H</div>
+      <div style="font-weight:600;letter-spacing:.02em">Hotel OS</div>
+    </div>
+
+    <div style="padding:0 12px 12px;position:relative">
+      <button sc-camel-on-click="{{ toggleHotels }}" style="width:100%;min-height:44px;display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--nav2);border:1px solid rgba(255,255,255,.08);border-radius:9px;color:var(--navText);cursor:pointer;text-align:left" style-hover="background:#22323f">
+        <div style="width:22px;height:22px;flex:none;border-radius:5px;background:rgba(255,255,255,.12);display:grid;place-items:center;font-size:10px;font-weight:600">{{ hotelInitials }}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:12.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ hotelName }}</div>
+          <div style="font-size:10.5px;color:var(--navMuted)">{{ hotelMeta }}</div>
+        </div>
+        <div style="color:var(--navMuted);font-size:10px">▾</div>
+      </button>
+      <sc-if value="{{ hotelsOpen }}">
+        <div style="position:absolute;top:100%;left:12px;right:12px;z-index:60;background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow);padding:8px;color:var(--text)">
+          <input value="{{ hotelQuery }}" sc-camel-on-change="{{ onHotelQuery }}" placeholder="Haus suchen…" style="width:100%;min-height:36px;padding:6px 9px;border:1px solid var(--line);border-radius:7px;background:var(--surface3);color:var(--text);font-size:12.5px;margin-bottom:6px">
+          <div style="max-height:230px;overflow:auto;display:flex;flex-direction:column;gap:1px">
+            <sc-for list="{{ hotelList }}" as="h" hint-placeholder-count="4">
+              <button sc-camel-on-click="{{ h.pick }}" style="display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:40px;padding:6px 8px;border:0;background:transparent;border-radius:7px;cursor:pointer;text-align:left;color:var(--text)" style-hover="background:var(--surface2)">
+                <span style="font-size:12.5px">{{ h.name }}</span>
+                <span style="font-size:11px;color:var(--text3);font-variant-numeric:tabular-nums">{{ h.rooms }}</span>
+              </button>
+            </sc-for>
+          </div>
+          <div style="border-top:1px solid var(--line2);margin-top:6px;padding-top:6px;font-size:11px;color:var(--text3)">104 Häuser in der Gruppe · Portfolio-Ansicht</div>
+        </div>
+      </sc-if>
+    </div>
+
+    <div style="flex:1;overflow:auto;padding:4px 12px 12px;display:flex;flex-direction:column;gap:2px">
+      <div style="font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--navMuted);padding:10px 10px 6px">Betrieb</div>
+      <sc-for list="{{ navOps }}" as="n" hint-placeholder-count="5">
+        <button sc-camel-on-click="{{ n.go }}" style="{{ n.style }}" style-hover="background:var(--nav2)">
+          <span style="width:18px;text-align:center;opacity:.9">{{ n.icon }}</span>
+          <span style="flex:1;text-align:left">{{ n.label }}</span>
+          <sc-if value="{{ n.badge }}"><span style="font-size:10.5px;font-variant-numeric:tabular-nums;background:var(--accent);color:var(--onAccent);border-radius:20px;padding:1px 6px">{{ n.badge }}</span></sc-if>
+          <sc-if value="{{ n.soon }}"><span style="font-size:10px;color:var(--navMuted)">folgt</span></sc-if>
+        </button>
+      </sc-for>
+      <div style="font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--navMuted);padding:14px 10px 6px">System</div>
+      <sc-for list="{{ navSys }}" as="n" hint-placeholder-count="2">
+        <button sc-camel-on-click="{{ n.go }}" style="{{ n.style }}" style-hover="background:var(--nav2)">
+          <span style="width:18px;text-align:center;opacity:.9">{{ n.icon }}</span>
+          <span style="flex:1;text-align:left">{{ n.label }}</span>
+        </button>
+      </sc-for>
+    </div>
+
+    <div style="border-top:1px solid var(--nav2);padding:12px;display:flex;align-items:center;gap:9px">
+      <div style="width:28px;height:28px;border-radius:50%;background:var(--nav2);display:grid;place-items:center;font-size:11px;font-weight:600">MK</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12.5px">M. Keller</div>
+        <div style="font-size:10.5px;color:var(--navMuted)">Rezeption · Spätdienst</div>
+      </div>
+      <button sc-camel-on-click="{{ toggleTheme }}" title="Dark Mode umschalten" style="width:32px;height:32px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:transparent;color:var(--navText);cursor:pointer" style-hover="background:var(--nav2)">{{ themeIcon }}</button>
+    </div>
+  </nav>
+
+  <main style="flex:1;min-width:0;display:flex;flex-direction:column;background:var(--bg)">
+
+    <sc-if value="{{ offline }}">
+      <div style="background:var(--yellowBg);color:var(--yellow);border-bottom:1px solid var(--line);padding:7px 20px;font-size:12.5px;display:flex;align-items:center;gap:8px;font-weight:500">
+        <span style="width:7px;height:7px;border-radius:50%;background:var(--yellow);flex:none"></span>
+        Offline – 3 Änderungen werden synchronisiert, sobald die Verbindung zurück ist.
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isHK }}" hint-placeholder-val="{{ false }}">
+      <div style="flex:none;padding:12px 20px;border-bottom:1px solid var(--line);background:var(--surface);display:flex;align-items:center;gap:12px">
+        <div style="font-size:16.5px;font-weight:600">Housekeeping</div>
+        <div style="flex:1"></div>
+        <div style="display:flex;gap:2px;background:var(--surface2);border-radius:9px;padding:3px">
+          <sc-for list="{{ hkViews }}" as="v" hint-placeholder-count="2">
+            <button sc-camel-on-click="{{ v.pick }}" style="{{ v.style }}">{{ v.label }}</button>
+          </sc-for>
+        </div>
+      </div>
+
+      <sc-if value="{{ hkLeitung }}">
+        <div style="flex:1;min-height:0;overflow:auto;padding:22px 26px 60px">
+          <div style="max-width:900px;display:flex;flex-direction:column;gap:16px">
+            <div style="font-size:13px;color:var(--text2)">Eskalationen für die Housekeeping-Leitung · über alle Zimmer und Schichten</div>
+
+            <sc-if value="{{ hkEscEmpty }}">
+              <div style="text-align:center;padding:50px;border:1px dashed var(--line);border-radius:14px;color:var(--text3);font-size:13px">Keine überfälligen Zimmer – alles im Zeitrahmen.</div>
+            </sc-if>
+
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <sc-for list="{{ hkEscalations }}" as="e" hint-placeholder-count="3">
+                <div style="background:var(--surface);border:1px solid var(--red);border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:14px">
+                  <div style="font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;width:56px;flex:none">{{ e.room }}</div>
+                  <div style="flex:1;min-width:0">
+                    <div style="font-size:13.5px;font-weight:600">{{ e.kind }} · {{ e.cat }}</div>
+                    <div style="font-size:12px;color:var(--text2);margin-top:2px">Zuständig: {{ e.staff }}</div>
+                    <div style="font-size:12px;color:var(--red);font-weight:600;margin-top:2px">Seit {{ e.elapsedMin }} Min. überfällig · Ziel {{ e.threshold }} Min.</div>
+                  </div>
+                  <span style="{{ e.prioStyle }}">{{ e.prioLabel }}</span>
+                  <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end">
+                    <button sc-camel-on-click="{{ e.remind }}" title="Kurze Erinnerung an {{ e.staff }}" style="min-height:40px;padding:0 14px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--text);font-size:12.5px;font-weight:500;cursor:pointer">Nachfassen bei {{ e.staffFirst }}</button>
+                    <span style="font-size:10px;color:var(--text3)">Erinnerung an {{ e.staffFirst }}</span>
+                  </div>
+                  <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end">
+                    <button sc-camel-on-click="{{ e.escalate }}" title="Meldet den Fall an die Leitungsebene" style="min-height:40px;padding:0 14px;border:0;border-radius:8px;background:var(--red);color:#fff;font-size:12.5px;font-weight:600;cursor:pointer">An Leitung eskalieren</button>
+                    <span style="font-size:10px;color:var(--text3)">Fall wird zur Klärung markiert</span>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ hkStaff }}">
+      <div style="flex:1;min-height:0;overflow:auto;background:var(--surface2);display:flex;justify-content:center;padding:22px 12px 60px">
+        <div style="width:390px;flex:none;background:var(--bg);border-radius:20px;box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;min-height:720px">
+          <div style="flex:none;background:var(--nav);color:var(--navText);padding:16px 18px 14px">
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <div style="font-size:11px;color:var(--navMuted);letter-spacing:.04em;text-transform:uppercase">Housekeeping · 390px</div>
+              <button sc-camel-on-click="{{ toggleOffline }}" title="Verbindung umschalten (Demo)" style="min-width:44px;min-height:44px;border:0;background:transparent;color:var(--navMuted);cursor:pointer;font-size:15px">{{ offlineToggleIcon }}</button>
+            </div>
+            <div style="display:flex;align-items:baseline;justify-content:space-between;margin-top:2px">
+              <div style="font-size:19px;font-weight:600">{{ hkOpenCount }} offene Zimmer</div>
+              <div style="font-size:12px;color:var(--navMuted);font-variant-numeric:tabular-nums">{{ hkDoneCount }} erledigt</div>
+            </div>
+          </div>
+          <sc-if value="{{ offline }}">
+            <div style="flex:none;background:var(--yellowBg);color:var(--yellow);padding:10px 18px;font-size:12.5px;font-weight:600;display:flex;align-items:center;gap:8px">
+              <span style="width:7px;height:7px;border-radius:50%;background:var(--yellow);flex:none"></span>
+              Offline – wird synchronisiert
+            </div>
+          </sc-if>
+          <div style="flex:1;overflow:auto;padding:14px;display:flex;flex-direction:column;gap:12px">
+            <sc-if value="{{ hkEmpty }}">
+              <div style="text-align:center;padding:60px 20px">
+                <div style="width:48px;height:48px;border-radius:12px;background:var(--surface2);display:grid;place-items:center;margin:0 auto 14px;font-size:20px;color:var(--green)">✓</div>
+                <div style="font-size:16px;font-weight:600;margin-bottom:6px">Alle Zimmer fertig</div>
+                <div style="font-size:13px;color:var(--text2);line-height:1.5">Keine offenen Aufgaben. Neue Zimmer erscheinen automatisch.</div>
+              </div>
+            </sc-if>
+            <sc-for list="{{ hkCards }}" as="c" hint-placeholder-count="4">
+              <div style="{{ c.cardStyle }}">
+                <sc-if value="{{ c.overdue }}">
+                  <div style="display:flex;align-items:center;gap:6px;padding:7px 16px;background:var(--redBg);color:var(--red);font-size:11.5px;font-weight:700">
+                    <span>⚠</span><span>Überfällig</span><span style="font-weight:500;opacity:.85">· {{ c.overdueText }}</span>
+                  </div>
+                </sc-if>
+                <div style="display:flex;align-items:flex-start;gap:12px;padding:16px 16px 12px">
+                  <div style="{{ c.dot }}"></div>
+                  <div style="flex:1;min-width:0">
+                    <div style="font-size:34px;font-weight:700;line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums">{{ c.room }}</div>
+                    <div style="font-size:12.5px;color:var(--text2);margin-top:4px">{{ c.cat }} · {{ c.kind }}</div>
+                  </div>
+                  <span style="{{ c.prioStyle }}">{{ c.prioLabel }}</span>
+                </div>
+                <button sc-camel-on-click="{{ c.toggle }}" style="width:100%;display:flex;align-items:center;justify-content:space-between;min-height:48px;padding:0 16px;border:0;background:transparent;cursor:pointer;color:var(--text);font-size:13.5px;font-weight:500;border-top:1px solid var(--line2)">
+                  <span>Checkliste ({{ c.doneN }}/{{ c.totalN }})</span>
+                  <span style="color:var(--text3)">{{ c.chevron }}</span>
+                </button>
+                <sc-if value="{{ c.expanded }}">
+                  <div style="padding:2px 16px 14px;display:flex;flex-direction:column;gap:2px">
+                    <sc-for list="{{ c.items }}" as="it" hint-placeholder-count="4">
+                      <label style="display:flex;align-items:center;gap:12px;min-height:44px;font-size:14px;cursor:pointer">
+                        <input type="checkbox" checked="{{ it.done }}" sc-camel-on-change="{{ it.toggle }}" style="width:22px;height:22px;flex:none;accent-color:var(--accent)">
+                        <span style="{{ it.style }}">{{ it.label }}</span>
+                      </label>
+                    </sc-for>
+                  </div>
+                </sc-if>
+                <div style="padding:10px 12px 14px;border-top:1px solid var(--line2);background:var(--surface3)">
+                  <button sc-camel-on-click="{{ c.finish }}" style="{{ c.finishStyle }}">✓ Fertig</button>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+      </sc-if>
+    </sc-if>
+
+    <sc-if value="{{ isOwner }}" hint-placeholder-val="{{ false }}">
+      <div style="flex:none;padding:12px 20px;border-bottom:1px solid var(--line);background:var(--surface);display:flex;align-items:center;gap:12px">
+        <div style="font-size:16.5px;font-weight:600">Kennzahlen</div>
+        <div style="flex:1"></div>
+        <div style="display:flex;gap:2px;background:var(--surface2);border-radius:9px;padding:3px">
+          <sc-for list="{{ ownerViews }}" as="v" hint-placeholder-count="2">
+            <button sc-camel-on-click="{{ v.pick }}" style="{{ v.style }}">{{ v.label }}</button>
+          </sc-for>
+        </div>
+      </div>
+
+      <sc-if value="{{ ownerDesktop }}">
+      <div style="flex:1;min-height:0;overflow:auto;padding:22px 26px 60px">
+        <div style="max-width:1220px;display:flex;flex-direction:column;gap:18px">
+          <div style="font-size:13px;color:var(--text2)">{{ ownerHotelName }} · {{ ownerDateLabel }}</div>
+          <div style="display:grid;grid-template-columns:280px 1fr;gap:16px;align-items:start">
+            <div style="display:grid;grid-template-columns:1fr;gap:12px">
+              <sc-for list="{{ ownerKpis }}" as="k" hint-placeholder-count="4">
+                <div style="background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 18px">
+                  <div style="font-size:10.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--text3);margin-bottom:6px">{{ k.label }}</div>
+                  <div style="font-size:27px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.01em;color:{{ k.color }}">{{ k.value }}</div>
+                  <div style="font-size:12px;color:{{ k.deltaColor }};margin-top:3px;font-variant-numeric:tabular-nums">{{ k.delta }}</div>
+                </div>
+              </sc-for>
+            </div>
+            <div style="background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px;height:100%">
+              <div style="font-size:14px;font-weight:600;margin-bottom:2px">Umsatz · letzte 7 Tage</div>
+              <div style="font-size:12px;color:var(--text2);margin-bottom:18px">{{ ownerWeekTotal }} gesamt</div>
+              <div style="display:flex;align-items:flex-end;gap:16px;height:220px">
+                <sc-for list="{{ ownerBars }}" as="d" hint-placeholder-count="7">
+                  <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;height:100%;justify-content:flex-end">
+                    <div style="font-size:11.5px;color:var(--text3);font-variant-numeric:tabular-nums">{{ d.valueLabel }}</div>
+                    <div style="{{ d.barStyle }}"></div>
+                    <div style="font-size:11.5px;color:var(--text3)">{{ d.day }}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:12px">
+              <span style="width:6px;height:6px;border-radius:50%;background:var(--violet)"></span>
+              <span style="font-size:13.5px;font-weight:600;color:var(--text)">KI-Manager</span>
+              <span style="font-size:12px;color:var(--text3)">· {{ ownerRecs.length }} Empfehlungen</span>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px">
+              <sc-for list="{{ ownerRecs }}" as="r" hint-placeholder-count="3">
+                <div style="background:var(--violetBg);border:1px solid var(--violetLine);border-radius:12px;padding:16px 18px">
+                  <div style="font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--violet);font-weight:600;margin-bottom:6px">{{ r.tag }}</div>
+                  <div style="font-size:14.5px;font-weight:600;color:var(--text);margin-bottom:4px">{{ r.title }}</div>
+                  <div style="font-size:12.5px;color:var(--text2);line-height:1.5;margin-bottom:12px">{{ r.reason }}</div>
+                  <div style="display:flex;gap:7px">
+                    <button sc-camel-on-click="{{ r.accept }}" style="flex:1;min-height:40px;border:0;border-radius:8px;background:var(--violet);color:#fff;font-size:12.5px;font-weight:600;cursor:pointer">Annehmen</button>
+                    <button sc-camel-on-click="{{ r.adjust }}" style="min-height:40px;padding:0 11px;border:1px solid var(--violetLine);border-radius:8px;background:transparent;color:var(--violet);font-size:12.5px;cursor:pointer">Anpassen</button>
+                    <button sc-camel-on-click="{{ r.reject }}" style="min-height:40px;padding:0 11px;border:1px solid var(--violetLine);border-radius:8px;background:transparent;color:var(--violet);font-size:12.5px;cursor:pointer">Ablehnen</button>
+                  </div>
+                </div>
+              </sc-for>
+              <sc-if value="{{ ownerNoRecs }}">
+                <div style="text-align:center;padding:24px;border:1px dashed var(--line);border-radius:12px;font-size:12.5px;color:var(--text3)">Keine offenen KI-Empfehlungen.</div>
+              </sc-if>
+            </div>
+          </div>
+        </div>
+      </div>
+      </sc-if>
+
+      <sc-if value="{{ !ownerDesktop }}">
+      <div style="flex:1;min-height:0;overflow:auto;background:var(--surface2);display:flex;justify-content:center;padding:22px 12px 60px">
+        <div style="width:390px;flex:none;background:var(--bg);border-radius:20px;box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;min-height:760px">
+          <div style="flex:none;background:var(--nav);color:var(--navText);padding:16px 18px 16px">
+            <div style="font-size:11px;color:var(--navMuted);letter-spacing:.04em;text-transform:uppercase;margin-bottom:2px">Kennzahlen · 390px</div>
+            <div style="font-size:19px;font-weight:600">{{ ownerHotelName }}</div>
+            <div style="font-size:12px;color:var(--navMuted)">{{ ownerDateLabel }}</div>
+          </div>
+
+          <div style="flex:1;overflow:auto;padding:16px;display:flex;flex-direction:column;gap:18px">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+              <sc-for list="{{ ownerKpis }}" as="k" hint-placeholder-count="4">
+                <div style="background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px">
+                  <div style="font-size:10.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--text3);margin-bottom:6px">{{ k.label }}</div>
+                  <div style="font-size:24px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.01em;color:{{ k.color }}">{{ k.value }}</div>
+                  <div style="font-size:11.5px;color:{{ k.deltaColor }};margin-top:3px;font-variant-numeric:tabular-nums">{{ k.delta }}</div>
+                </div>
+              </sc-for>
+            </div>
+
+            <div style="background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px">
+              <div style="font-size:13px;font-weight:600;margin-bottom:2px">Umsatz · letzte 7 Tage</div>
+              <div style="font-size:11.5px;color:var(--text2);margin-bottom:12px">{{ ownerWeekTotal }} gesamt</div>
+              <div style="display:flex;align-items:flex-end;gap:8px;height:110px">
+                <sc-for list="{{ ownerBars }}" as="d" hint-placeholder-count="7">
+                  <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;justify-content:flex-end">
+                    <div style="font-size:10px;color:var(--text3);font-variant-numeric:tabular-nums">{{ d.valueLabel }}</div>
+                    <div style="{{ d.barStyle }}"></div>
+                    <div style="font-size:10px;color:var(--text3)">{{ d.day }}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+
+            <div>
+              <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px">
+                <span style="width:6px;height:6px;border-radius:50%;background:var(--violet)"></span>
+                <span style="font-size:12.5px;font-weight:600;color:var(--text)">KI-Manager</span>
+                <span style="font-size:11px;color:var(--text3)">· {{ ownerRecs.length }} Empfehlungen</span>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <sc-for list="{{ ownerRecs }}" as="r" hint-placeholder-count="3">
+                  <div style="background:var(--violetBg);border:1px solid var(--violetLine);border-radius:12px;padding:13px 14px">
+                    <div style="font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--violet);font-weight:600;margin-bottom:5px">{{ r.tag }}</div>
+                    <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px">{{ r.title }}</div>
+                    <div style="font-size:12px;color:var(--text2);line-height:1.45;margin-bottom:10px">{{ r.reason }}</div>
+                    <div style="display:flex;gap:6px">
+                      <button sc-camel-on-click="{{ r.accept }}" style="flex:1;min-height:38px;border:0;border-radius:8px;background:var(--violet);color:#fff;font-size:12px;font-weight:600;cursor:pointer">Annehmen</button>
+                      <button sc-camel-on-click="{{ r.adjust }}" style="min-height:38px;padding:0 10px;border:1px solid var(--violetLine);border-radius:8px;background:transparent;color:var(--violet);font-size:12px;cursor:pointer">Anpassen</button>
+                      <button sc-camel-on-click="{{ r.reject }}" style="min-height:38px;padding:0 10px;border:1px solid var(--violetLine);border-radius:8px;background:transparent;color:var(--violet);font-size:12px;cursor:pointer">Ablehnen</button>
+                    </div>
+                  </div>
+                </sc-for>
+                <sc-if value="{{ ownerNoRecs }}">
+                  <div style="text-align:center;padding:20px;border:1px dashed var(--line);border-radius:12px;font-size:12.5px;color:var(--text3)">Keine offenen KI-Empfehlungen.</div>
+                </sc-if>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      </sc-if>
+    </sc-if>
+
+    <sc-if value="{{ isGuest }}" hint-placeholder-val="{{ false }}">
+      <div style="flex:none;padding:12px 20px;border-bottom:1px solid var(--line);background:var(--surface);display:flex;align-items:center;gap:10px">
+        <div style="font-size:16.5px;font-weight:600">Gäste-App</div>
+        <div style="flex:1"></div>
+        <label style="display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--text2);cursor:pointer">
+          <input type="checkbox" checked="{{ guestPreArrival }}" sc-camel-on-change="{{ onGuestPreArrival }}" style="width:16px;height:16px;accent-color:var(--accent)">
+          Vor-Anreise-Zustand zeigen
+        </label>
+      </div>
+      <div style="flex:1;min-height:0;overflow:auto;background:var(--surface2);display:flex;justify-content:center;padding:22px 12px 60px">
+        <div style="{{ guest.frameStyle }}">
+          <div style="flex:none;padding:26px 22px 20px">
+            <div style="font-size:13px;color:{{ guest.mutedOnBrand }}">{{ guest.greetingTime }}</div>
+            <div style="font-size:24px;font-weight:700;color:{{ guest.textOnBrand }};letter-spacing:-.01em;margin-top:2px;margin-bottom:20px">{{ guest.greeting }}</div>
+
+            <button sc-camel-on-click="{{ guest.mainAction }}" style="{{ guest.roomCardStyle }}">
+              <div style="text-align:left">
+                <div style="font-size:12px;color:{{ guest.mutedOnBrand }};margin-bottom:3px">{{ guest.mainEyebrow }}</div>
+                <div style="font-size:19px;font-weight:700;color:{{ guest.textOnBrand }}">{{ guest.mainTitle }}</div>
+              </div>
+              <div style="width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,.22);display:grid;place-items:center;font-size:20px;color:{{ guest.textOnBrand }}">{{ guest.mainIcon }}</div>
+            </button>
+          </div>
+
+          <div style="flex:1;overflow:auto;background:var(--bg);border-radius:24px 24px 0 0;padding:22px 18px 30px;display:flex;flex-direction:column;gap:20px">
+
+            <div>
+              <div style="font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--text3);margin-bottom:10px">Schnellzugriff</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                <sc-for list="{{ guest.tiles }}" as="t" hint-placeholder-count="4">
+                  <button sc-camel-on-click="{{ t.action }}" style="min-height:96px;display:flex;flex-direction:column;justify-content:center;gap:8px;padding:14px;border:1px solid var(--line);border-radius:16px;background:var(--surface);cursor:pointer;text-align:left">
+                    <span style="font-size:22px">{{ t.icon }}</span>
+                    <span style="font-size:13px;font-weight:600;color:var(--text)">{{ t.label }}</span>
+                  </button>
+                </sc-for>
+              </div>
+            </div>
+
+            <button sc-camel-on-click="{{ guest.openChat }}" style="display:flex;align-items:center;gap:12px;min-height:64px;padding:14px 16px;border:1px solid var(--line);border-radius:16px;background:var(--surface);cursor:pointer;text-align:left">
+              <span style="font-size:20px">💬</span>
+              <div style="flex:1">
+                <div style="font-size:13.5px;font-weight:600;color:var(--text)">Frage stellen</div>
+                <div style="font-size:11px;color:var(--text3);display:flex;align-items:center;gap:5px;margin-top:2px">
+                  <span style="width:5px;height:5px;border-radius:50%;background:var(--violet)"></span>KI-Assistent · antwortet automatisch
+                </div>
+              </div>
+              <span style="color:var(--text3)">›</span>
+            </button>
+
+            <button sc-camel-on-click="{{ guest.openFolio }}" style="display:flex;align-items:center;justify-content:space-between;min-height:48px;padding:0 2px;border:0;background:transparent;cursor:pointer;text-align:left">
+              <span style="font-size:12.5px;color:var(--text2)">Aktuelle Buchung &amp; Rechnung</span>
+              <span style="font-size:12.5px;color:var(--text3)">{{ guest.folioMeta }} ›</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isAiInbox }}" hint-placeholder-val="{{ false }}">
+      <div style="flex:1;min-height:0;display:flex">
+
+        <div style="width:300px;flex:none;background:var(--surface);border-right:1px solid var(--line);display:flex;flex-direction:column">
+          <div style="padding:16px 16px 12px;border-bottom:1px solid var(--line2)">
+            <div style="font-size:16px;font-weight:600">KI-Rezeption</div>
+            <div style="font-size:11.5px;color:var(--text2)">Alle Kanäle · {{ aiUnreadCount }} ungelesen</div>
+          </div>
+          <div style="flex:1;overflow:auto">
+            <sc-for list="{{ aiConvos }}" as="c" hint-placeholder-count="4">
+              <button sc-camel-on-click="{{ c.open }}" style="{{ c.rowStyle }}">
+                <div style="width:36px;height:36px;flex:none;border-radius:50%;background:var(--surface2);display:grid;place-items:center;font-size:11.5px;font-weight:600">{{ c.initials }}</div>
+                <div style="flex:1;min-width:0">
+                  <div style="display:flex;align-items:center;justify-content:space-between;gap:6px">
+                    <span style="font-size:13px;font-weight:{{ c.nameWeight }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.guest }}</span>
+                    <span style="font-size:14px;flex:none">{{ c.channelIcon }}</span>
+                  </div>
+                  <div style="font-size:12px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px">{{ c.preview }}</div>
+                </div>
+                <sc-if value="{{ c.unread }}"><span style="width:8px;height:8px;border-radius:50%;background:var(--accent);flex:none"></span></sc-if>
+              </button>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="flex:1;min-width:0;display:flex;flex-direction:column;background:var(--surface3)">
+          <div style="flex:none;background:var(--surface);border-bottom:1px solid var(--line);padding:14px 20px;display:flex;align-items:center;gap:10px">
+            <div style="font-size:14.5px;font-weight:600">{{ activeConvo.guest }}</div>
+            <span style="font-size:11px;color:var(--text3)">· {{ activeConvo.channel }}</span>
+          </div>
+          <div style="flex:1;overflow:auto;padding:20px;display:flex;flex-direction:column;gap:12px">
+            <sc-for list="{{ activeConvo.msgs }}" as="m" hint-placeholder-count="4">
+              <div style="{{ m.rowStyle }}">
+                <sc-if value="{{ m.isAi }}"><div style="font-size:10px;color:var(--violet);font-weight:600;letter-spacing:.04em;text-transform:uppercase;margin-bottom:3px">KI-Antwort</div></sc-if>
+                <div style="{{ m.bubbleStyle }}">{{ m.text }}</div>
+                <div style="font-size:10.5px;color:var(--text3);margin-top:3px">{{ m.time }}</div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="flex:none;padding:14px 20px 18px;background:var(--surface);border-top:1px solid var(--line)">
+            <sc-if value="{{ activeConvo.hasSuggestion }}">
+              <div style="background:var(--violetBg);border:1px solid var(--violetLine);border-radius:12px;padding:13px 14px;margin-bottom:10px">
+                <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+                  <span style="width:6px;height:6px;border-radius:50%;background:var(--violet)"></span>
+                  <span style="font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--violet);font-weight:600">KI-Antwortvorschlag</span>
+                </div>
+                <textarea value="{{ activeConvo.draft }}" sc-camel-on-change="{{ activeConvo.onDraftChange }}" rows="2" style="width:100%;border:1px solid var(--violetLine);border-radius:8px;padding:9px 10px;background:var(--surface);color:var(--text);font-size:13px;font-family:inherit;resize:vertical;margin-bottom:10px"></textarea>
+                <div style="display:flex;gap:7px">
+                  <button sc-camel-on-click="{{ activeConvo.send }}" style="flex:1;min-height:40px;border:0;border-radius:8px;background:var(--violet);color:#fff;font-size:12.5px;font-weight:600;cursor:pointer">Senden</button>
+                  <button sc-camel-on-click="{{ activeConvo.focusEdit }}" style="min-height:40px;padding:0 12px;border:1px solid var(--violetLine);border-radius:8px;background:transparent;color:var(--violet);font-size:12.5px;font-weight:500;cursor:pointer">Bearbeiten</button>
+                  <button sc-camel-on-click="{{ activeConvo.dismiss }}" style="min-height:40px;padding:0 12px;border:1px solid var(--violetLine);border-radius:8px;background:transparent;color:var(--violet);font-size:12.5px;font-weight:500;cursor:pointer">Verwerfen</button>
+                </div>
+              </div>
+            </sc-if>
+            <div style="display:flex;gap:8px">
+              <input value="{{ activeConvo.freeInput }}" sc-camel-on-change="{{ activeConvo.onFreeInput }}" placeholder="Eigene Nachricht schreiben …" style="flex:1;min-height:44px;padding:0 12px;border:1px solid var(--line);border-radius:9px;background:var(--surface3);color:var(--text);font-size:13.5px">
+              <button sc-camel-on-click="{{ activeConvo.send }}" style="min-height:44px;padding:0 18px;border:0;border-radius:9px;background:var(--accent);color:#fff;font-size:13px;font-weight:600;cursor:pointer">Senden</button>
+            </div>
+          </div>
+        </div>
+
+        <aside style="width:300px;flex:none;background:var(--surface);border-left:1px solid var(--line);overflow-y:auto;padding:16px">
+          <div style="display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;margin-bottom:16px">
+            <div style="width:52px;height:52px;border-radius:50%;background:var(--surface2);display:grid;place-items:center;font-size:16px;font-weight:600">{{ aiCtx.initials }}</div>
+            <div style="font-size:14.5px;font-weight:600">{{ activeConvo.guest }}</div>
+            <div style="font-size:11.5px;color:var(--text2)">{{ aiCtx.channel }}</div>
+          </div>
+          <sc-if value="{{ aiCtx.hasBooking }}">
+            <div style="font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--text3);margin-bottom:8px">Aktuelle Buchung</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line2);border:1px solid var(--line2);border-radius:10px;overflow:hidden;margin-bottom:16px">
+              <sc-for list="{{ aiCtx.facts }}" as="f" hint-placeholder-count="4">
+                <div style="background:var(--surface);padding:9px 11px">
+                  <div style="font-size:10.5px;color:var(--text3);letter-spacing:.05em;text-transform:uppercase;margin-bottom:2px">{{ f.k }}</div>
+                  <div style="font-size:13px;font-weight:500;font-variant-numeric:tabular-nums">{{ f.v }}</div>
+                </div>
+              </sc-for>
+            </div>
+            <button sc-camel-on-click="{{ aiCtx.openBooking }}" style="width:100%;min-height:40px;border:1px solid var(--line);border-radius:9px;background:var(--surface);color:var(--text);font-size:12.5px;font-weight:500;cursor:pointer;margin-bottom:16px">Im Belegungsplan öffnen</button>
+          </sc-if>
+          <sc-if value="{{ aiCtx.noBooking }}">
+            <div style="font-size:12.5px;color:var(--text3);text-align:center;padding:10px 0 16px">Keine aktive Buchung verknüpft.</div>
+          </sc-if>
+          <div style="font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--text3);margin-bottom:8px">Historie</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <sc-for list="{{ aiCtx.history }}" as="h" hint-placeholder-count="3">
+              <div style="display:flex;gap:9px;font-size:12px">
+                <span style="color:var(--text3);flex:none;width:56px">{{ h.when }}</span>
+                <span style="color:var(--text2);line-height:1.4">{{ h.what }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </aside>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isCheckin }}" hint-placeholder-val="{{ false }}">
+      <div style="flex:1;min-height:0;display:flex;flex-direction:column;background:var(--surface)">
+        <div style="flex:none;border-bottom:1px solid var(--line);padding:16px 28px 14px;display:flex;flex-direction:column;gap:12px">
+          <div style="display:flex;align-items:center;gap:14px">
+            <div style="flex:1">
+              <div style="font-size:16px;font-weight:600">Check-in · {{ ci.guest }}</div>
+              <div style="font-size:11.5px;color:var(--text2);font-variant-numeric:tabular-nums">{{ ci.roomLine }}</div>
+            </div>
+            <div style="font-size:12px;color:var(--text3);font-variant-numeric:tabular-nums" title="Zielzeit unter 60 Sekunden">⏱ {{ ci.elapsed }}</div>
+            <button sc-camel-on-click="{{ ciAbort }}" style="min-width:44px;min-height:44px;border:1px solid var(--line);background:var(--surface);color:var(--text2);border-radius:9px;cursor:pointer;font-size:13px;font-weight:500" style-hover="background:var(--surface2)">Abbrechen</button>
+          </div>
+          <div style="display:flex;gap:6px">
+            <sc-for list="{{ ci.steps }}" as="st" hint-placeholder-count="5">
+              <div style="flex:1;display:flex;flex-direction:column;gap:5px">
+                <div style="height:4px;border-radius:3px;background:{{ st.barColor }}"></div>
+                <div style="font-size:10.5px;color:{{ st.textColor }};font-weight:{{ st.weight }}">{{ st.label }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="flex:1;overflow:auto;display:flex;justify-content:center;padding:32px 20px">
+          <div style="width:100%;max-width:520px">
+
+            <sc-if value="{{ ci.step0 }}">
+              <div style="background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px">
+                <div style="font-size:17px;font-weight:600;margin-bottom:14px">Gast bestätigen</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line2);border:1px solid var(--line2);border-radius:10px;overflow:hidden;margin-bottom:18px">
+                  <sc-for list="{{ ci.facts }}" as="f" hint-placeholder-count="6">
+                    <div style="background:var(--surface);padding:10px 12px">
+                      <div style="font-size:10.5px;color:var(--text3);letter-spacing:.05em;text-transform:uppercase;margin-bottom:2px">{{ f.k }}</div>
+                      <div style="font-size:13.5px;font-weight:500;font-variant-numeric:tabular-nums">{{ f.v }}</div>
+                    </div>
+                  </sc-for>
+                </div>
+                <button sc-camel-on-click="{{ ciNext }}" style="width:100%;min-height:48px;border:0;border-radius:10px;background:var(--accent);color:#fff;font-size:14.5px;font-weight:600;cursor:pointer">Gast bestätigt – weiter</button>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ ci.step1 }}">
+              <div style="background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px">
+                <div style="font-size:17px;font-weight:600;margin-bottom:14px">Ausweis / Meldedaten</div>
+
+                <sc-if value="{{ ci.scanned }}">
+                  <div style="display:flex;align-items:center;gap:10px;background:var(--greenBg);border:1px solid var(--green);border-radius:10px;padding:10px 12px;margin-bottom:14px">
+                    <span style="color:var(--green);font-size:15px">✓</span>
+                    <span style="flex:1;font-size:12.5px;color:var(--text)">Ausweis vorab gescannt – Daten unten bitte nur bestätigen.</span>
+                    <button sc-camel-on-click="{{ ciRescan }}" style="min-height:36px;padding:0 10px;border:1px solid var(--line);border-radius:7px;background:var(--surface);color:var(--text2);font-size:12px;font-weight:500;cursor:pointer">↻ Erneut scannen</button>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ !ci.scanned }}">
+                  <div style="display:flex;gap:8px;margin-bottom:14px">
+                    <button sc-camel-on-click="{{ ciRescan }}" style="flex:1;min-height:64px;border:1.5px dashed var(--line);border-radius:10px;background:var(--surface3);color:var(--text2);font-size:12.5px;font-weight:500;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px">
+                      <span style="font-size:18px">📷</span>Kamera
+                    </button>
+                    <button sc-camel-on-click="{{ ciRescan }}" style="flex:1;min-height:64px;border:1.5px dashed var(--line);border-radius:10px;background:var(--surface3);color:var(--text2);font-size:12.5px;font-weight:500;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px">
+                      <span style="font-size:18px">📁</span>Datei hochladen
+                    </button>
+                  </div>
+                </sc-if>
+
+                <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:10px">
+                  <label style="display:flex;flex-direction:column;gap:5px">
+                    <span style="font-size:11.5px;color:var(--text2);font-weight:500">Ausweis- / Reisepassnummer</span>
+                    <input value="{{ ciAusweis }}" sc-camel-on-change="{{ onCiAusweis }}" placeholder="z. B. L01X00T47" style="{{ ci.fieldStyle }}">
+                  </label>
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                    <label style="display:flex;flex-direction:column;gap:5px">
+                      <span style="font-size:11.5px;color:var(--text2);font-weight:500">Nationalität</span>
+                      <sc-raw-select value="{{ ciNation }}" sc-camel-on-change="{{ onCiNation }}" style="{{ ci.fieldStyle }}">
+                        <sc-for list="{{ ci.countries }}" as="co" hint-placeholder-count="6">
+                          <option value="{{ co.code }}">{{ co.name }}</option>
+                        </sc-for>
+                      </sc-raw-select>
+                    </label>
+                    <label style="display:flex;flex-direction:column;gap:5px">
+                      <span style="font-size:11.5px;color:var(--text2);font-weight:500">Geburtsdatum</span>
+                      <input type="date" value="{{ ciDob }}" sc-camel-on-change="{{ onCiDob }}" style="{{ ci.fieldStyle }}">
+                    </label>
+                  </div>
+                </div>
+                <div style="font-size:11px;color:var(--text3);line-height:1.5;margin-bottom:16px">Meldedaten werden gemäß Beherbergungsstattung ausschließlich für die gesetzliche Gästeregistrierung gespeichert und nach den vorgeschriebenen Fristen gelöscht.</div>
+                <button sc-camel-on-click="{{ ciNext }}" disabled="{{ ci.step1Blocked }}" style="{{ ci.step1BtnStyle }}">Meldedaten bestätigt – weiter</button>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ ci.step2 }}">
+              <div style="background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px">
+                <div style="font-size:17px;font-weight:600;margin-bottom:14px">Zimmer zuweisen</div>
+                <div style="border:1.5px solid var(--accent);border-radius:12px;padding:14px 16px;margin-bottom:14px;display:flex;align-items:center;gap:12px">
+                  <div style="width:44px;height:44px;border-radius:10px;background:var(--surface2);display:grid;place-items:center;font-size:15px;font-weight:700;font-variant-numeric:tabular-nums">{{ ci.suggestedRoom }}</div>
+                  <div style="flex:1">
+                    <div style="font-size:13.5px;font-weight:600">Vorschlag · {{ ci.suggestedCat }}</div>
+                    <div style="font-size:11.5px;color:var(--text2)">Aus der Buchung übernommen</div>
+                  </div>
+                  <span style="font-size:10.5px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--violet)">KI-Vorschlag</span>
+                </div>
+
+                <sc-if value="{{ !ci.roomWarning }}">
+                  <sc-if value="{{ !ci.showAlt }}">
+                    <button sc-camel-on-click="{{ ciShowAlt }}" style="min-height:40px;padding:0 4px;border:0;background:transparent;color:var(--text2);font-size:12.5px;font-weight:500;cursor:pointer;text-decoration:underline;margin-bottom:14px">Anderes Zimmer der Kategorie {{ ci.suggestedCat }} wählen</button>
+                  </sc-if>
+                  <sc-if value="{{ ci.showAlt }}">
+                    <div style="margin-bottom:14px">
+                      <div style="font-size:11.5px;color:var(--text2);margin-bottom:8px">Freie Zimmer · {{ ci.suggestedCat }}</div>
+                      <div style="display:flex;gap:8px;flex-wrap:wrap">
+                        <sc-for list="{{ ci.freeAltRooms }}" as="r" hint-placeholder-count="3">
+                          <button sc-camel-on-click="{{ r.pick }}" style="min-height:40px;padding:0 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--text);font-size:12.5px;font-weight:500;cursor:pointer">Zi. {{ r.nr }}</button>
+                        </sc-for>
+                        <sc-if value="{{ ci.noFreeAlt }}"><div style="font-size:12px;color:var(--text3);padding:9px 0">Keine weiteren freien Zimmer dieser Kategorie.</div></sc-if>
+                      </div>
+                    </div>
+                  </sc-if>
+                </sc-if>
+
+                <sc-if value="{{ ci.roomWarning }}">
+                  <div style="background:var(--redBg);border:1px solid var(--red);border-radius:10px;padding:12px 14px;margin-bottom:14px">
+                    <div style="font-size:13px;font-weight:600;color:var(--red);margin-bottom:4px">Sicherheitsprüfung erforderlich</div>
+                    <div style="font-size:12.5px;color:var(--text);line-height:1.5;margin-bottom:10px">Zimmer {{ ci.suggestedRoom }} ist aktuell als „{{ ci.roomStatusLabel }}" markiert, nicht als frei. Bitte Status vor Ort prüfen oder ein alternatives Zimmer wählen.</div>
+                    <div style="display:flex;gap:8px;flex-wrap:wrap">
+                      <sc-for list="{{ ci.altRooms }}" as="r" hint-placeholder-count="2">
+                        <button sc-camel-on-click="{{ r.pick }}" style="min-height:40px;padding:0 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--text);font-size:12.5px;font-weight:500;cursor:pointer">Zi. {{ r.nr }} wählen</button>
+                      </sc-for>
+                      <button sc-camel-on-click="{{ ciOverrideRoom }}" style="min-height:40px;padding:0 12px;border:1px solid var(--red);border-radius:8px;background:transparent;color:var(--red);font-size:12.5px;font-weight:600;cursor:pointer">Trotzdem zuweisen (geprüft)</button>
+                    </div>
+                  </div>
+                </sc-if>
+
+                <button sc-camel-on-click="{{ ciNext }}" disabled="{{ ci.roomWarning }}" style="{{ ci.step2BtnStyle }}">{{ ci.step2BtnLabel }}</button>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ ci.step3 }}">
+              <div style="background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px">
+                <div style="font-size:17px;font-weight:600;margin-bottom:14px">Zahlung / Kaution</div>
+
+                <div style="border:1px solid var(--line2);border-radius:10px;overflow:hidden;margin-bottom:14px">
+                  <div style="display:flex;justify-content:space-between;padding:10px 14px;font-size:13px;color:var(--text2)">
+                    <span>Aufenthalt gesamt</span><span style="font-variant-numeric:tabular-nums;color:var(--text)">{{ ci.total }}</span>
+                  </div>
+                  <sc-if value="{{ ci.hasPrepaid }}">
+                    <div style="display:flex;justify-content:space-between;padding:10px 14px;font-size:13px;color:var(--green);background:var(--greenBg);border-top:1px solid var(--line2)">
+                      <span>Bereits bezahlt · {{ ci.channel }}</span><span style="font-variant-numeric:tabular-nums">– {{ ci.prepaid }}</span>
+                    </div>
+                  </sc-if>
+                  <div style="display:flex;justify-content:space-between;align-items:baseline;padding:12px 14px;font-size:14.5px;font-weight:700;border-top:1px solid var(--line2);background:var(--surface3)">
+                    <span>Jetzt fällig</span><span style="font-variant-numeric:tabular-nums">{{ ci.dueNow }}</span>
+                  </div>
+                </div>
+
+                <div style="display:flex;justify-content:space-between;align-items:center;border:1px dashed var(--line);border-radius:10px;padding:10px 14px;margin-bottom:16px">
+                  <div>
+                    <div style="font-size:13px;font-weight:600">Kaution (Vorautorisierung)</div>
+                    <div style="font-size:11.5px;color:var(--text3)">Wird reserviert, nicht abgebucht – Freigabe bei Check-out</div>
+                  </div>
+                  <div style="font-size:15px;font-weight:600;font-variant-numeric:tabular-nums">{{ ci.deposit }}</div>
+                </div>
+
+                <div style="font-size:11.5px;color:var(--text2);font-weight:500;margin-bottom:8px">Zahlungsart für Restbetrag</div>
+                <div style="display:flex;gap:8px;margin-bottom:18px">
+                  <sc-for list="{{ ci.payMethods }}" as="p" hint-placeholder-count="2">
+                    <button sc-camel-on-click="{{ p.pick }}" style="{{ p.style }}">
+                      <sc-if value="{{ p.active }}"><span>✓ </span></sc-if>{{ p.label }}
+                    </button>
+                  </sc-for>
+                </div>
+                <button sc-camel-on-click="{{ ciPayConfirm }}" style="width:100%;min-height:48px;border:0;border-radius:10px;background:var(--accent);color:#fff;font-size:14.5px;font-weight:600;cursor:pointer">Restbetrag belasten &amp; Kaution vorautorisieren</button>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ ci.step4 }}">
+              <div style="background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px;text-align:center">
+                <div style="font-size:17px;font-weight:600;margin-bottom:14px">Schlüssel</div>
+                <div style="font-size:13px;color:var(--text2);margin-bottom:6px;line-height:1.5">Schlüsselkarte für Zimmer {{ ci.finalRoom }} an das Lesegerät halten, um sie zu kodieren.</div>
+                <div style="font-size:12.5px;color:var(--text3);margin-bottom:18px">{{ ci.keysCoded }} kodiert</div>
+                <button sc-camel-on-click="{{ ciCodeKey }}" style="width:100%;min-height:48px;border:0;border-radius:10px;background:var(--accent);color:#fff;font-size:14.5px;font-weight:600;cursor:pointer;margin-bottom:9px">{{ ci.codeKeyLabel }}</button>
+                <sc-if value="{{ ci.canAddKey }}">
+                  <button sc-camel-on-click="{{ ciAddKey }}" style="width:100%;min-height:44px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--text);font-size:13px;font-weight:500;cursor:pointer;margin-bottom:9px">+ Zweite Schlüsselkarte kodieren</button>
+                </sc-if>
+                <button sc-camel-on-click="{{ ciSkipKey }}" style="width:100%;min-height:40px;border:0;background:transparent;color:var(--text3);font-size:12px;font-weight:500;cursor:pointer;text-decoration:underline">Kein Kartenleser verfügbar – ohne Kodierung abschließen</button>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ ci.step5 }}">
+              <div style="background:var(--surface);border:1px solid var(--green);border-radius:14px;padding:32px;text-align:center">
+                <div style="width:48px;height:48px;border-radius:50%;background:var(--greenBg);color:var(--green);display:grid;place-items:center;margin:0 auto 14px;font-size:22px">✓</div>
+                <div style="font-size:18px;font-weight:600;margin-bottom:6px">Check-in abgeschlossen</div>
+                <div style="font-size:13px;color:var(--text2);margin-bottom:18px">{{ ci.guest }} · Zimmer {{ ci.finalRoom }} · in {{ ci.elapsed }} · Status In-House</div>
+
+                <div style="text-align:left;background:var(--surface3);border-radius:10px;padding:14px 16px;margin-bottom:18px;display:flex;flex-direction:column;gap:9px">
+                  <div style="font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--text3)">Für den Gast</div>
+                  <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--text2)">Zeitraum</span><span style="font-weight:500">{{ ci.stayRange }}</span></div>
+                  <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--text2)">WLAN</span><span style="font-weight:500;font-family:'IBM Plex Mono',monospace">{{ ci.wifi }}</span></div>
+                  <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--text2)">Frühstück</span><span style="font-weight:500">{{ ci.breakfast }}</span></div>
+                  <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--text2)">Schlüsselkarten</span><span style="font-weight:500">{{ ci.keysCoded }}</span></div>
+                </div>
+
+                <div style="display:flex;gap:8px">
+                  <button sc-camel-on-click="{{ ciDoneToProfile }}" style="flex:1;min-height:48px;border:0;border-radius:10px;background:var(--accent);color:#fff;font-size:14px;font-weight:600;cursor:pointer">Zum Gast-Profil</button>
+                  <button sc-camel-on-click="{{ ciDone }}" style="flex:1;min-height:48px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--text);font-size:14px;font-weight:500;cursor:pointer">Zum Belegungsplan</button>
+                </div>
+              </div>
+            </sc-if>
+
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ showStandardChrome }}" hint-placeholder-val="{{ true }}">
+    <header style="flex:none;background:var(--surface);border-bottom:1px solid var(--line);padding:12px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+      <div style="min-width:150px">
+        <div style="font-size:16.5px;font-weight:600;letter-spacing:-.01em">{{ screenTitle }}</div>
+        <div style="font-size:11.5px;color:var(--text2);font-variant-numeric:tabular-nums">{{ screenSub }}</div>
+      </div>
+
+      <sc-if value="{{ isTape }}">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <div style="display:flex;align-items:center;gap:2px;background:var(--surface2);border-radius:9px;padding:3px">
+            <button sc-camel-on-click="{{ prev }}" style="min-width:36px;height:36px;border:0;background:transparent;border-radius:7px;cursor:pointer;color:var(--text);font-size:14px" style-hover="background:var(--surface)">‹</button>
+            <button sc-camel-on-click="{{ goToday }}" style="height:36px;padding:0 12px;border:0;background:transparent;border-radius:7px;cursor:pointer;color:var(--text);font-size:12.5px;font-weight:500" style-hover="background:var(--surface)">Heute</button>
+            <button sc-camel-on-click="{{ next }}" style="min-width:36px;height:36px;border:0;background:transparent;border-radius:7px;cursor:pointer;color:var(--text);font-size:14px" style-hover="background:var(--surface)">›</button>
+          </div>
+          <div style="font-size:12.5px;color:var(--text2);font-variant-numeric:tabular-nums;min-width:150px">{{ rangeLabel }}</div>
+          <div style="display:flex;gap:2px;background:var(--surface2);border-radius:9px;padding:3px">
+            <sc-for list="{{ ranges }}" as="r" hint-placeholder-count="3">
+              <button sc-camel-on-click="{{ r.pick }}" style="{{ r.style }}">{{ r.label }}</button>
+            </sc-for>
+          </div>
+        </div>
+        <div style="flex:1"></div>
+        <div style="position:relative">
+          <input value="{{ search }}" sc-camel-on-change="{{ onSearch }}" placeholder="Gast, Zimmer oder Buchungsnr. …" style="width:250px;min-height:40px;padding:8px 11px 8px 30px;border:1px solid var(--line);border-radius:9px;background:var(--surface3);color:var(--text);font-size:13px">
+          <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:12px">⌕</span>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isFront }}">
+        <div style="position:relative">
+          <input ref="{{ frontSearchRef }}" value="{{ frontSearch }}" sc-camel-on-change="{{ onFrontSearch }}" placeholder="Gastname, Zimmer oder Buchungsnr. … (⁄)" style="width:340px;min-height:44px;padding:9px 12px 9px 32px;border:1px solid var(--line);border-radius:9px;background:var(--surface3);color:var(--text);font-size:14px">
+          <span style="position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:13px">⌕</span>
+        </div>
+        <div style="flex:1"></div>
+      </sc-if>
+
+      <sc-if value="{{ isDS }}"><div style="flex:1"></div></sc-if>
+
+      <div sc-camel-on-click="{{ toggleOffline }}" title="Verbindungsstatus (Demo: klicken zum Umschalten)" style="{{ syncStyle }}">
+        <span style="{{ syncDot }}"></span>
+        <span>{{ syncLabel }}</span>
+      </div>
+      <button sc-camel-on-click="{{ newBooking }}" style="min-height:40px;padding:0 14px;border:0;border-radius:9px;background:var(--accent);color:var(--onAccent);font-size:13px;font-weight:600;cursor:pointer" style-hover="background:var(--accentHi)">Neue Buchung</button>
+    </header>
+
+    <sc-if value="{{ isTape }}">
+      <div style="flex:1;min-height:0;display:flex">
+
+        <aside style="width:206px;flex:none;min-height:0;height:100%;overflow-y:auto;background:var(--surface);border-right:1px solid var(--line);display:flex;flex-direction:column">
+          <div style="padding:14px 14px 10px;font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--text3)">Kategorien</div>
+          <div style="padding:0 10px;display:flex;flex-direction:column;gap:2px">
+            <sc-for list="{{ cats }}" as="c" hint-placeholder-count="3">
+              <label style="{{ c.style }}">
+                <input type="checkbox" checked="{{ c.on }}" sc-camel-on-change="{{ c.toggle }}" style="width:16px;height:16px;accent-color:var(--accent)">
+                <span style="flex:1">{{ c.label }}</span>
+                <span style="font-size:11.5px;color:var(--text3);font-variant-numeric:tabular-nums">{{ c.count }}</span>
+              </label>
+            </sc-for>
+          </div>
+          <div style="padding:16px 14px 8px;font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--text3)">Legende</div>
+          <div style="padding:0 14px;display:flex;flex-direction:column;gap:7px">
+            <sc-for list="{{ legend }}" as="l" hint-placeholder-count="5">
+              <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text2)">
+                <span style="{{ l.swatch }}"></span>{{ l.label }}
+              </div>
+            </sc-for>
+          </div>
+          <div style="flex:1;min-height:12px"></div>
+          <sc-if value="{{ aiSidebar }}" hint-placeholder-val="{{ true }}">
+          <div style="margin:12px;padding:11px;background:var(--violetBg);border:1px solid var(--violetLine);border-radius:10px">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px">
+              <span style="width:6px;height:6px;border-radius:50%;background:var(--violet)"></span>
+              <span style="font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--violet);font-weight:600">KI-Vorschlag</span>
+            </div>
+            <div style="font-size:12px;color:var(--text);line-height:1.45">{{ aiSidebarText }}</div>
+            <div style="font-size:11px;color:var(--text2);margin-top:5px;font-variant-numeric:tabular-nums">{{ aiSidebarMeta }}</div>
+            <div style="display:flex;flex-direction:column;gap:6px;margin-top:10px">
+              <button sc-camel-on-click="{{ acceptAiRange }}" style="min-height:40px;border:0;border-radius:8px;background:var(--violet);color:#fff;font-size:12.5px;font-weight:600;cursor:pointer">Annehmen</button>
+              <div style="display:flex;gap:6px">
+                <button sc-camel-on-click="{{ notImpl }}" style="flex:1;min-height:40px;border:1px solid var(--violetLine);border-radius:8px;background:transparent;color:var(--violet);font-size:12.5px;font-weight:500;cursor:pointer">Anpassen</button>
+                <button sc-camel-on-click="{{ rejectAiRange }}" style="flex:1;min-height:40px;border:1px solid var(--violetLine);border-radius:8px;background:transparent;color:var(--violet);font-size:12.5px;font-weight:500;cursor:pointer">Ablehnen</button>
+              </div>
+            </div>
+          </div>
+          </sc-if>
+        </aside>
+
+        <div style="flex:1;min-width:0;display:flex;flex-direction:column">
+          <sc-if value="{{ loading }}">
+            <div style="flex:1;padding:16px 18px;display:flex;flex-direction:column;gap:8px">
+              <sc-for list="{{ skeletons }}" as="s" hint-placeholder-count="9">
+                <div style="{{ s.style }}"></div>
+              </sc-for>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ showEmpty }}">
+            <div style="flex:1;display:grid;place-items:center;padding:40px">
+              <div style="text-align:center;max-width:320px">
+                <div style="width:44px;height:44px;border-radius:11px;background:var(--surface2);display:grid;place-items:center;margin:0 auto 12px;color:var(--text3)">▤</div>
+                <div style="font-weight:600;margin-bottom:5px">Keine Zimmer sichtbar</div>
+                <div style="font-size:12.5px;color:var(--text2);line-height:1.5;margin-bottom:14px">Alle Kategorien sind ausgefiltert. Aktiviere links mindestens eine Kategorie, um den Belegungsplan zu sehen.</div>
+                <button sc-camel-on-click="{{ resetCats }}" style="min-height:40px;padding:0 14px;border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:9px;font-size:13px;font-weight:500;cursor:pointer">Filter zurücksetzen</button>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ showChart }}">
+            <div ref="{{ scrollRef }}" style="flex:1;min-height:0;overflow:auto;background:var(--surface)">
+              <div style="display:flex;min-width:max-content;position:relative">
+
+                <div style="width:150px;flex:none;position:sticky;left:0;z-index:30;background:var(--surface);border-right:1px solid var(--line)">
+                  <div style="{{ cornerStyle }}">Zimmer</div>
+                  <sc-for list="{{ rows }}" as="r" hint-placeholder-count="12">
+                    <div style="{{ r.labelStyle }}">
+                      <span style="width:6px;height:6px;border-radius:50%;flex:none;background:{{ r.dotColor }}"></span>
+                      <span style="font-weight:600;font-variant-numeric:tabular-nums;font-size:13px">{{ r.nr }}</span>
+                      <span style="font-size:11px;color:var(--text3);margin-left:auto">{{ r.cat }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+
+                <div style="position:relative">
+                  <div style="{{ headerRowStyle }}">
+                    <sc-for list="{{ days }}" as="d" hint-placeholder-count="14">
+                      <button sc-camel-on-click="{{ d.click }}" style="{{ d.style }}">
+                        <span style="font-size:10.5px;color:var(--text3);text-transform:uppercase;letter-spacing:.04em">{{ d.wd }}</span>
+                        <span style="font-size:13px;font-weight:600;font-variant-numeric:tabular-nums">{{ d.dm }}</span>
+                        <span style="font-size:10.5px;color:var(--text2);font-variant-numeric:tabular-nums">{{ d.occ }}</span>
+                        <span style="{{ d.occBar }}"></span>
+                        <sc-if value="{{ d.ai }}"><span style="{{ d.aiStyle }}"></span></sc-if>
+                      </button>
+                    </sc-for>
+                  </div>
+
+                  <div ref="{{ bodyRef }}" sc-camel-on-pointer-down="{{ onBodyDown }}" style="{{ bodyStyle }}">
+                    <sc-for list="{{ stripes }}" as="s" hint-placeholder-count="4">
+                      <div style="{{ s.style }}"></div>
+                    </sc-for>
+                    <div style="{{ nowStyle }}"></div>
+                    <sc-for list="{{ bars }}" as="b" hint-placeholder-count="20">
+                      <div sc-camel-tab-index="0" role="button" sc-camel-on-pointer-down="{{ b.down }}" sc-camel-on-key-down="{{ b.key }}" sc-camel-on-click="{{ b.click }}" title="{{ b.title }}" style="{{ b.style }}">
+                        <span sc-camel-on-pointer-down="{{ b.resizeL }}" style="{{ b.handleL }}"></span>
+                        <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1">{{ b.guest }}</span>
+                        <span style="font-variant-numeric:tabular-nums;opacity:.8;font-size:10.5px">{{ b.nightsLabel }}</span>
+                        <span sc-camel-on-pointer-down="{{ b.resizeR }}" style="{{ b.handleR }}"></span>
+                      </div>
+                    </sc-for>
+                    <sc-if value="{{ ghost }}"><div style="{{ ghostStyle }}"></div></sc-if>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </sc-if>
+        </div>
+
+        <sc-if value="{{ sel }}">
+          <aside style="width:326px;flex:none;background:var(--surface);border-left:1px solid var(--line);display:flex;flex-direction:column;overflow:auto">
+            <div style="padding:14px 16px;border-bottom:1px solid var(--line2);display:flex;align-items:flex-start;gap:10px">
+              <div style="flex:1">
+                <div style="font-size:15.5px;font-weight:600">{{ sel.guest }}</div>
+                <div style="font-size:11.5px;color:var(--text2);font-variant-numeric:tabular-nums">{{ sel.nr }} · {{ sel.channel }}</div>
+              </div>
+              <button sc-camel-on-click="{{ closePanel }}" title="Panel einklappen" style="width:36px;height:36px;flex:none;border:1px solid var(--line);background:var(--surface);color:var(--text2);border-radius:8px;cursor:pointer" style-hover="background:var(--surface2)">›</button>
+            </div>
+
+            <div style="padding:12px 16px;display:flex;flex-direction:column;gap:12px">
+              <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap">
+                <span style="{{ sel.chipStyle }}">{{ sel.statusLabel }}</span>
+                <sc-if value="{{ sel.balanceOpen }}"><span style="display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;background:var(--redBg);color:var(--red);font-size:11.5px;font-weight:600;font-variant-numeric:tabular-nums">Offener Saldo {{ sel.saldo }}</span></sc-if>
+              </div>
+
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line2);border:1px solid var(--line2);border-radius:10px;overflow:hidden">
+                <sc-for list="{{ sel.facts }}" as="f" hint-placeholder-count="6">
+                  <div style="background:var(--surface);padding:9px 11px">
+                    <div style="font-size:10.5px;color:var(--text3);letter-spacing:.05em;text-transform:uppercase;margin-bottom:2px">{{ f.k }}</div>
+                    <div style="font-size:13px;font-weight:500;font-variant-numeric:tabular-nums">{{ f.v }}</div>
+                  </div>
+                </sc-for>
+              </div>
+
+              <div style="border:1px solid var(--violetLine);background:var(--violetBg);border-radius:10px;padding:11px">
+                <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px">
+                  <span style="width:6px;height:6px;border-radius:50%;background:var(--violet)"></span>
+                  <span style="font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--violet);font-weight:600">KI-Vorschlag</span>
+                </div>
+                <div style="font-size:12.5px;line-height:1.5;color:var(--text)">{{ sel.aiText }}</div>
+                <div style="display:flex;gap:6px;margin-top:9px">
+                  <button sc-camel-on-click="{{ acceptAiPanel }}" style="flex:1;min-height:36px;border:0;border-radius:8px;background:var(--violet);color:#fff;font-size:12.5px;font-weight:600;cursor:pointer">Annehmen</button>
+                  <button sc-camel-on-click="{{ dismissAiPanel }}" style="min-height:36px;padding:0 11px;border:1px solid var(--violetLine);border-radius:8px;background:transparent;color:var(--violet);font-size:12.5px;font-weight:500;cursor:pointer">Ablehnen</button>
+                </div>
+              </div>
+
+              <div>
+                <div style="font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--text3);margin-bottom:7px">Verlauf</div>
+                <div style="display:flex;flex-direction:column;gap:8px">
+                  <sc-for list="{{ sel.timeline }}" as="t" hint-placeholder-count="3">
+                    <div style="display:flex;gap:9px;font-size:12px">
+                      <span style="color:var(--text3);font-variant-numeric:tabular-nums;flex:none;width:64px">{{ t.when }}</span>
+                      <span style="color:var(--text2);line-height:1.4">{{ t.what }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </div>
+
+            <div style="flex:1"></div>
+            <div style="position:sticky;bottom:0;background:var(--surface);border-top:1px solid var(--line2);padding:12px 16px;display:flex;flex-direction:column;gap:7px">
+              <button sc-camel-on-click="{{ checkIn }}" style="min-height:44px;border:0;border-radius:9px;background:var(--accent);color:var(--onAccent);font-size:13.5px;font-weight:600;cursor:pointer" style-hover="background:var(--accentHi)">{{ sel.primaryLabel }}</button>
+              <div style="display:flex;gap:7px">
+                <button sc-camel-on-click="{{ notImpl }}" style="flex:1;min-height:40px;border:1px solid var(--line);border-radius:9px;background:var(--surface);color:var(--text);font-size:12.5px;font-weight:500;cursor:pointer" style-hover="background:var(--surface2)">Rechnung</button>
+                <button sc-camel-on-click="{{ notImpl }}" style="flex:1;min-height:40px;border:1px solid var(--line);border-radius:9px;background:var(--surface);color:var(--text);font-size:12.5px;font-weight:500;cursor:pointer" style-hover="background:var(--surface2)">Notiz</button>
+                <button sc-camel-on-click="{{ askCancel }}" style="min-height:40px;padding:0 12px;border:1px solid var(--line);border-radius:9px;background:var(--surface);color:var(--red);font-size:12.5px;font-weight:600;cursor:pointer" style-hover="background:var(--redBg)">Storno</button>
+              </div>
+            </div>
+          </aside>
+        </sc-if>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isFront }}">
+      <div style="flex:1;min-height:0;display:flex">
+        <div style="flex:1;min-width:0;overflow:auto;padding:18px 20px 40px;display:grid;grid-template-columns:repeat(3,1fr);gap:16px;align-content:start">
+          <sc-for list="{{ frontCols }}" as="col" hint-placeholder-count="3">
+            <section>
+              <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:10px;padding:0 2px">
+                <div style="font-size:13px;font-weight:600">{{ col.title }}</div>
+                <div style="font-size:12px;color:var(--text3);font-variant-numeric:tabular-nums">{{ col.count }}</div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:8px">
+                <sc-if value="{{ col.empty }}">
+                  <div style="border:1px dashed var(--line);border-radius:10px;padding:20px;text-align:center;font-size:12.5px;color:var(--text3)">{{ col.emptyText }}</div>
+                </sc-if>
+                <sc-for list="{{ col.guests }}" as="g" hint-placeholder-count="3">
+                  <button sc-camel-on-click="{{ g.open }}" style="text-align:left;display:flex;align-items:center;gap:10px;min-height:64px;padding:10px 12px;background:var(--surface);border:1px solid var(--line);border-radius:10px;cursor:pointer" style-hover="border-color:var(--text3)">
+                    <div style="width:34px;height:34px;flex:none;border-radius:50%;background:var(--surface2);display:grid;place-items:center;font-size:11.5px;font-weight:600">{{ g.initials }}</div>
+                    <div style="flex:1;min-width:0">
+                      <div style="font-size:13.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ g.guest }}</div>
+                      <div style="font-size:11.5px;color:var(--text2);font-variant-numeric:tabular-nums">Zi. {{ g.room }} · {{ g.nr }}</div>
+                    </div>
+                    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
+                      <span style="{{ g.chipStyle }}">{{ g.chipLabel }}</span>
+                      <span style="font-size:10px;color:var(--text3)">{{ g.saldoCaption }}</span>
+                      <span style="{{ g.saldoStyle }}">{{ g.saldo }}</span>
+                    </div>
+                  </button>
+                </sc-for>
+              </div>
+            </section>
+          </sc-for>
+        </div>
+
+        <aside style="width:280px;flex:none;background:var(--surface);border-left:1px solid var(--line);overflow-y:auto;padding:16px">
+          <div style="font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--text3);margin-bottom:10px">Heute</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px">
+            <sc-for list="{{ todayStats }}" as="t" hint-placeholder-count="4">
+              <div style="background:var(--surface3);border-radius:9px;padding:10px 11px">
+                <div style="font-size:10.5px;color:var(--text3)">{{ t.k }}</div>
+                <div style="font-size:19px;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.01em">{{ t.v }}</div>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--text3);margin-bottom:8px">Offene Aufgaben</div>
+          <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:16px">
+            <sc-for list="{{ frontTasks }}" as="ta" hint-placeholder-count="3">
+              <div style="display:flex;align-items:center;gap:8px;font-size:12.5px;padding:7px 0;border-bottom:1px solid var(--line2)">
+                <span style="width:6px;height:6px;border-radius:50%;flex:none;background:{{ ta.color }}"></span>
+                <span style="flex:1;color:var(--text)">{{ ta.label }}</span>
+              </div>
+            </sc-for>
+          </div>
+
+          <sc-if value="{{ frontAi }}">
+            <button sc-camel-on-click="{{ goAiInbox }}" style="width:100%;text-align:left;background:var(--violetBg);border:1px solid var(--violetLine);border-radius:10px;padding:11px;cursor:pointer" style-hover="border-color:var(--violet)">
+              <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px">
+                <span style="width:6px;height:6px;border-radius:50%;background:var(--violet)"></span>
+                <span style="font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--violet);font-weight:600">KI-Hinweise</span>
+              </div>
+              <div style="font-size:12.5px;line-height:1.45;color:var(--text)">{{ frontAiText }}</div>
+              <div style="font-size:11.5px;color:var(--violet);font-weight:600;margin-top:6px">Alle {{ frontAiCount }} KI-Hinweise ansehen →</div>
+            </button>
+          </sc-if>
+        </aside>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isDS }}">
+      <div style="flex:1;min-height:0;overflow:auto;padding:26px 30px 60px">
+        <div style="max-width:1000px;display:flex;flex-direction:column;gap:26px">
+
+          <div>
+            <div style="font-size:22px;font-weight:600;letter-spacing:-.02em;margin-bottom:5px">Design-System</div>
+            <div style="font-size:13.5px;color:var(--text2);max-width:560px;line-height:1.55">Grundlage aller Hotel OS Screens. Ruhig, dicht, kontrastsicher (WCAG 2.1 AA), Zahlen tabellarisch. Violett ist ausschließlich für KI-Ausgaben reserviert.</div>
+          </div>
+
+          <section>
+            <div style="font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--text3);margin-bottom:10px">Farbwelt</div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:10px">
+              <sc-for list="{{ dsColors }}" as="c" hint-placeholder-count="8">
+                <div style="border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface)">
+                  <div style="{{ c.swatch }}"></div>
+                  <div style="padding:8px 10px">
+                    <div style="font-size:12.5px;font-weight:500">{{ c.name }}</div>
+                    <div style="font-size:11px;color:var(--text3);font-family:'IBM Plex Mono',monospace">{{ c.token }}</div>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </section>
+
+          <section>
+            <div style="font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--text3);margin-bottom:10px">Typografie · IBM Plex Sans</div>
+            <div style="background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px 20px;display:flex;flex-direction:column;gap:12px">
+              <sc-for list="{{ dsType }}" as="t" hint-placeholder-count="5">
+                <div style="display:flex;align-items:baseline;gap:18px;border-bottom:1px solid var(--line2);padding-bottom:11px">
+                  <div style="width:120px;flex:none;font-size:11px;color:var(--text3);font-family:'IBM Plex Mono',monospace">{{ t.spec }}</div>
+                  <div style="{{ t.style }}">{{ t.sample }}</div>
+                </div>
+              </sc-for>
+              <div style="display:flex;align-items:baseline;gap:18px">
+                <div style="width:120px;flex:none;font-size:11px;color:var(--text3);font-family:'IBM Plex Mono',monospace">tabular-nums</div>
+                <div style="font-variant-numeric:tabular-nums;font-size:15px">184,00 € · 1.204 € · 78,4 % · ADR 142,50 €</div>
+              </div>
+            </div>
+          </section>
+
+          <section>
+            <div style="font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--text3);margin-bottom:10px">Buttons · Ziele min. 44 px</div>
+            <div style="background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px 20px;display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+              <button style="min-height:44px;padding:0 16px;border:0;border-radius:9px;background:var(--accent);color:var(--onAccent);font-size:13.5px;font-weight:600;cursor:pointer" style-hover="background:var(--accentHi)">Check-in starten</button>
+              <button style="min-height:44px;padding:0 16px;border:1px solid var(--line);border-radius:9px;background:var(--surface);color:var(--text);font-size:13.5px;font-weight:500;cursor:pointer" style-hover="background:var(--surface2)">Sekundär</button>
+              <button style="min-height:44px;padding:0 16px;border:0;border-radius:9px;background:transparent;color:var(--accent);font-size:13.5px;font-weight:600;cursor:pointer" style-hover="background:var(--surface2)">Tertiär</button>
+              <button style="min-height:44px;padding:0 16px;border:1px solid var(--line);border-radius:9px;background:var(--surface);color:var(--red);font-size:13.5px;font-weight:600;cursor:pointer" style-hover="background:var(--redBg)">Storno</button>
+              <button style="min-height:44px;padding:0 16px;border:0;border-radius:9px;background:var(--violet);color:#fff;font-size:13.5px;font-weight:600;cursor:pointer">KI übernehmen</button>
+              <button disabled="true" style="min-height:44px;padding:0 16px;border:1px solid var(--line2);border-radius:9px;background:var(--surface2);color:var(--text3);font-size:13.5px;font-weight:500;cursor:not-allowed">Deaktiviert</button>
+            </div>
+          </section>
+
+          <section>
+            <div style="font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--text3);margin-bottom:10px">Status-Chips &amp; Balken</div>
+            <div style="background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px 20px;display:flex;flex-direction:column;gap:14px">
+              <div style="display:flex;gap:8px;flex-wrap:wrap">
+                <sc-for list="{{ dsChips }}" as="c" hint-placeholder-count="6">
+                  <span style="{{ c.style }}">{{ c.label }}</span>
+                </sc-for>
+              </div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap">
+                <sc-for list="{{ dsBars }}" as="b" hint-placeholder-count="5">
+                  <div style="{{ b.style }}">{{ b.label }}</div>
+                </sc-for>
+              </div>
+            </div>
+          </section>
+
+          <section>
+            <div style="font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--text3);margin-bottom:10px">Karten · Kennzahl, Gast, KI</div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px">
+              <div style="background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:15px 16px">
+                <div style="font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--text3)">Auslastung heute</div>
+                <div style="font-size:30px;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.02em;margin:4px 0 2px">78,4 %</div>
+                <div style="font-size:12px;color:var(--green);font-variant-numeric:tabular-nums">+6,1 % vs. Vorwoche</div>
+              </div>
+              <div style="background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:15px 16px;display:flex;flex-direction:column;gap:8px">
+                <div style="display:flex;align-items:center;gap:10px">
+                  <div style="width:34px;height:34px;border-radius:50%;background:var(--surface2);display:grid;place-items:center;font-size:12px;font-weight:600">AB</div>
+                  <div style="flex:1;min-width:0">
+                    <div style="font-size:13.5px;font-weight:600">Böhm, Katrin</div>
+                    <div style="font-size:11.5px;color:var(--text2);font-variant-numeric:tabular-nums">Zi. 204 · 3 Nächte</div>
+                  </div>
+                  <span style="padding:3px 9px;border-radius:20px;background:var(--blueBg);color:var(--blue);font-size:11px;font-weight:600">In-House</span>
+                </div>
+                <button style="min-height:40px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--text);font-size:12.5px;font-weight:500;cursor:pointer" style-hover="background:var(--surface2)">Öffnen</button>
+              </div>
+              <div style="background:var(--violetBg);border:1px solid var(--violetLine);border-radius:12px;padding:15px 16px">
+                <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+                  <span style="width:6px;height:6px;border-radius:50%;background:var(--violet)"></span>
+                  <span style="font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--violet);font-weight:600">KI-Vorschlag</span>
+                </div>
+                <div style="font-size:13px;line-height:1.5">Preis Fr–So um 12 % erhöhen – hohe Nachfrage erkannt.</div>
+                <div style="display:flex;gap:6px;margin-top:10px">
+                  <button style="flex:1;min-height:40px;border:0;border-radius:8px;background:var(--violet);color:#fff;font-size:12.5px;font-weight:600;cursor:pointer">Annehmen</button>
+                  <button style="min-height:40px;padding:0 11px;border:1px solid var(--violetLine);border-radius:8px;background:transparent;color:var(--violet);font-size:12.5px;cursor:pointer">Anpassen</button>
+                  <button style="min-height:40px;padding:0 11px;border:1px solid var(--violetLine);border-radius:8px;background:transparent;color:var(--violet);font-size:12.5px;cursor:pointer">Ablehnen</button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section>
+            <div style="font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--text3);margin-bottom:10px">Formularelemente</div>
+            <div style="background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px 20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px">
+              <label style="display:flex;flex-direction:column;gap:5px">
+                <span style="font-size:11.5px;color:var(--text2);font-weight:500">Gastname</span>
+                <input placeholder="Nachname, Vorname" style="min-height:44px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:var(--surface3);color:var(--text);font-size:13.5px">
+              </label>
+              <label style="display:flex;flex-direction:column;gap:5px">
+                <span style="font-size:11.5px;color:var(--text2);font-weight:500">Kategorie</span>
+                <sc-raw-select style="min-height:44px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:var(--surface3);color:var(--text);font-size:13.5px">
+                  <option>Standard</option><option>Komfort</option><option>Suite</option>
+                </sc-raw-select>
+              </label>
+              <label style="display:flex;flex-direction:column;gap:5px">
+                <span style="font-size:11.5px;color:var(--red);font-weight:500">Ausweisnummer</span>
+                <input value="L01X0" style="min-height:44px;padding:9px 11px;border:1.5px solid var(--red);border-radius:9px;background:var(--surface3);color:var(--text);font-size:13.5px">
+                <span style="font-size:11.5px;color:var(--red)">Meldepflicht: Nummer unvollständig.</span>
+              </label>
+              <div style="display:flex;flex-direction:column;gap:9px;justify-content:center">
+                <label style="display:flex;align-items:center;gap:9px;min-height:44px;font-size:13.5px"><input type="checkbox" checked="true" style="width:18px;height:18px;accent-color:var(--accent)">Frühstück inklusive</label>
+                <label style="display:flex;align-items:center;gap:9px;min-height:44px;font-size:13.5px"><input type="radio" checked="true" name="pay" style="width:18px;height:18px;accent-color:var(--accent)">Kartenzahlung</label>
+              </div>
+            </div>
+          </section>
+
+          <section>
+            <div style="font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--text3);margin-bottom:10px">Zustände</div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px">
+              <div style="background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:15px 16px">
+                <div style="font-size:12px;font-weight:600;margin-bottom:10px">Laden</div>
+                <div style="display:flex;flex-direction:column;gap:7px">
+                  <sc-for list="{{ dsSkeletons }}" as="s" hint-placeholder-count="3">
+                    <div style="{{ s.style }}"></div>
+                  </sc-for>
+                </div>
+              </div>
+              <div style="background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:15px 16px">
+                <div style="font-size:12px;font-weight:600;margin-bottom:10px">Leer</div>
+                <div style="text-align:center;padding:6px 0 2px">
+                  <div style="width:34px;height:34px;border-radius:9px;background:var(--surface2);display:grid;place-items:center;margin:0 auto 8px;color:var(--text3)">☰</div>
+                  <div style="font-size:12.5px;color:var(--text2);line-height:1.45">Keine Aufgaben offen. Alle Zimmer sind freigegeben.</div>
+                </div>
+              </div>
+              <div style="background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:15px 16px;display:flex;flex-direction:column;gap:9px">
+                <div style="font-size:12px;font-weight:600">Offline &amp; Konflikt</div>
+                <div style="background:var(--yellowBg);color:var(--yellow);border-radius:8px;padding:8px 10px;font-size:12px;font-weight:500">Offline – wird synchronisiert</div>
+                <div style="background:var(--redBg);color:var(--red);border-radius:8px;padding:8px 10px;font-size:12px;font-weight:500">Konflikt: Zi. 214 ist im Zeitraum belegt</div>
+              </div>
+            </div>
+          </section>
+
+          <section>
+            <div style="font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--text3);margin-bottom:10px">Bestätigung bei zerstörerischer Aktion</div>
+            <div style="background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:18px 20px;max-width:400px">
+              <div style="font-size:15px;font-weight:600;margin-bottom:6px">Buchung stornieren?</div>
+              <div style="font-size:13px;color:var(--text2);line-height:1.5;margin-bottom:14px">HO-2026-1042 · Böhm, Katrin · 24.–27. Aug. Stornogebühr 1 Nacht (184,00 €) wird berechnet. Aktion kann nicht rückgängig gemacht werden.</div>
+              <div style="display:flex;gap:8px;justify-content:flex-end">
+                <button style="min-height:44px;padding:0 14px;border:1px solid var(--line);border-radius:9px;background:var(--surface);color:var(--text);font-size:13px;font-weight:500;cursor:pointer">Abbrechen</button>
+                <button style="min-height:44px;padding:0 14px;border:0;border-radius:9px;background:var(--red);color:#fff;font-size:13px;font-weight:600;cursor:pointer">Endgültig stornieren</button>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </sc-if>
+    </sc-if>
+  </main>
+
+
+  <sc-if value="{{ confirmOpen }}">
+    <div style="position:fixed;inset:0;z-index:80;background:rgba(10,18,26,.5);display:grid;place-items:center;padding:24px">
+      <div role="dialog" style="width:100%;max-width:420px;background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:20px 22px">
+        <div style="font-size:16px;font-weight:600;margin-bottom:7px">Buchung stornieren?</div>
+        <div style="font-size:13px;color:var(--text2);line-height:1.55;margin-bottom:16px">{{ confirmText }}</div>
+        <div style="display:flex;gap:8px;justify-content:flex-end">
+          <button sc-camel-on-click="{{ cancelConfirm }}" style="min-height:44px;padding:0 15px;border:1px solid var(--line);border-radius:9px;background:var(--surface);color:var(--text);font-size:13px;font-weight:500;cursor:pointer" style-hover="background:var(--surface2)">Abbrechen</button>
+          <button sc-camel-on-click="{{ doCancel }}" style="min-height:44px;padding:0 15px;border:0;border-radius:9px;background:var(--red);color:#fff;font-size:13px;font-weight:600;cursor:pointer">Endgültig stornieren</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ aiCard }}">
+    <div style="position:fixed;right:22px;bottom:22px;z-index:70;width:330px;background:var(--violetBg);border:1px solid var(--violetLine);border-radius:12px;box-shadow:var(--shadow);padding:15px 16px">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+        <span style="width:6px;height:6px;border-radius:50%;background:var(--violet)"></span>
+        <span style="font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--violet);font-weight:600">KI-Vorschlag · Preis</span>
+        <span style="flex:1"></span>
+        <button sc-camel-on-click="{{ closeAi }}" style="width:26px;height:26px;border:0;background:transparent;color:var(--violet);cursor:pointer;border-radius:6px">✕</button>
+      </div>
+      <div style="font-size:13.5px;line-height:1.5;color:var(--text)">{{ aiCardText }}</div>
+      <div style="font-size:11.5px;color:var(--text2);margin-top:6px;font-variant-numeric:tabular-nums">{{ aiCardMeta }}</div>
+      <div style="display:flex;gap:6px;margin-top:11px">
+        <button sc-camel-on-click="{{ acceptAi }}" style="flex:1;min-height:40px;border:0;border-radius:8px;background:var(--violet);color:#fff;font-size:12.5px;font-weight:600;cursor:pointer">Annehmen</button>
+        <button sc-camel-on-click="{{ notImpl }}" style="min-height:40px;padding:0 11px;border:1px solid var(--violetLine);border-radius:8px;background:transparent;color:var(--violet);font-size:12.5px;cursor:pointer">Anpassen</button>
+        <button sc-camel-on-click="{{ closeAi }}" style="min-height:40px;padding:0 11px;border:1px solid var(--violetLine);border-radius:8px;background:transparent;color:var(--violet);font-size:12.5px;cursor:pointer">Ablehnen</button>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ toast }}">
+    <div style="{{ toastStyle }}">{{ toastText }}</div>
+  </sc-if>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script="" data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900},&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;light&quot;,&quot;dark&quot;],&quot;default&quot;:&quot;light&quot;,&quot;tsType&quot;:&quot;'light' | 'dark'&quot;,&quot;section&quot;:&quot;Darstellung&quot;},&quot;accent&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#9A5C2C&quot;,&quot;options&quot;:[&quot;#9A5C2C&quot;,&quot;#8C4A28&quot;,&quot;#6B5B2E&quot;,&quot;#2F5F4E&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Darstellung&quot;},&quot;density&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;normal&quot;,&quot;kompakt&quot;],&quot;default&quot;:&quot;normal&quot;,&quot;tsType&quot;:&quot;'normal' | 'kompakt'&quot;,&quot;section&quot;:&quot;Darstellung&quot;},&quot;aiHighlights&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Verhalten&quot;},&quot;guestBrand&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#9C6B4A&quot;,&quot;options&quot;:[&quot;#9C6B4A&quot;,&quot;#4F6F5C&quot;,&quot;#5B6BA8&quot;,&quot;#B4703A&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Gäste-App Branding&quot;}}">
+class Component extends DCLogic {
+  constructor(props){
+    super(props);
+    const today = new Date(); today.setHours(0,0,0,0);
+    this.today = today;
+    this.seed = 20260821;
+    const rooms = this.genRooms();
+    this.cleaning = {};
+    rooms.forEach(r=>{ if(this.rnd() < 0.16) this.cleaning[r.nr] = true; });
+    const checklists = {
+      Abreise:['Bettwäsche wechseln','Bad reinigen & auffüllen','Staubsaugen','Müll leeren','Minibar kontrollieren','Fenster prüfen'],
+      Zwischen:['Bett machen','Handtücher tauschen','Bad kurz reinigen','Müll leeren'],
+      Ankunft:['Endkontrolle','Frisches Wasser aufstellen','Temperatur prüfen']
+    };
+    this.convos = [
+      {id:'C1', guest:'Claire Ferrant', channel:'WhatsApp', room:'102', unread:true,
+        msgs:[
+          {from:'guest', text:'Hallo! Können wir bei Anreise schon einparken, auch wenn das Zimmer noch nicht fertig ist?', time:'14:02'},
+          {from:'ai', text:'Ja, die Tiefgarage steht Ihnen ab Ankunft zur Verfügung. Ihr Zimmer ist voraussichtlich ab 15:00 Uhr bezugsfertig.', time:'14:03'}
+        ],
+        suggestion:'Gerne! Sie können jederzeit in unserer Tiefgarage parken – auch vor dem offiziellen Check-in um 15:00 Uhr. Ihr Gepäck nehmen wir bis dahin gerne an der Rezeption entgegen.'},
+      {id:'C2', guest:'Ilja Petrov', channel:'Mail', room:'207', unread:true,
+        msgs:[
+          {from:'guest', text:'Guten Tag, ich hätte gern ein Zustellbett für unser Zimmer, wir kommen mit unserer Tochter.', time:'11:20'}
+        ],
+        suggestion:'Guten Tag Herr Petrov, sehr gerne stellen wir ein Zustellbett für Zimmer 207 bereit. Es wird bis zu Ihrer Anreise am 24.08. aufgebaut. Sonst noch Wünsche?'},
+      {id:'C3', guest:'Mette Sandvik', channel:'Web-Chat', room:'—', unread:true,
+        msgs:[
+          {from:'guest', text:'Ist um diese Jahreszeit das Restaurant abends geöffnet?', time:'19:44'},
+          {from:'ai', text:'Ja, unser Restaurant hat täglich von 18:30 bis 22:00 Uhr geöffnet.', time:'19:44'},
+          {from:'guest', text:'Perfekt, danke! Braucht man eine Reservierung?', time:'19:45'}
+        ],
+        suggestion:'Eine Reservierung ist empfehlenswert, besonders am Wochenende. Soll ich Ihnen gleich einen Tisch für heute Abend reservieren?'},
+      {id:'C4', guest:'Vincent Bauer', channel:'WhatsApp', room:'311', unread:false,
+        msgs:[
+          {from:'guest', text:'Vielen Dank für den reibungslosen Check-in!', time:'Gestern'},
+          {from:'ai', text:'Sehr gerne, wir wünschen Ihnen einen schönen Aufenthalt!', time:'Gestern'}
+        ],
+        suggestion:null}
+    ];
+    this.hkTasks = Object.keys(this.cleaning).map((nr, i)=>{
+      const kinds = ['Abreise','Zwischen','Ankunft']; const kind = kinds[Math.floor(this.rnd()*kinds.length)];
+      const room = rooms.find(r=>r.nr===nr);
+      const threshold = kind==='Abreise' ? 45 : kind==='Zwischen' ? 20 : 15;
+      const elapsedMin = Math.floor(this.rnd()*90);
+      const staffNames = ['Elena Vogel','Tomás Reyes','Anja Hübner','Marko Ilić','Suri Patel'];
+      return {
+        id:'T'+i, room:nr, cat: room ? room.cat : 'Standard', kind,
+        priority: this.rnd()<0.3 ? 'Hoch' : 'Normal',
+        staff: staffNames[Math.floor(this.rnd()*staffNames.length)],
+        elapsedMin, overdue: elapsedMin > threshold,
+        checklist: checklists[kind].map(label=>({label, done:false}))
+      };
+    });
+    this.state = {
+      loading:true, anchorOff:-1, range:14, rooms, bookings:this.genBookings(rooms),
+      catsOff:{}, selId:null, screen:'tape', dark:false, offline:false,
+      drag:null, dCell:0, dRow:0, ghost:null, toast:null, confirmId:null, aiApplied:false, aiRejected:false,
+      aiDay:null, search:'', hotel:0, hotelsOpen:false, hotelQuery:'', frontSearch:'',
+      hkDoneIds:{}, hkExpanded:{}, hkChecks:{}, ownerView:'mobile', guestPreArrival:false, hkView:'staff', hkEscalated:{},
+      ciBookingId:null, ciStep:0, ciStart:0, ciAusweis:'', ciNation:'', ciDob:'', ciScanned:false, ciRoomOverride:null, ciPay:null, ciTick:0, ciShowAlt:false, ciKeys:0,
+      convoId:'C1', convoDismissed:{}, convoDrafts:{}
+    };
+    this.hotels = [
+      {name:'Villa Marée, Lindau', rooms:40}, {name:'Hof Adlerstein, Füssen', rooms:62},
+      {name:'Seehaus Kressbronn', rooms:28}, {name:'Palais Rheinau, Basel', rooms:88},
+      {name:'Berghof Oberstdorf', rooms:54}, {name:'Kontorhaus Hamburg', rooms:120},
+      {name:'Gut Waldsee, Ravensburg', rooms:34}, {name:'Alte Post, Meersburg', rooms:22}
+    ];
+    this.scrollRef = React.createRef();
+    this.bodyRef = React.createRef();
+    this.frontSearchRef = React.createRef();
+  }
+
+  componentDidMount(){
+    this._t = setTimeout(()=>this.setState({loading:false}), 650);
+    this._mv = e=>this.onMove(e); this._up = e=>this.onUp(e);
+    window.addEventListener('pointermove', this._mv);
+    window.addEventListener('pointerup', this._up);
+    this._kd = (e)=>{
+      if(e.key==='/' && this.state.screen==='front' && document.activeElement!==this.frontSearchRef.current){
+        e.preventDefault(); this.frontSearchRef.current && this.frontSearchRef.current.focus();
+      }
+    };
+    window.addEventListener('keydown', this._kd);
+    this._ciTick = setInterval(()=>{ if(this.state.screen==='checkin') this.forceUpdate(); }, 1000);
+    this.applyTheme();
+  }
+  componentDidUpdate(){ this.applyTheme(); }
+  componentWillUnmount(){
+    clearTimeout(this._t); clearTimeout(this._tt);
+    window.removeEventListener('pointermove', this._mv);
+    window.removeEventListener('pointerup', this._up);
+    window.removeEventListener('keydown', this._kd);
+    clearInterval(this._ciTick);
+  }
+  applyTheme(){
+    if(this.props.theme !== this._lastThemeProp){
+      this._lastThemeProp = this.props.theme;
+      const want = this.props.theme === 'dark';
+      if(want !== this.state.dark){ this.setState({dark:want}); return; }
+    }
+    document.documentElement.classList.toggle('theme-dark', !!this.state.dark);
+    const a = this.props.accent;
+    if(a){
+      document.documentElement.style.setProperty('--accent', a);
+      document.documentElement.style.setProperty('--accentHi', this.lighten(a, this.state.dark ? 0.16 : 0.12));
+    }
+  }
+
+  lighten(hex, amt){
+    const m = /^#?([0-9a-f]{6})$/i.exec(String(hex).trim());
+    if(!m) return hex;
+    const n = parseInt(m[1],16);
+    const mix = (c)=>Math.round(c + (255-c)*amt);
+    return '#'+[mix(n>>16&255), mix(n>>8&255), mix(n&255)].map(v=>v.toString(16).padStart(2,'0')).join('');
+  }
+  rnd(){ this.seed = (this.seed*1664525 + 1013904223) % 4294967296; return this.seed/4294967296; }
+  addDays(d,n){ const x = new Date(d); x.setDate(x.getDate()+n); return x; }
+  genRooms(){
+    const defs = [['Standard',101,14],['Komfort',201,14],['Suite',301,12]];
+    const out = [];
+    defs.forEach(function(d){ for(let i=0;i<d[2];i++) out.push({nr:String(d[1]+i), cat:d[0]}); });
+    return out;
+  }
+  rateFor(cat){ return cat==='Suite'?284:cat==='Komfort'?178:132; }
+  genBookings(rooms){
+    const names = ['Böhm, Katrin','Weiler, Jonas','Achermann, Rita','Petrov, Ilja','Sandvik, Mette','Grasser, Thomas','Lindqvist, Anna','Radu, Mihai','Ferrant, Claire','Okonjo, David','Steinmetz, Lea','Bauer, Vincent','Nakamura, Yuki','Hollmann, Grit','Vidal, Núria','Krause, Peter'];
+    const chans = ['Direkt','Booking.com','Expedia','Telefon','Firmenrate'];
+    const list = []; let id = 1;
+    for(const r of rooms){
+      let d = -7;
+      while(d < 46){
+        d += Math.floor(this.rnd()*3);
+        const nights = 1 + Math.floor(this.rnd()*5);
+        const end = d + nights;
+        if(this.rnd() < 0.14){ d = end; continue; }
+        let status = d <= 0 && end > 0 ? 'inhouse' : (d > 0 ? 'reserviert' : 'abgereist');
+        const roll = this.rnd();
+        if(roll < 0.035) status = 'gesperrt'; else if(roll < 0.1 && d > 1) status = 'option';
+        list.push({
+          id:'B'+id, room:r.nr, start:d, nights,
+          guest: status==='gesperrt' ? 'Wartung / Sperre' : names[Math.floor(this.rnd()*names.length)],
+          status, rate:this.rateFor(r.cat), nr:'HO-2026-'+(1000+id),
+          saldo: this.rnd()<0.32 ? Math.round(this.rnd()*420) : 0,
+          channel: chans[Math.floor(this.rnd()*chans.length)], adults: 1+Math.floor(this.rnd()*2)
+        });
+        id++; d = end;
+      }
+    }
+    return list;
+  }
+
+  dayW(){ const r = this.state.range; return r===7?116:r===14?62:32; }
+  rowH(){ return this.props.density==='kompakt' ? 40 : 46; }
+  visibleRooms(){ const off = this.state.catsOff; return this.state.rooms.filter(r=>!off[r.cat]); }
+  fmt(off){ return this.addDays(this.today, off).toLocaleDateString('de-DE',{day:'2-digit',month:'short'}); }
+  toast(text, kind){
+    clearTimeout(this._tt);
+    this.setState({toast:{text, kind:kind||'ok'}});
+    this._tt = setTimeout(()=>this.setState({toast:null}), 3200);
+  }
+  statusMeta(s){
+    const m = {
+      inhouse:{label:'In-House', bg:'var(--blue)', fg:'#fff', chipBg:'var(--blueBg)', chipFg:'var(--blue)'},
+      reserviert:{label:'Reserviert', bg:'var(--blueBg)', fg:'var(--blue)', chipBg:'var(--blueBg)', chipFg:'var(--blue)'},
+      abgereist:{label:'Abgereist', bg:'var(--surface2)', fg:'var(--text2)', chipBg:'var(--surface2)', chipFg:'var(--text2)'},
+      gesperrt:{label:'Gesperrt', bg:'var(--red)', fg:'#fff', chipBg:'var(--redBg)', chipFg:'var(--red)'},
+      option:{label:'Option', bg:'transparent', fg:'var(--text2)', chipBg:'var(--surface2)', chipFg:'var(--text2)'}
+    };
+    return m[s] || m.reserviert;
+  }
+  occupancyFor(off, roomsArg){
+    const rooms = roomsArg || this.state.rooms; if(!rooms.length) return 0;
+    const set = new Set(rooms.map(r=>r.nr));
+    let n = 0;
+    for(const b of this.state.bookings){
+      if(!set.has(b.room) || b.status==='gesperrt' || b.status==='abgereist' || b.status==='option') continue;
+      if(b.start <= off && b.start + b.nights > off) n++;
+    }
+    return Math.round(n/rooms.length*100);
+  }
+  aiBlock(){
+    if(this.props.aiHighlights === false || this.state.aiRejected || this.state.aiApplied) return null;
+    if(this._blockCache && this._blockCache.k === this.blockKey()) return this._blockCache.v;
+    let found = null;
+    for(let i=1;i<=28 && !found;i++){
+      if(this.addDays(this.today, i).getDay() !== 5) continue;
+      const days = [i, i+1, i+2];
+      const occ = days.map(d=>this.occupancyFor(d));
+      const avg = Math.round(occ.reduce((a,b)=>a+b,0)/3);
+      if(avg >= 55) found = {days, avg, pct:12};
+    }
+    this._blockCache = {k:this.blockKey(), v:found};
+    return found;
+  }
+  blockKey(){ return this.state.bookings.length + '|' + Object.keys(this.state.catsOff).filter(c=>this.state.catsOff[c]).join(',') + '|' + this.state.aiApplied + this.state.aiRejected + this.props.aiHighlights; }
+  aiRec(off){
+    const b = this.aiBlock();
+    return b && b.days.indexOf(off) !== -1 ? {pct:b.pct} : null;
+  }
+  aiDays(){ const b = this.aiBlock(); return b ? b.days : []; }
+  roomStatus(nr){
+    const covers = this.state.bookings.filter(b=>b.room===nr && b.start<=0 && b.start+b.nights>0);
+    if(covers.some(b=>b.status==='gesperrt')) return {label:'Gesperrt', color:'var(--red)'};
+    if(covers.some(b=>b.status==='inhouse')) return {label:'Belegt', color:'var(--blue)'};
+    if(this.cleaning[nr]) return {label:'Reinigung offen', color:'var(--yellow)'};
+    return {label:'Frei / freigegeben', color:'var(--green)'};
+  }
+
+  onBarDown(e, b, mode){
+    e.stopPropagation(); e.preventDefault();
+    const rooms = this.visibleRooms();
+    this.setState({drag:{id:b.id, mode, x0:e.clientX, y0:e.clientY, start:b.start, nights:b.nights, row:rooms.findIndex(r=>r.nr===b.room)}, dCell:0, dRow:0});
+  }
+  onBodyDown(e){
+    if(e.button !== 0) return;
+    const rect = this.bodyRef.current.getBoundingClientRect();
+    const dayW = this.dayW(), rowH = this.rowH();
+    const col = Math.floor((e.clientX-rect.left)/dayW), row = Math.floor((e.clientY-rect.top)/rowH);
+    const rooms = this.visibleRooms();
+    if(row < 0 || row >= rooms.length) return;
+    this.setState({drag:{mode:'new', x0:e.clientX, col, row}, dCell:0, ghost:{col, row, len:1}});
+  }
+  onMove(e){
+    const d = this.state.drag; if(!d) return;
+    const dayW = this.dayW(), rowH = this.rowH();
+    const dCell = Math.round((e.clientX-d.x0)/dayW);
+    if(d.mode==='new'){
+      const len = Math.max(1, dCell+1);
+      this.setState({dCell, ghost:{col:d.col, row:d.row, len}});
+      return;
+    }
+    const dRow = d.mode==='move' ? Math.round((e.clientY-d.y0)/rowH) : 0;
+    if(dCell!==this.state.dCell || dRow!==this.state.dRow) this.setState({dCell, dRow});
+  }
+  onUp(){
+    const d = this.state.drag; if(!d) return;
+    const {dCell, dRow} = this.state;
+    const rooms = this.visibleRooms();
+    if(d.mode==='new'){
+      const g = this.state.ghost;
+      this.setState({drag:null, ghost:null});
+      if(!g) return;
+      const room = rooms[g.row].nr;
+      if(this.conflict(null, room, this.state.anchorOff+g.col, g.len)){ this.toast('Konflikt: Zi. '+room+' ist im Zeitraum belegt.', 'err'); return; }
+      const id = 'B'+(9000+Math.floor(Math.random()*900));
+      const bk = {id, room, start:this.state.anchorOff+g.col, nights:g.len, guest:'Neue Buchung', status:'option', rate:this.rateFor(rooms[g.row].cat), nr:'HO-2026-'+(2000+Math.floor(Math.random()*900)), saldo:0, channel:'Direkt', adults:2};
+      this.setState(s=>({bookings:s.bookings.concat([bk]), selId:id}));
+      this.toast('Option angelegt – Gastdaten ergänzen.');
+      return;
+    }
+    const b = this.state.bookings.find(x=>x.id===d.id);
+    this.setState({drag:null, dCell:0, dRow:0});
+    if(!b) return;
+    let start = b.start, nights = b.nights, room = b.room;
+    if(d.mode==='move'){
+      start = d.start + dCell;
+      const ri = Math.min(rooms.length-1, Math.max(0, d.row + dRow));
+      room = rooms[ri].nr;
+    } else if(d.mode==='resizeR'){ nights = Math.max(1, d.nights + dCell); }
+    else if(d.mode==='resizeL'){ const dc = Math.min(dCell, d.nights-1); start = d.start + dc; nights = d.nights - dc; }
+    if(start===b.start && nights===b.nights && room===b.room) return;
+    if(this.conflict(b.id, room, start, nights)){ this.toast('Konflikt: Zi. '+room+' ist im Zeitraum belegt – Verschiebung verworfen.', 'err'); return; }
+    this.setState(s=>({bookings:s.bookings.map(x=>x.id===b.id?Object.assign({},x,{start, nights, room}):x)}));
+    this.toast(b.guest+' → Zi. '+room+', '+this.fmt(start)+' · '+nights+' N.'+(this.state.offline?' (offline gemerkt)':''));
+  }
+  conflict(id, room, start, nights){
+    return this.state.bookings.some(b=> b.id!==id && b.room===room && b.status!=='abgereist' && start < b.start+b.nights && b.start < start+nights);
+  }
+
+  renderVals(){
+    const s = this.state, dayW = this.dayW(), rowH = this.rowH();
+    const rooms = this.visibleRooms();
+    const q = s.search.trim().toLowerCase();
+    const days = [];
+    for(let i=0;i<s.range;i++){
+      const off = s.anchorOff + i, date = this.addDays(this.today, off);
+      const wd = date.getDay(), occ = this.occupancyFor(off, rooms), rec = this.aiRec(off);
+      days.push({
+        wd: date.toLocaleDateString('de-DE',{weekday:'short'}),
+        dm: date.toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'}),
+        occ: occ+'%', ai: !!rec,
+        click: rec ? (()=>this.setState({aiDay:off})) : (()=>{}),
+        style:'position:relative;width:'+dayW+'px;flex:none;height:64px;padding:6px 4px 8px;border:0;border-right:1px solid var(--line2);background:'+(off===0?'var(--surface2)':(wd===0||wd===6?'var(--surface3)':'var(--surface)'))+';display:flex;flex-direction:column;align-items:center;gap:1px;cursor:'+(rec?'pointer':'default')+';color:var(--text);font-family:inherit',
+        occBar:'position:absolute;left:4px;right:4px;bottom:4px;height:3px;border-radius:2px;background:linear-gradient(to right, '+(occ>85?'var(--red)':occ>65?'var(--accent)':'var(--green)')+' '+occ+'%, var(--line2) '+occ+'%)',
+        aiStyle:'position:absolute;top:3px;right:4px;width:6px;height:6px;border-radius:50%;background:var(--violet)'
+      });
+    }
+    const bars = [];
+    rooms.forEach((r, ri)=>{
+      this.state.bookings.filter(b=>b.room===r.nr).forEach(b=>{
+        const drag = s.drag && s.drag.id===b.id ? s.drag : null;
+        let start = b.start, nights = b.nights, row = ri;
+        if(drag){
+          if(drag.mode==='move'){ start = drag.start + s.dCell; row = Math.min(rooms.length-1, Math.max(0, drag.row + s.dRow)); }
+          if(drag.mode==='resizeR') nights = Math.max(1, drag.nights + s.dCell);
+          if(drag.mode==='resizeL'){ const dc = Math.min(s.dCell, drag.nights-1); start = drag.start + dc; nights = drag.nights - dc; }
+        }
+        const i0 = start - s.anchorOff;
+        if(i0 + nights <= 0 || i0 >= s.range) return;
+        const m = this.statusMeta(b.status);
+        const dim = q && !(b.guest.toLowerCase().includes(q) || b.room.includes(q) || b.nr.toLowerCase().includes(q));
+        const selected = s.selId===b.id;
+        const cutL = i0 < 0, cutR = i0 + nights > s.range;
+        const left = cutL ? 0 : i0*dayW + 3;
+        const right = cutR ? s.range*dayW : (i0+nights)*dayW - 3;
+        const radius = (cutL?'0 ':'7px ') + (cutR?'0 0 ':'7px 7px ') + (cutL?'0':'7px');
+        const cutMark = (cutL?'inset 4px 0 0 rgba(125,133,143,.55)':'') + (cutL&&cutR?',':'') + (cutR?'inset -4px 0 0 rgba(125,133,143,.55)':'');
+        const shadow = selected ? '0 0 0 2px var(--accent)' : drag ? '0 8px 18px rgba(10,18,26,.28)' : '';
+        bars.push({
+          id:b.id, guest:b.guest, nightsLabel:nights+' N',
+          title:b.guest+' · Zi. '+b.room+' · '+this.fmt(start)+' – '+this.fmt(start+nights)+' · '+m.label+(cutL?' (beginnt vor dem Zeitraum)':''),
+          style:'position:absolute;left:'+left+'px;top:'+(row*rowH+4)+'px;width:'+Math.max(18, right-left)+'px;height:'+(rowH-10)+'px;display:flex;align-items:center;gap:6px;padding:0 8px;border-radius:'+radius+';font-size:12px;font-weight:500;cursor:grab;user-select:none;overflow:hidden;background:'+m.bg+';color:'+m.fg+';border:'+(b.status==='option'?'1.5px dashed var(--text3)':b.status==='reserviert'?'1.5px solid var(--blue)':'1px solid rgba(0,0,0,.08)')+';opacity:'+(dim?0.22:1)+';box-shadow:'+([shadow,cutMark].filter(Boolean).join(',')||'none')+';z-index:'+(drag?20:selected?12:6),
+          handleL:'position:absolute;left:0;top:0;bottom:0;width:8px;cursor:ew-resize',
+          handleR:'position:absolute;right:0;top:0;bottom:0;width:8px;cursor:ew-resize',
+          down:(e)=>this.onBarDown(e,b,'move'),
+          resizeL:(e)=>this.onBarDown(e,b,'resizeL'),
+          resizeR:(e)=>this.onBarDown(e,b,'resizeR'),
+          click:()=>this.setState({selId:b.id}),
+          key:(e)=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); this.setState({selId:b.id}); } }
+        });
+      });
+    });
+    const stripes = [];
+    for(let i=0;i<s.range;i++){
+      const wd = this.addDays(this.today, s.anchorOff+i).getDay();
+      if(wd===0||wd===6) stripes.push({style:'position:absolute;top:0;bottom:0;left:'+(i*dayW)+'px;width:'+dayW+'px;background:var(--surface3);pointer-events:none'});
+    }
+    const nowI = -s.anchorOff;
+    const sel = s.selId ? this.state.bookings.find(b=>b.id===s.selId) : null;
+    const selVals = sel ? (()=>{
+      const m = this.statusMeta(sel.status);
+      const room = this.state.rooms.find(r=>r.nr===sel.room) || {cat:'Standard'};
+      return {
+        guest:sel.guest, nr:sel.nr, channel:sel.channel, statusLabel:m.label,
+        chipStyle:'display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11.5px;font-weight:600;background:'+m.chipBg+';color:'+m.chipFg,
+        balanceOpen: sel.saldo>0, saldo: sel.saldo.toLocaleString('de-DE',{minimumFractionDigits:2})+' €',
+        facts:[
+          {k:'Zimmer', v:sel.room+' · '+room.cat},
+          {k:'Nächte', v:String(sel.nights)},
+          {k:'Anreise', v:this.fmt(sel.start)},
+          {k:'Abreise', v:this.fmt(sel.start+sel.nights)},
+          {k:'Rate / Nacht', v:sel.rate.toLocaleString('de-DE',{minimumFractionDigits:2})+' €'},
+          {k:'Gesamt', v:(sel.rate*sel.nights).toLocaleString('de-DE',{minimumFractionDigits:2})+' €'}
+        ],
+        aiText: sel.status==='option' ? 'Option läuft in 48 h ab. Rate '+sel.rate+' € liegt 8 % unter Marktniveau für diesen Zeitraum – Erhöhung auf '+Math.round(sel.rate*1.08)+' € vorgeschlagen.' : 'Upgrade auf '+(room.cat==='Standard'?'Komfort':'Suite')+' für 34 € möglich – Gast hat bei zwei Aufenthalten Upgrades gekauft.',
+        timeline:[
+          {when:this.fmt(sel.start-12), what:'Buchung eingegangen über '+sel.channel},
+          {when:this.fmt(sel.start-11), what:'Bestätigung per E-Mail versendet'},
+          {when:this.fmt(sel.start-2), what: sel.saldo>0 ? 'Zahlungserinnerung – Saldo offen' : 'Vorauszahlung verbucht'}
+        ],
+        primaryLabel: sel.status==='inhouse' ? 'Check-out starten' : sel.status==='gesperrt' ? 'Sperre aufheben' : 'Check-in starten'
+      };
+    })() : null;
+    const aiRecDay = s.aiDay!==null ? this.aiRec(s.aiDay) : null;
+    const cName = (i)=>this.hotels[i].name;
+    const dsSwatch = (v)=>'height:52px;background:'+v;
+    const chip = (bg,fg,label)=>({label, style:'display:inline-flex;align-items:center;padding:4px 11px;border-radius:20px;font-size:12px;font-weight:600;background:'+bg+';color:'+fg});
+    const hq = s.hotelQuery.trim().toLowerCase();
+
+    return {
+      isTape: s.screen==='tape', isDS: s.screen==='ds', isFront: s.screen==='front', isHK: s.screen==='hk', isCheckin: s.screen==='checkin', isOwner: s.screen==='owner', isGuest: s.screen==='guest', isAiInbox: s.screen==='ai',
+      showStandardChrome: s.screen!=='hk' && s.screen!=='checkin' && s.screen!=='owner' && s.screen!=='guest' && s.screen!=='ai',
+      screenTitle: s.screen==='ds' ? 'Design-System' : s.screen==='front' ? 'Rezeption' : 'Belegungsplan',
+      screenSub: s.screen==='ds' ? 'Farben, Typo, Komponenten, Zustände' : s.screen==='front' ? this.today.toLocaleDateString('de-DE',{weekday:'long', day:'2-digit', month:'long'}) : rooms.length+' Zimmer · Auslastung heute '+this.occupancyFor(0, rooms)+' %',
+      loading: s.loading && s.screen==='tape',
+      showEmpty: !s.loading && rooms.length===0,
+      showChart: !s.loading && rooms.length>0,
+      skeletons: Array.from({length:9}).map((_,i)=>({style:'height:'+rowH+'px;border-radius:8px;background:linear-gradient(90deg,var(--surface2) 0%,var(--surface3) 50%,var(--surface2) 100%);background-size:320px 100%;animation:shimmer 1.15s linear infinite;opacity:'+(1-i*0.07)})),
+      dsSkeletons: [0,1,2].map(i=>({style:'height:'+(i===0?16:12)+'px;width:'+(i===0?'70%':i===1?'92%':'55%')+';border-radius:6px;background:linear-gradient(90deg,var(--surface2) 0%,var(--surface3) 50%,var(--surface2) 100%);background-size:320px 100%;animation:shimmer 1.15s linear infinite'})),
+      days, bars, stripes, rows: rooms.map(r=>{
+        const st = this.roomStatus(r.nr);
+        return {
+          nr:r.nr, cat:r.cat, dotColor:st.color, statusLabel:st.label,
+          labelStyle:'height:'+rowH+'px;display:flex;align-items:center;gap:8px;padding:0 12px;border-bottom:1px solid var(--line2);background:var(--surface)'
+        };
+      }),
+      cornerStyle:'height:64px;display:flex;align-items:flex-end;padding:0 12px 10px;border-bottom:1px solid var(--line);font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--text3);position:sticky;top:0;background:var(--surface);z-index:34',
+      headerRowStyle:'display:flex;position:sticky;top:0;z-index:25;border-bottom:1px solid var(--line);background:var(--surface);width:'+(s.range*dayW)+'px',
+      bodyStyle:'position:relative;width:'+(s.range*dayW)+'px;height:'+(rooms.length*rowH)+'px;background-image:repeating-linear-gradient(to right, var(--line2) 0 1px, transparent 1px '+dayW+'px),repeating-linear-gradient(to bottom, var(--line2) 0 1px, transparent 1px '+rowH+'px);cursor:crosshair',
+      nowStyle:'position:absolute;top:0;bottom:0;left:'+(nowI*dayW)+'px;width:2px;background:var(--accent);opacity:'+(nowI>=0&&nowI<=s.range?0.85:0)+';pointer-events:none;z-index:8',
+      ghost: !!s.ghost,
+      ghostStyle: s.ghost ? 'position:absolute;left:'+(s.ghost.col*dayW+3)+'px;top:'+(s.ghost.row*rowH+4)+'px;width:'+(s.ghost.len*dayW-6)+'px;height:'+(rowH-10)+'px;border:1.5px dashed var(--accent);border-radius:7px;background:rgba(180,112,58,.12);pointer-events:none;z-index:15' : '',
+      ranges: [7,14,31].map(r=>({label:r+' T', pick:()=>this.setState({range:r}), style:'min-width:44px;height:36px;border:0;border-radius:7px;cursor:pointer;font-size:12.5px;font-weight:'+(s.range===r?600:500)+';background:'+(s.range===r?'var(--surface)':'transparent')+';color:var(--text);box-shadow:'+(s.range===r?'0 1px 2px rgba(20,30,45,.12)':'none')+';font-family:inherit'})),
+      rangeLabel: this.fmt(s.anchorOff)+' – '+this.fmt(s.anchorOff+s.range-1),
+      prev:()=>this.setState(st=>({anchorOff:st.anchorOff-Math.max(1,Math.round(st.range/2))})),
+      next:()=>this.setState(st=>({anchorOff:st.anchorOff+Math.max(1,Math.round(st.range/2))})),
+      goToday:()=>this.setState({anchorOff:-1}),
+      cats: ['Standard','Komfort','Suite'].map(c=>({
+        label:c, on: !s.catsOff[c], count: this.state.rooms.filter(r=>r.cat===c).length,
+        toggle:()=>this.setState(st=>({catsOff:Object.assign({}, st.catsOff, {[c]:!st.catsOff[c]})})),
+        style:'display:flex;align-items:center;gap:9px;min-height:40px;padding:0 8px;border-radius:8px;font-size:13px;cursor:pointer;background:'+(s.catsOff[c]?'transparent':'var(--surface3)')
+      })),
+      resetCats:()=>this.setState({catsOff:{}}),
+      legend: [
+        {label:'Balken: In-House', swatch:'width:14px;height:14px;border-radius:4px;background:var(--blue)'},
+        {label:'Balken: Reserviert', swatch:'width:14px;height:14px;border-radius:4px;background:var(--blueBg);border:1.5px solid var(--blue)'},
+        {label:'Balken: Option', swatch:'width:14px;height:14px;border-radius:4px;border:1.5px dashed var(--text3)'},
+        {label:'Balken: Gesperrt', swatch:'width:14px;height:14px;border-radius:4px;background:var(--red)'},
+        {label:'Punkt: Zimmer frei', swatch:'width:8px;height:8px;margin:0 3px;border-radius:50%;background:var(--green)'},
+        {label:'Punkt: Zimmer belegt', swatch:'width:8px;height:8px;margin:0 3px;border-radius:50%;background:var(--blue)'},
+        {label:'Punkt: Reinigung offen', swatch:'width:8px;height:8px;margin:0 3px;border-radius:50%;background:var(--yellow)'},
+        {label:'KI-Empfehlung (Tag)', swatch:'width:8px;height:8px;margin:0 3px;border-radius:50%;background:var(--violet)'}
+      ],
+      aiSidebar: this.aiDays().length > 0,
+      aiSidebarText: (()=>{ const b = this.aiBlock(); if(!b) return ''; return 'Wochenende '+this.fmt(b.days[0])+' – '+this.fmt(b.days[2])+': Preis um '+b.pct+' % erhöhen – Nachfrage 18 % über Prognose.'; })(),
+      aiSidebarMeta: (()=>{ const b = this.aiBlock(); if(!b) return ''; return 'Ø Auslastung '+b.avg+' % · Basis 178,00 € → '+Math.round(178*(1+b.pct/100))+',00 €'; })(),
+      acceptAiRange:()=>{ this.setState({aiApplied:true, aiDay:null}); this.toast('Preisempfehlung für das Wochenende übernommen.'); },
+      rejectAiRange:()=>{ this.setState({aiRejected:true, aiDay:null}); this.toast('KI-Empfehlung abgelehnt – Markierungen entfernt.'); },
+      search:s.search, onSearch:(e)=>this.setState({search:e.target.value}),
+      sel:selVals, closePanel:()=>this.setState({selId:null}),
+      checkIn:()=>{
+        if(!sel) return;
+        if(sel.status==='inhouse'){ this.toast('Check-out-Ablauf folgt.'); return; }
+        this.setState({screen:'checkin', ciBookingId:sel.id, ciStep:0, ciStart:Date.now(), ciAusweis:'L01X00T47', ciNation:'DE', ciDob:'1988-04-12', ciScanned:true, ciRoomOverride:null, ciPay:null, ciKeys:0, ciShowAlt:false});
+      },
+      notImpl:()=>this.toast('Kommt im nächsten Schritt.'),
+      askCancel:()=>this.setState({confirmId:s.selId}),
+      confirmOpen: !!s.confirmId,
+      confirmText: (()=>{ const b = this.state.bookings.find(x=>x.id===s.confirmId); return b ? b.nr+' · '+b.guest+' · '+this.fmt(b.start)+' – '+this.fmt(b.start+b.nights)+'. Stornogebühr 1 Nacht ('+b.rate.toLocaleString('de-DE',{minimumFractionDigits:2})+' €) wird berechnet. Aktion kann nicht rückgängig gemacht werden.' : ''; })(),
+      cancelConfirm:()=>this.setState({confirmId:null}),
+      doCancel:()=>{ const id = s.confirmId; this.setState(st=>({bookings:st.bookings.filter(b=>b.id!==id), confirmId:null, selId:null})); this.toast('Buchung storniert.','err'); },
+      aiCard: s.aiDay!==null && !!aiRecDay,
+      aiCardText: (()=>{ const b = this.aiBlock(); return b ? 'Preis für das Wochenende '+this.fmt(b.days[0])+' – '+this.fmt(b.days[2])+' um '+b.pct+' % erhöhen – hohe Nachfrage erkannt.' : ''; })(),
+      aiCardMeta: (()=>{ const b = this.aiBlock(); return b ? 'Ø Auslastung '+b.avg+' % · Prognose +18 % · Basis 178,00 € → '+Math.round(178*(1+b.pct/100))+',00 €' : ''; })(),
+      closeAi:()=>this.setState({aiDay:null}),
+      acceptAi:()=>{ this.setState({aiApplied:true, aiDay:null}); this.toast('Preisempfehlung übernommen – Raten aktualisiert.'); },
+      acceptAiPanel:()=>this.toast('KI-Vorschlag übernommen.'),
+      dismissAiPanel:()=>this.toast('KI-Vorschlag abgelehnt.'),
+      onBodyDown:(e)=>this.onBodyDown(e),
+      bodyRef:this.bodyRef, scrollRef:this.scrollRef,
+      toast: !!s.toast, toastText: s.toast?s.toast.text:'',
+      toastStyle: 'position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:90;padding:11px 16px;border-radius:10px;font-size:13px;font-weight:500;box-shadow:var(--shadow);animation:toastIn .16s ease-out;background:'+(s.toast&&s.toast.kind==='err'?'var(--redBg)':'var(--nav)')+';color:'+(s.toast&&s.toast.kind==='err'?'var(--red)':'var(--navText)')+';border:1px solid '+(s.toast&&s.toast.kind==='err'?'var(--red)':'transparent'),
+      offline:s.offline, toggleOffline:()=>this.setState({offline:!s.offline}),
+      syncLabel: s.offline ? 'Offline – 3 Änderungen warten' : 'Synchron',
+      syncDot: 'width:7px;height:7px;border-radius:50%;flex:none;background:'+(s.offline?'var(--yellow)':'var(--green)'),
+      syncStyle:'display:flex;align-items:center;gap:7px;min-height:40px;padding:0 12px;border-radius:9px;font-size:12.5px;font-weight:500;cursor:pointer;user-select:none;background:'+(s.offline?'var(--yellowBg)':'transparent')+';color:'+(s.offline?'var(--yellow)':'var(--text2)'),
+      newBooking:()=>this.toast('Im Plan ziehen, um eine Buchung anzulegen.'),
+      toggleTheme:()=>this.setState({dark:!s.dark}), themeIcon: s.dark?'☀':'☾',
+      hotelName: cName(s.hotel), hotelInitials: cName(s.hotel).slice(0,2).toUpperCase(),
+      hotelMeta: this.hotels[s.hotel].rooms+' Zimmer · Haus '+(s.hotel+1)+' von 104',
+      hotelsOpen:s.hotelsOpen, toggleHotels:()=>this.setState({hotelsOpen:!s.hotelsOpen, hotelQuery:''}),
+      hotelQuery:s.hotelQuery, onHotelQuery:(e)=>this.setState({hotelQuery:e.target.value}),
+      hotelList: this.hotels.map((h,i)=>({h,i})).filter(o=>!hq || o.h.name.toLowerCase().includes(hq)).map(o=>({name:o.h.name, rooms:o.h.rooms, pick:()=>this.setState({hotel:o.i, hotelsOpen:false, selId:null})})),
+      navOps: [
+        {key:'tape', label:'Belegungsplan', icon:'▤'},
+        {key:'front', label:'Rezeption', icon:'◉'},
+        {key:'hk', label:'Housekeeping', icon:'✽'},
+        {key:'rest', label:'Restaurant', icon:'❖', soon:true},
+        {key:'owner', label:'Kennzahlen', icon:'▲'},
+        {key:'ai', label:'KI-Rezeption', icon:'◆', badge:'4'}
+      ].map(n=>({
+        label:n.label, icon:n.icon, badge:n.badge, soon:n.soon,
+        go: (n.key==='tape'||n.key==='front'||n.key==='hk'||n.key==='owner'||n.key==='ai') ? (()=>this.setState({screen:n.key, selId:null})) : (()=>this.toast(n.label+' folgt im nächsten Schritt.')),
+        style:'display:flex;align-items:center;gap:10px;min-height:44px;padding:0 10px;border:0;border-radius:9px;cursor:pointer;font-size:13px;font-family:inherit;color:'+(s.screen===n.key?'var(--navText)':'var(--navMuted)')+';background:'+(s.screen===n.key?'var(--nav2)':'transparent')+';font-weight:'+(s.screen===n.key?600:400)
+      })),
+      navSys: [
+        {key:'ds', label:'Design-System', icon:'◇'},
+        {key:'guest', label:'Gäste-App', icon:'☺'},
+        {key:'set', label:'Einstellungen', icon:'⚙'}
+      ].map(n=>({
+        label:n.label, icon:n.icon,
+        go: n.key==='ds' ? (()=>this.setState({screen:'ds'})) : n.key==='guest' ? (()=>this.setState({screen:'guest'})) : (()=>this.toast('Einstellungen folgen.')),
+        style:'display:flex;align-items:center;gap:10px;min-height:44px;padding:0 10px;border:0;border-radius:9px;cursor:pointer;font-size:13px;font-family:inherit;color:'+(s.screen==='ds'&&n.key==='ds'?'var(--navText)':'var(--navMuted)')+';background:'+(s.screen==='ds'&&n.key==='ds'?'var(--nav2)':'transparent')+';font-weight:'+(n.key==='ds'&&s.screen==='ds'?600:400)
+      })),
+      dsColors: [
+        {name:'Basis Off-White', token:'--bg', swatch:dsSwatch('var(--bg)')},
+        {name:'Fläche', token:'--surface', swatch:dsSwatch('var(--surface)')},
+        {name:'Navigation Nachtblau', token:'--nav', swatch:dsSwatch('var(--nav)')},
+        {name:'Akzent Kupfer', token:'--accent', swatch:dsSwatch('var(--accent)')},
+        {name:'Frei', token:'--green', swatch:dsSwatch('var(--green)')},
+        {name:'Belegt', token:'--blue', swatch:dsSwatch('var(--blue)')},
+        {name:'Reinigung', token:'--yellow', swatch:dsSwatch('var(--yellow)')},
+        {name:'Gesperrt / Problem', token:'--red', swatch:dsSwatch('var(--red)')},
+        {name:'KI', token:'--violet', swatch:dsSwatch('var(--violet)')},
+        {name:'Text', token:'--text', swatch:dsSwatch('var(--text)')}
+      ],
+      dsType: [
+        {spec:'32 / 600 / -2%', sample:'Belegungsplan', style:'font-size:32px;font-weight:600;letter-spacing:-.02em'},
+        {spec:'22 / 600', sample:'Heutige Ankünfte', style:'font-size:22px;font-weight:600;letter-spacing:-.01em'},
+        {spec:'16 / 600', sample:'Zimmer 204 · Komfort', style:'font-size:16px;font-weight:600'},
+        {spec:'14 / 400 / 1.55', sample:'Standardtext für Listen, Panels und Formulare.', style:'font-size:14px;line-height:1.55'},
+        {spec:'11 / 600 / caps', sample:'Metadaten & Labels', style:'font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text3)'}
+      ],
+      dsChips: [
+        chip('var(--greenBg)','var(--green)','Frei'),
+        chip('var(--blueBg)','var(--blue)','In-House'),
+        chip('var(--yellowBg)','var(--yellow)','Reinigung (Zimmerstatus)'),
+        chip('var(--redBg)','var(--red)','Gesperrt'),
+        chip('var(--violetBg)','var(--violet)','KI-Vorschlag'),
+        chip('var(--surface2)','var(--text2)','Option')
+      ],
+      dsBars: [
+        {label:'In-House', style:'display:flex;align-items:center;padding:0 10px;height:30px;border-radius:7px;font-size:12px;font-weight:500;background:var(--blue);color:#fff;min-width:110px'},
+        {label:'Reserviert', style:'display:flex;align-items:center;padding:0 10px;height:30px;border-radius:7px;font-size:12px;font-weight:500;background:var(--blueBg);color:var(--blue);border:1.5px solid var(--blue);min-width:110px'},
+        {label:'Gesperrt', style:'display:flex;align-items:center;padding:0 10px;height:30px;border-radius:7px;font-size:12px;font-weight:500;background:var(--red);color:#fff;min-width:110px'},
+        {label:'Option', style:'display:flex;align-items:center;padding:0 10px;height:30px;border-radius:7px;font-size:12px;font-weight:500;border:1.5px dashed var(--text3);color:var(--text2);min-width:110px'}
+      ],
+      ...this.frontVals(),
+      ...this.hkVals(),
+      ...this.ciVals(),
+      ...this.ownerVals(),
+      guest: this.guestVals(), guestPreArrival: this.state.guestPreArrival,
+      onGuestPreArrival:()=>this.setState(st=>({guestPreArrival:!st.guestPreArrival})),
+      ...this.aiInboxVals()
+    };
+  }
+
+  aiInboxVals(){
+    const s = this.state;
+    if(s.screen !== 'ai') return {};
+    const channelIcon = {WhatsApp:'💬', Mail:'✉', 'Web-Chat':'🌐'};
+    const active = this.convos.find(c=>c.id===s.convoId) || this.convos[0];
+    const draft = s.convoDrafts[active.id] !== undefined ? s.convoDrafts[active.id] : (active.suggestion || '');
+    const booking = this.state.bookings.find(b=>b.room===active.room && (b.status==='inhouse'||b.status==='reserviert'));
+    return {
+      aiUnreadCount: this.convos.filter(c=>c.unread).length,
+      aiConvos: this.convos.map(c=>({
+        guest:c.guest, initials:c.guest.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase(),
+        channelIcon:channelIcon[c.channel], unread:c.unread, nameWeight: c.unread?700:500,
+        preview: c.msgs[c.msgs.length-1].text,
+        rowStyle:'width:100%;display:flex;align-items:center;gap:10px;padding:12px 16px;border:0;border-bottom:1px solid var(--line2);cursor:pointer;text-align:left;background:'+(c.id===s.convoId?'var(--surface3)':'transparent'),
+        open:()=>this.setState({convoId:c.id})
+      })),
+      activeConvo: {
+        guest:active.guest, channel:active.channel,
+        msgs: active.msgs.map(m=>({
+          isAi: m.from==='ai', time:m.time, text:m.text,
+          rowStyle:'display:flex;flex-direction:column;align-items:'+(m.from==='ai'?'flex-end':'flex-start')+';max-width:72%;'+(m.from==='ai'?'margin-left:auto':''),
+          bubbleStyle:'padding:10px 13px;border-radius:12px;font-size:13.5px;line-height:1.45;background:'+(m.from==='ai'?'var(--violetBg)':'var(--surface)')+';color:var(--text);border:1px solid '+(m.from==='ai'?'var(--violetLine)':'var(--line)')
+        })),
+        hasSuggestion: !!active.suggestion && !s.convoDismissed[active.id],
+        draft, onDraftChange:(e)=>this.setState(st=>({convoDrafts:Object.assign({}, st.convoDrafts, {[active.id]:e.target.value})})),
+        freeInput: s.convoDrafts['free_'+active.id] || '',
+        onFreeInput:(e)=>this.setState(st=>({convoDrafts:Object.assign({}, st.convoDrafts, {['free_'+active.id]:e.target.value})})),
+        focusEdit:()=>this.toast('Vorschlag im Textfeld bearbeitbar.'),
+        dismiss:()=>{ this.setState(st=>({convoDismissed:Object.assign({}, st.convoDismissed, {[active.id]:true})})); this.toast('Vorschlag verworfen.'); },
+        send:()=>{
+          const text = draft || s.convoDrafts['free_'+active.id];
+          if(!text) return;
+          active.msgs.push({from:'ai', text, time:'Jetzt'});
+          active.suggestion = null; active.unread = false;
+          this.setState(st=>({convoDrafts:Object.assign({}, st.convoDrafts, {[active.id]:'', ['free_'+active.id]:''})}));
+          this.toast('Nachricht gesendet.');
+        }
+      },
+      aiCtx: {
+        initials: active.guest.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase(),
+        channel: active.channel+(active.room!=='—'?' · Zi. '+active.room:''),
+        hasBooking: !!booking, noBooking: !booking,
+        facts: booking ? [
+          {k:'Zimmer', v:booking.room}, {k:'Status', v:this.statusMeta(booking.status).label},
+          {k:'Anreise', v:this.fmt(booking.start)}, {k:'Abreise', v:this.fmt(booking.start+booking.nights)}
+        ] : [],
+        openBooking: booking ? (()=>this.setState({screen:'tape', selId:booking.id})) : (()=>{}),
+        history: [
+          {when:'Gestern', what:'Buchung bestätigt'},
+          {when:'Heute', what:active.channel+'-Konversation gestartet'}
+        ]
+      }
+    };
+  }
+
+  guestVals(){
+    const brand = this.props.guestBrand || '#9C6B4A';
+    const pre = this.state.guestPreArrival;
+    const arrivalBooking = this.state.bookings.find(b=>b.status==='reserviert' && b.start>=0) || {guest:'Katrin Böhm', room:'204', nights:3, rate:178, start:1};
+    const inhouseGuest = pre ? arrivalBooking : (this.state.bookings.find(b=>b.status==='inhouse') || {guest:'Katrin Böhm', room:'204', nights:3, rate:178});
+    const hour = this.today.getHours ? new Date().getHours() : 14;
+    const greetingTime = hour < 11 ? 'Guten Morgen' : hour < 18 ? 'Guten Tag' : 'Guten Abend';
+    const firstName = inhouseGuest.guest.includes(',') ? inhouseGuest.guest.split(',')[1].trim() : inhouseGuest.guest.split(' ')[0];
+    return {
+      frameStyle:'width:390px;flex:none;background:'+brand+';border-radius:28px;box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;min-height:760px',
+      textOnBrand:'#fff', mutedOnBrand:'rgba(255,255,255,.72)',
+      greetingTime, greeting: greetingTime+', '+firstName,
+      room: inhouseGuest.room,
+      mainEyebrow: pre ? 'Anreise '+this.fmt(arrivalBooking.start) : 'Zimmer '+inhouseGuest.room,
+      mainTitle: pre ? 'Online-Check-in abschließen' : 'Zimmer öffnen',
+      mainIcon: pre ? '📝' : '🔑',
+      mainAction: pre ? (()=>this.toast('Online-Check-in-Formular folgt.')) : (()=>this.toast('Zimmertür entriegelt (Demo).')),
+      roomCardStyle:'display:flex;align-items:center;justify-content:space-between;min-height:84px;padding:18px 20px;border:0;border-radius:20px;background:rgba(255,255,255,.14);backdrop-filter:blur(2px);cursor:pointer',
+      tiles: pre ? [
+        {icon:'🚗', label:'Anfahrt & Parken', action:()=>this.toast('Anfahrtsinfo folgt.')},
+        {icon:'🪷', label:'Spa buchen', action:()=>this.toast('Spa-Buchung folgt.')},
+        {icon:'🍽', label:'Tisch reservieren', action:()=>this.toast('Restaurant-Reservierung folgt.')},
+        {icon:'☕', label:'Frühstück hinzufügen', action:()=>this.toast('Zusatzleistung folgt.')}
+      ] : [
+        {icon:'🛎', label:'Room Service', action:()=>this.toast('Room-Service-Menü folgt.')},
+        {icon:'🪷', label:'Spa buchen', action:()=>this.toast('Spa-Buchung folgt.')},
+        {icon:'🍽', label:'Tisch reservieren', action:()=>this.toast('Restaurant-Reservierung folgt.')},
+        {icon:'🛏', label:'Housekeeping rufen', action:()=>this.toast('Anfrage an Housekeeping gesendet.')}
+      ],
+      openChat:()=>this.toast('KI-Chat folgt – Hinweis „KI-Assistent" bleibt sichtbar.'),
+      openFolio:()=>this.toast('Rechnungsübersicht folgt.'),
+      folioMeta: inhouseGuest.nights+' Nächte · '+(inhouseGuest.rate*inhouseGuest.nights).toLocaleString('de-DE')+' €'
+    };
+  }
+
+  ownerVals(){
+    const rooms = this.state.rooms;
+    const revForOffset = (off)=>{
+      let rev = 0;
+      for(const b of this.state.bookings){
+        if(b.status==='gesperrt') continue;
+        if(b.start<=off && b.start+b.nights>off) rev += b.rate;
+      }
+      return rev;
+    };
+    const todayRev = revForOffset(0);
+    const occ = this.occupancyFor(0);
+    const inhouseCount = this.state.bookings.filter(b=>b.status==='inhouse' && b.start<=0 && b.start+b.nights>0).length;
+    const adr = inhouseCount>0 ? Math.round(todayRev/inhouseCount) : 0;
+    const issues = Object.keys(this.cleaning).length + this.state.bookings.filter(b=>b.status==='inhouse' && b.saldo>0).length;
+    const days = []; for(let i=-6;i<=0;i++) days.push(i);
+    const revs = days.map(revForOffset);
+    const maxRev = Math.max(...revs, 1);
+    const weekTotal = revs.reduce((a,b)=>a+b,0);
+    const b = this.aiBlock();
+    const recs = [];
+    if(b) recs.push({tag:'Preisstrategie', title:'Wochenendpreis '+this.fmt(b.days[0])+'–'+this.fmt(b.days[2])+' anheben', reason:'Ø Auslastung '+b.avg+' %, 18 % über Prognose. Anhebung um '+b.pct+' % vorgeschlagen.',
+      accept:()=>{ this.setState({aiApplied:true}); this.toast('Preisempfehlung übernommen.'); },
+      adjust:()=>this.toast('Anpassung folgt im nächsten Schritt.'),
+      reject:()=>{ this.setState({aiRejected:true}); this.toast('Empfehlung abgelehnt.'); }});
+    if(issues>0) recs.push({tag:'Betrieb', title:issues+' offene Housekeeping-Zimmer', reason:'Reinigung dauert im Schnitt länger als üblich – zusätzliche Schicht heute Abend könnte Rückstand vor dem Wochenende auflösen.',
+      accept:()=>this.toast('An Housekeeping-Leitung weitergegeben.'), adjust:()=>this.toast('Anpassung folgt.'), reject:()=>this.toast('Empfehlung ausgeblendet.')});
+    if(occ < 70) recs.push({tag:'Nachfrage', title:'Auslastung heute unter Zielwert', reason:'Auslastung heute '+occ+' % liegt unter dem 70-%-Zielkorridor. Kurzfristige Rate für Standardzimmer um 6 % senken, um Restkontingent zu füllen.',
+      accept:()=>this.toast('Ratenanpassung übernommen.'), adjust:()=>this.toast('Anpassung folgt.'), reject:()=>this.toast('Empfehlung ausgeblendet.')});
+
+    return {
+      ownerHotelName: this.hotels[this.state.hotel].name,
+      ownerDateLabel: this.today.toLocaleDateString('de-DE',{weekday:'long', day:'2-digit', month:'long'}),
+      ownerKpis: [
+        {label:'Umsatz heute', value: todayRev.toLocaleString('de-DE')+' €', color:'var(--text)', delta:'+8 % vs. Vorwoche', deltaColor:'var(--green)'},
+        {label:'Auslastung', value: occ+' %', color:'var(--text)', delta: occ>=70?'Über Zielkorridor':'Unter 70 % Ziel', deltaColor: occ>=70?'var(--green)':'var(--yellow)'},
+        {label:'ADR', value: adr.toLocaleString('de-DE')+' €', color:'var(--text)', delta:'Ø pro belegtem Zimmer', deltaColor:'var(--text3)'},
+        {label:'Offene Probleme', value:String(issues), color: issues>3?'var(--red)':'var(--text)', delta: issues>0?'Housekeeping & Salden':'Alles im grünen Bereich', deltaColor: issues>3?'var(--red)':'var(--text3)'}
+      ],
+      ownerWeekTotal: weekTotal.toLocaleString('de-DE')+' €',
+      ownerBars: days.map((off,i)=>({
+        day: this.addDays(this.today, off).toLocaleDateString('de-DE',{weekday:'short'}),
+        valueLabel: Math.round(revs[i]/100)/10+'k',
+        barStyle:'width:100%;border-radius:5px 5px 0 0;background:'+(off===0?'var(--accent)':'var(--surface2)')+';height:'+Math.max(6, Math.round(revs[i]/maxRev*100))+'%'
+      })),
+      ownerRecs: recs, ownerNoRecs: recs.length===0,
+      ownerDesktop: this.state.ownerView==='desktop',
+      ownerViews: [{key:'mobile',label:'Mobile · 390px'},{key:'desktop',label:'Desktop · 1440px'}].map(v=>({
+        label:v.label, pick:()=>this.setState({ownerView:v.key}),
+        style:'min-height:36px;padding:0 12px;border:0;border-radius:7px;cursor:pointer;font-size:12.5px;font-weight:'+(this.state.ownerView===v.key?600:500)+';background:'+(this.state.ownerView===v.key?'var(--surface)':'transparent')+';color:var(--text);font-family:inherit'
+      }))
+    };
+  }
+
+  commitCheckin(b, room){
+    this.setState(st=>({ bookings: st.bookings.map(x=>x.id===b.id?Object.assign({},x,{status:'inhouse', room}):x) }));
+    this.toast('Check-in für '+b.guest+' abgeschlossen.');
+  }
+  ciVals(){
+    const s = this.state;
+    if(s.screen !== 'checkin') return { ci:{} };
+    const b = this.state.bookings.find(x=>x.id===s.ciBookingId);
+    if(!b) return { ci:{} };
+    const room = this.state.rooms.find(r=>r.nr===b.room) || {cat:'Standard'};
+    const suggestedRoom = s.ciRoomOverride || b.room;
+    const roomFree = this.roomStatus(suggestedRoom).label === 'Frei / freigegeben';
+    const roomWarning = !roomFree && !s.ciRoomOverride;
+    const step = s.ciStep;
+    const elapsedS = Math.max(0, Math.round((Date.now() - s.ciStart)/1000));
+    const stepLabels = ['Gast','Meldedaten','Zimmer','Zahlung','Schlüssel'];
+    const altRooms = this.state.rooms.filter(r=>r.cat===room.cat && r.nr!==b.room && this.roomStatus(r.nr).label==='Frei / freigegeben').slice(0,3);
+    const deposit = Math.round(b.rate*0.5);
+    const total = b.rate*b.nights;
+    const hasPrepaid = b.channel==='Booking.com' || b.channel==='Expedia';
+    const prepaidAmt = hasPrepaid ? Math.max(0, total - b.saldo) : 0;
+    const dueNow = hasPrepaid ? b.saldo : total;
+    return {
+      ci: {
+        guest:b.guest, roomLine:'Zi. '+b.room+' · '+room.cat+' · '+b.nights+' Nächte · '+b.nr,
+        elapsed: (Math.floor(elapsedS/60))+':'+String(elapsedS%60).padStart(2,'0'),
+        steps: stepLabels.map((label,i)=>({
+          label, barColor: i<step?'var(--accent)':i===step?'var(--accent)':'var(--line)',
+          textColor: i<=step?'var(--text)':'var(--text3)', weight: i===step?600:400
+        })),
+        step0: step===0, step1: step===1, step2: step===2, step3: step===3, step4: step===4, step5: step===5,
+        facts:[
+          {k:'Gast', v:b.guest}, {k:'Zimmerkategorie', v:room.cat}, {k:'Nächte', v:String(b.nights)},
+          {k:'Erwachsene', v:String(b.adults)}, {k:'Kanal', v:b.channel}, {k:'Buchungsnr.', v:b.nr}
+        ],
+        step1Blocked: !s.ciAusweis.trim(),
+        step1BtnStyle:'width:100%;min-height:48px;border:0;border-radius:10px;font-size:14.5px;font-weight:600;background:'+(s.ciAusweis.trim()?'var(--accent)':'var(--surface2)')+';color:'+(s.ciAusweis.trim()?'#fff':'var(--text3)')+';cursor:'+(s.ciAusweis.trim()?'pointer':'not-allowed'),
+        scanned: s.ciScanned,
+        fieldStyle:'min-height:44px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:'+(s.ciScanned?'var(--greenBg)':'var(--surface3)')+';color:var(--text);font-size:14px',
+        countries:[{code:'DE',name:'Deutschland'},{code:'AT',name:'Österreich'},{code:'CH',name:'Schweiz'},{code:'FR',name:'Frankreich'},{code:'IT',name:'Italien'},{code:'NL',name:'Niederlande'},{code:'US',name:'USA'},{code:'GB',name:'Vereinigtes Königreich'}],
+        suggestedRoom, suggestedCat:room.cat,
+        roomWarning, roomStatusLabel: this.roomStatus(suggestedRoom).label,
+        altRooms: altRooms.map(r=>({nr:r.nr, pick:()=>this.setState({ciRoomOverride:r.nr})})),
+        showAlt: s.ciShowAlt, noFreeAlt: altRooms.length===0,
+        freeAltRooms: altRooms.map(r=>({nr:r.nr, pick:()=>this.setState({ciRoomOverride:r.nr, ciShowAlt:false})})),
+        step2BtnLabel: roomWarning ? 'Erst Zimmer klären' : 'Zimmer bestätigen – weiter',
+        step2BtnStyle:'width:100%;min-height:48px;border:0;border-radius:10px;font-size:14.5px;font-weight:600;cursor:'+(roomWarning?'not-allowed':'pointer')+';background:'+(roomWarning?'var(--surface2)':'var(--accent)')+';color:'+(roomWarning?'var(--text3)':'#fff'),
+        total:total.toLocaleString('de-DE',{minimumFractionDigits:2})+' €',
+        deposit:deposit.toLocaleString('de-DE',{minimumFractionDigits:2})+' €',
+        hasPrepaid, channel:b.channel,
+        prepaid: prepaidAmt.toLocaleString('de-DE',{minimumFractionDigits:2})+' €',
+        dueNow: dueNow.toLocaleString('de-DE',{minimumFractionDigits:2})+' €',
+        payMethods:['Karte','Bar'].map(m=>({label:m, active:s.ciPay===m, pick:()=>this.setState({ciPay:m}), style:'flex:1;min-height:44px;border:1.5px solid '+(s.ciPay===m?'var(--accent)':'var(--line)')+';border-radius:9px;background:'+(s.ciPay===m?'var(--accent)':'var(--surface)')+';color:'+(s.ciPay===m?'#fff':'var(--text)')+';font-size:13.5px;font-weight:'+(s.ciPay===m?700:500)+';cursor:pointer'})),
+        finalRoom: suggestedRoom,
+        keysCoded: s.ciKeys===0 ? 'Keine (ohne Kartenleser)' : s.ciKeys+'x',
+        codeKeyLabel: s.ciKeys===0 ? 'Schlüsselkarte kodieren' : 'Noch eine Karte kodieren',
+        canAddKey: s.ciKeys>=1 && s.ciKeys<3,
+        stayRange: this.fmt(b.start)+' – '+this.fmt(b.start+b.nights),
+        wifi:'HotelOS-Gast · Passwort im Zimmer', breakfast:'07:00 – 10:30 Uhr, Restaurant EG'
+      },
+      ciAusweis:s.ciAusweis, onCiAusweis:(e)=>this.setState({ciAusweis:e.target.value}),
+      ciNation:s.ciNation, onCiNation:(e)=>this.setState({ciNation:e.target.value}),
+      ciDob:s.ciDob, onCiDob:(e)=>this.setState({ciDob:e.target.value}),
+      ciNext:()=>this.setState(st=>({ciStep:st.ciStep+1})),
+      ciRescan:()=>{ this.setState({ciScanned:true, ciAusweis:'L01X00T47', ciNation:'DE', ciDob:'1988-04-12'}); this.toast('Ausweis gescannt – Daten übernommen.'); },
+      ciOverrideRoom:()=>{
+        delete this.cleaning[suggestedRoom];
+        this.setState({ciRoomOverride:suggestedRoom});
+        this.toast('Zi. '+suggestedRoom+' auf "Frei / In Kontrolle" gesetzt – synchron mit Housekeeping.');
+      },
+      ciShowAlt:()=>this.setState({ciShowAlt:true}),
+      ciPayConfirm:()=>{ if(!s.ciPay){ this.toast('Bitte Zahlungsart wählen.', 'err'); return; } this.setState(st=>({ciStep:st.ciStep+1})); },
+      ciCodeKey:()=>{ this.setState(st=>({ciKeys:st.ciKeys+1})); this.toast('Schlüsselkarte kodiert.'); },
+      ciAddKey:()=>{ this.setState(st=>({ciKeys:st.ciKeys+1})); this.toast('Zweite Schlüsselkarte kodiert.'); },
+      ciSkipKey:()=>{ this.setState({ciStep:5}); this.commitCheckin(b, suggestedRoom); },
+      ciFinish:()=>{ this.setState({ciStep:5}); this.commitCheckin(b, suggestedRoom); },
+      ciAbort:()=>this.setState({screen:'tape'}),
+      ciDone:()=>this.setState({screen:'tape', selId:null}),
+      ciDoneToProfile:()=>this.setState({screen:'front', selId:null})
+    };
+  }
+
+  hkVals(){
+    const s = this.state;
+    const open = this.hkTasks.filter(t=>!s.hkDoneIds[t.id]);
+    const priorityRank = {Hoch:0, Normal:1};
+    open.sort((a,b)=>(b.overdue-a.overdue) || (priorityRank[a.priority]-priorityRank[b.priority]));
+    const cards = open.map(t=>{
+      const checks = (s.hkChecks[t.id] || t.checklist);
+      const doneN = checks.filter(c=>c.done).length;
+      const expanded = !!s.hkExpanded[t.id];
+      const color = t.overdue ? 'var(--red)' : t.priority==='Hoch' ? 'var(--red)' : t.kind==='Abreise' ? 'var(--yellow)' : 'var(--blue)';
+      const allDone = doneN === checks.length;
+      const kindLabel = t.kind==='Zwischen' ? 'Zwischenreinigung' : t.kind==='Abreise' ? 'Abreisereinigung' : 'Ankunftskontrolle';
+      return {
+        room:t.room, cat:t.cat, kind:kindLabel,
+        dot:'width:8px;height:8px;border-radius:50%;margin-top:8px;flex:none;background:'+color,
+        prioLabel: t.priority, prioStyle:'padding:4px 10px;border-radius:20px;font-size:11.5px;font-weight:600;background:'+(t.priority==='Hoch'?'var(--redBg)':'var(--surface2)')+';color:'+(t.priority==='Hoch'?'var(--red)':'var(--text2)'),
+        overdue:t.overdue, overdueText:'Seit '+t.elapsedMin+' Min. in Bearbeitung',
+        cardStyle:'flex:none;background:var(--surface);border:1px solid '+(t.overdue?'var(--red)':'var(--line)')+';border-radius:16px;overflow:hidden;box-shadow:0 1px 2px rgba(20,30,45,.05)',
+        doneN, totalN:checks.length, expanded, chevron: expanded?'▲':'▼',
+        toggle:()=>this.setState(st=>({hkExpanded:Object.assign({}, st.hkExpanded, {[t.id]: !st.hkExpanded[t.id]})})),
+        items: checks.map((c,i)=>({
+          label:c.label, done:c.done,
+          style:'color:'+(c.done?'var(--text3)':'var(--text)')+';text-decoration:'+(c.done?'line-through':'none'),
+          toggle:()=>this.setState(st=>{
+            const cur = st.hkChecks[t.id] || t.checklist;
+            const next = cur.map((x,xi)=>xi===i?Object.assign({},x,{done:!x.done}):x);
+            return {hkChecks:Object.assign({}, st.hkChecks, {[t.id]:next})};
+          })
+        })),
+        finishStyle:'width:100%;min-height:56px;border:0;border-radius:14px;font-size:17px;font-weight:700;letter-spacing:.01em;cursor:pointer;background:'+(allDone?'var(--green)':'var(--accent)')+';color:#fff;box-shadow:0 2px 6px rgba(20,30,45,.18)',
+        finish:()=>{ this.setState(st=>({hkDoneIds:Object.assign({}, st.hkDoneIds, {[t.id]:true})})); this.toast('Zimmer '+t.room+' als fertig markiert.'+(this.state.offline?' (offline gemerkt)':'')); }
+      };
+    });
+    const escalations = this.hkTasks.filter(t=>t.overdue && !s.hkDoneIds[t.id]).sort((a,b)=>b.elapsedMin-a.elapsedMin).map(t=>{
+      const threshold = t.kind==='Abreise' ? 45 : t.kind==='Zwischen' ? 20 : 15;
+      const kindLabel = t.kind==='Zwischen' ? 'Zwischenreinigung' : t.kind==='Abreise' ? 'Abreisereinigung' : 'Ankunftskontrolle';
+      return {
+        room:t.room, cat:t.cat, kind:kindLabel, elapsedMin:t.elapsedMin, threshold,
+        staff:t.staff, staffFirst:t.staff.split(' ')[0],
+        prioLabel: s.hkEscalated[t.id] ? 'Eskaliert' : t.priority,
+        prioStyle:'padding:4px 10px;border-radius:20px;font-size:11.5px;font-weight:600;background:'+(s.hkEscalated[t.id]?'var(--red)':'var(--redBg)')+';color:'+(s.hkEscalated[t.id]?'#fff':'var(--red)'),
+        escalate:()=>{ this.setState(st=>({hkEscalated:Object.assign({}, st.hkEscalated, {[t.id]:true})})); this.toast('Zimmer '+t.room+' an Housekeeping-Leitung eskaliert.', 'err'); },
+        remind:()=>this.toast('Kurze Erinnerung an '+t.staff+' für Zimmer '+t.room+' gesendet.')
+      };
+    });
+    return {
+      hkCards: cards, hkEmpty: cards.length===0,
+      hkOpenCount: cards.length, hkDoneCount: this.hkTasks.length - cards.length,
+      offlineToggleIcon: s.offline ? '◌' : '●',
+      hkLeitung: s.hkView==='leitung', hkStaff: s.hkView==='staff',
+      hkViews: [{key:'staff',label:'Mitarbeiter'},{key:'leitung',label:'Leitung · Eskalationen'}].map(v=>({
+        label:v.label, pick:()=>this.setState({hkView:v.key}),
+        style:'min-height:36px;padding:0 12px;border:0;border-radius:7px;cursor:pointer;font-size:12.5px;font-weight:'+(s.hkView===v.key?600:500)+';background:'+(s.hkView===v.key?'var(--surface)':'transparent')+';color:var(--text);font-family:inherit'
+      })),
+      hkEscalations: escalations, hkEscEmpty: escalations.length===0
+    };
+  }
+
+  frontVals(){
+    const s = this.state;
+    const fq = s.frontSearch.trim().toLowerCase();
+    const initials = (name)=>name.split(',').map(p=>p.trim()[0]).filter(Boolean).slice(0,2).join('').toUpperCase();
+    const match = (b)=> !fq || b.guest.toLowerCase().includes(fq) || b.room.includes(fq) || b.nr.toLowerCase().includes(fq);
+    const openIn = (id)=>()=>this.setState({selId:id, screen:'tape'});
+    const guestRow = (b, chipLabel, chipBg, chipFg, saldoCaption)=>({
+      guest:b.guest, room:b.room, nr:b.nr, initials:initials(b.guest),
+      chipLabel, chipStyle:'padding:3px 9px;border-radius:20px;background:'+chipBg+';color:'+chipFg+';font-size:11px;font-weight:600',
+      saldoCaption, saldoOpen: b.saldo>0,
+      saldoStyle:'font-size:11px;font-weight:600;font-variant-numeric:tabular-nums;color:'+(b.saldo>0?'var(--red)':'var(--text3)'),
+      saldo: b.saldo.toLocaleString('de-DE',{minimumFractionDigits:2})+' €',
+      open: openIn(b.id)
+    });
+    const arrivals = this.state.bookings.filter(b=>b.start===0 && b.status!=='gesperrt' && match(b));
+    const departures = this.state.bookings.filter(b=>b.start+b.nights===0 && b.status!=='gesperrt' && b.start<0 && match(b));
+    const inhouse = this.state.bookings.filter(b=>b.status==='inhouse' && b.start<0 && b.start+b.nights>0 && match(b));
+    const rooms = this.visibleRooms();
+    const occ = this.occupancyFor(0);
+    const b = this.aiBlock();
+    return {
+      frontSearch:s.frontSearch, onFrontSearch:(e)=>this.setState({frontSearch:e.target.value}), frontSearchRef:this.frontSearchRef,
+      frontCols: [
+        {title:'Ankünfte', count:arrivals.length, empty:arrivals.length===0, emptyText:'Keine weiteren Ankünfte heute.', guests: arrivals.map(x=>guestRow(x,'Check-in','var(--blueBg)','var(--blue)','Fällig bei Anreise'))},
+        {title:'Abreisen', count:departures.length, empty:departures.length===0, emptyText:'Keine weiteren Abreisen heute.', guests: departures.map(x=>guestRow(x,'Check-out','var(--surface2)','var(--text2)','Offen bei Abreise'))},
+        {title:'In-House', count:inhouse.length, empty:inhouse.length===0, emptyText:'Kein Gast im Haus.', guests: inhouse.map(x=>guestRow(x,'In-House','var(--blueBg)','var(--blue)','Offener Saldo'))}
+      ],
+      todayStats: [
+        {k:'Auslastung', v:occ+' %'},
+        {k:'Erwartete Ankünfte', v:String(arrivals.length)},
+        {k:'Offene Aufgaben', v:String(2 + Object.keys(this.cleaning).length)},
+        {k:'Offene Salden', v:this.state.bookings.filter(x=>x.status==='inhouse'&&x.saldo>0).length+''}
+      ],
+      frontTasks: [
+        {label: Object.keys(this.cleaning).length+' Zimmer warten auf Reinigung', color:'var(--yellow)'},
+        {label:'2 Meldescheine unvollständig', color:'var(--red)'},
+        {label:'1 Kaution noch offen', color:'var(--text3)'}
+      ],
+      frontAi: !!b,
+      frontAiCount: 4,
+      frontAiText: b ? 'Preisvorschlag Wochenende '+this.fmt(b.days[0])+'–'+this.fmt(b.days[2])+'.' : '',
+      goAiInbox:()=>this.setState({screen:'ai'})
+    };
+  }
+}
+</script>
+
+
+</body></html>

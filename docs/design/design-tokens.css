@@ -1,0 +1,71 @@
+/* Hotel OS – Design Tokens, direkt aus dem Claude-Design-Prototyp extrahiert */
+/* Quelle: Hotel_OS__Standalone_.html, :root-Block */
+
+:root{
+  --bg:#F6F2EC;
+  --surface:#FFFFFF;
+  --surface2:#EFE9E0;
+  --surface3:#F9F6F1;
+  --line:#DDD5C8;
+  --line2:#EAE3D8;
+
+  --text:#1A2330;
+  --text2:#5B6675;
+  --text3:#8A939F;
+
+  --nav:#111C28;
+  --nav2:#1B2836;
+  --navText:#E9EEF4;
+  --navMuted:#8FA0B1;
+
+  --accent:#9A5C2C;
+  --accentHi:#B4703A;
+  --onAccent:#FFFFFF;
+
+  --green:#2E7D5B;      --greenBg:#E4F0EA;
+  --blue:#2C5D8F;       --blueBg:#E4EBF4;
+  --yellow:#B4861A;     --yellowBg:#F6EED8;
+  --red:#B03A32;        --redBg:#F6E4E2;
+  --violet:#6242B8;     --violetBg:#EEE9FB;   --violetLine:#C9BCF0;
+
+  --shadow: 0 1px 2px rgba(20,30,45,.07), 0 10px 28px rgba(20,30,45,.07);
+  --focus:#2C5D8F;
+}
+
+html.theme-dark{
+  --bg:#0D141C;
+  --surface:#151F2A;
+  --surface2:#1D2836;
+  --surface3:#111A24;
+  --line:#2A3745;
+  --line2:#222E3B;
+
+  --text:#E7EDF4;
+  --text2:#94A2B2;
+  --text3:#6F7D8C;
+
+  --nav:#0A1118;
+  --nav2:#151F2A;
+  --navText:#E7EDF4;
+  --navMuted:#7E8C9B;
+
+  --accent:#CF8A4F;
+  --accentHi:#E09A5D;
+  --onAccent:#1A1206;
+
+  --green:#4FAE81;      --greenBg:#12241C;
+  --blue:#6398D0;       --blueBg:#132234;
+  --yellow:#DDB246;     --yellowBg:#26200E;
+  --red:#DC6B63;        --redBg:#2A1614;
+  --violet:#A38CE6;     --violetBg:#1E1934;   --violetLine:#3B3163;
+
+  --shadow: 0 1px 2px rgba(0,0,0,.5), 0 10px 28px rgba(0,0,0,.35);
+  --focus:#6398D0;
+}
+
+/* Basis-Font: IBM Plex Sans (Text), IBM Plex Mono (Zahlen/Preise/Codes, tabellarisch ausgerichtet) */
+body{
+  font-family: 'IBM Plex Sans', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}

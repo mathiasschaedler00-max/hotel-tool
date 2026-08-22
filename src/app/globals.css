@@ -1,26 +1,147 @@
 @import "tailwindcss";
 
+/* ============================================================
+ * Design-Tokens — 1:1 aus docs/design/design-tokens.css übernommen
+ * (echte Hex-Werte aus dem Claude-Design-Prototyp "Hotel OS", nicht
+ * rekonstruiert). Quelle der Wahrheit bleibt die Datei dort; hier nur
+ * eingebunden + auf Tailwinds `@theme`-Namen gemappt.
+ *
+ * Dark Mode: klassenbasiert (`html.theme-dark`), genau wie im Prototyp —
+ * es gibt in Phase 1 noch keinen Theme-Umschalter in der UI, die Klasse
+ * kann aber jederzeit gesetzt werden, sobald es einen gibt.
+ * ============================================================ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #f6f2ec;
+  --surface: #ffffff;
+  --surface-2: #efe9e0;
+  --surface-3: #f9f6f1;
+  --line: #ddd5c8;
+  --line-2: #eae3d8;
+
+  --text: #1a2330;
+  --text-2: #5b6675;
+  --text-3: #8a939f;
+
+  --nav: #111c28;
+  --nav-2: #1b2836;
+  --nav-text: #e9eef4;
+  --nav-muted: #8fa0b1;
+
+  --accent: #9a5c2c;
+  --accent-hi: #b4703a;
+  --on-accent: #ffffff;
+
+  /* ── Statusfarben (siehe docs/design/hotel-tool-design-referenz.md §2) ──
+   * Jede Farbe hat GENAU EINE Bedeutung pro Kontext — nie doppelt belegen:
+   *  green      → Zimmer frei (Punkt) / abgeschlossene Aktion (Button)
+   *  blue       → belegt/in-house (Balken gefüllt) bzw. reserviert (Balken umrandet/hell)
+   *  yellow     → Reinigung offen (Zimmerstatus-Punkt) — NIE für Buchungsbalken
+   *  red        → gesperrt/Wartung (Balken/Rahmen), Housekeeping "Überfällig"
+   *  violet     → IMMER und ausschließlich KI-generierter Inhalt, immer mit
+   *               Label ("KI-VORSCHLAG" u.ä.), nie automatisch ausführen
+   *  accent     → Primäraktion (Buttons: "Neue Buchung", "Fertig", "Senden")
+   */
+  --green: #2e7d5b;
+  --green-bg: #e4f0ea;
+  --blue: #2c5d8f;
+  --blue-bg: #e4ebf4;
+  --yellow: #b4861a;
+  --yellow-bg: #f6eed8;
+  --red: #b03a32;
+  --red-bg: #f6e4e2;
+  --violet: #6242b8;
+  --violet-bg: #eee9fb;
+  --violet-line: #c9bcf0;
+
+  --shadow-token: 0 1px 2px rgba(20, 30, 45, 0.07), 0 10px 28px rgba(20, 30, 45, 0.07);
+  --focus: #2c5d8f;
 }
+
+html.theme-dark {
+  --bg: #0d141c;
+  --surface: #151f2a;
+  --surface-2: #1d2836;
+  --surface-3: #111a24;
+  --line: #2a3745;
+  --line-2: #222e3b;
+
+  --text: #e7edf4;
+  --text-2: #94a2b2;
+  --text-3: #6f7d8c;
+
+  --nav: #0a1118;
+  --nav-2: #151f2a;
+  --nav-text: #e7edf4;
+  --nav-muted: #7e8c9b;
+
+  --accent: #cf8a4f;
+  --accent-hi: #e09a5d;
+  --on-accent: #1a1206;
+
+  --green: #4fae81;
+  --green-bg: #12241c;
+  --blue: #6398d0;
+  --blue-bg: #132234;
+  --yellow: #ddb246;
+  --yellow-bg: #26200e;
+  --red: #dc6b63;
+  --red-bg: #2a1614;
+  --violet: #a38ce6;
+  --violet-bg: #1e1934;
+  --violet-line: #3b3163;
+
+  --shadow-token: 0 1px 2px rgba(0, 0, 0, 0.5), 0 10px 28px rgba(0, 0, 0, 0.35);
+  --focus: #6398d0;
+}
+
+/* Rooms-Status (6 Werte, siehe docs/design/hotel-tool-design-referenz.md §3
+ * und die zugehörige Migration `rooms.status`): frei=green, reserviert=blue
+ * (umrandet/hell), belegt=blue (gefüllt), reinigung=yellow, wartung=red,
+ * gesperrt=red. Zwei Zustände teilen sich "blue"/"red" bewusst (Balken- vs.
+ * Rahmen-Darstellung unterscheidet sie visuell, nicht die Farbe selbst). */
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-line: var(--line);
+  --color-line-2: var(--line-2);
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-text: var(--text);
+  --color-text-2: var(--text-2);
+  --color-text-3: var(--text-3);
+
+  --color-nav: var(--nav);
+  --color-nav-2: var(--nav-2);
+  --color-nav-text: var(--nav-text);
+  --color-nav-muted: var(--nav-muted);
+
+  --color-accent: var(--accent);
+  --color-accent-hi: var(--accent-hi);
+  --color-on-accent: var(--on-accent);
+
+  --color-green: var(--green);
+  --color-green-bg: var(--green-bg);
+  --color-blue: var(--blue);
+  --color-blue-bg: var(--blue-bg);
+  --color-yellow: var(--yellow);
+  --color-yellow-bg: var(--yellow-bg);
+  --color-red: var(--red);
+  --color-red-bg: var(--red-bg);
+  --color-violet: var(--violet);
+  --color-violet-bg: var(--violet-bg);
+  --color-violet-line: var(--violet-line);
+
+  --color-focus: var(--focus);
+  --shadow-token: var(--shadow-token);
+
+  --font-sans: var(--font-ibm-plex-sans), system-ui, sans-serif;
+  --font-mono: var(--font-ibm-plex-mono), ui-monospace, monospace;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
 }
