@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { formatDate, formatWeekdayShort } from "@lib/format";
 import type { Room } from "@modules/pms/rooms/service";
 import type { RoomType } from "@modules/pms/room-types/service";
@@ -110,6 +110,30 @@ export function CalendarBoard({
   const [selectedTypeIds, setSelectedTypeIds] = useState<Set<string>>(() => new Set(roomTypes.map((rt) => rt.id)));
   const [query, setQuery] = useState("");
   const [selectedReservationId, setSelectedReservationId] = useState<string | null>(null);
+
+  // "Zeitraum wählen"-Popover: bleibt als natives <details> ohne JS
+  // funktionsfähig (GET-Formular), schließt sich zusätzlich bei Klick
+  // daneben/Escape — sonst liegt es unbegrenzt über dem Gitter (Review-Fund,
+  // 22.08.2026: "verdeckt die Anzeige mit den anderen Sachen").
+  const rangePickerRef = useRef<HTMLDetailsElement>(null);
+  useEffect(() => {
+    function handlePointerDown(e: MouseEvent) {
+      if (rangePickerRef.current?.open && !rangePickerRef.current.contains(e.target as Node)) {
+        rangePickerRef.current.open = false;
+      }
+    }
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape" && rangePickerRef.current) {
+        rangePickerRef.current.open = false;
+      }
+    }
+    document.addEventListener("mousedown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
 
   // Nur Reservierungen, die diesen (Desktop-)Zeitraum tatsächlich überschneiden
   // — die Server-Query liefert ggf. mehr (siehe page.tsx: eine gemeinsame
@@ -296,7 +320,7 @@ export function CalendarBoard({
          * Als <details>-Popover mit reinem GET-Formular gebaut — braucht kein
          * Client-JS, landet direkt in den URL-Suchparametern (`from`/`to`),
          * genau wie die übrigen Zeitraum-Steuerelemente hier. */}
-        <details className="relative text-xs">
+        <details ref={rangePickerRef} className="relative text-xs">
           <summary className="flex min-h-8 list-none items-center justify-center rounded-md bg-surface-2 px-3 text-text-2 hover:bg-surface [&::-webkit-details-marker]:hidden">
             Zeitraum wählen
           </summary>
