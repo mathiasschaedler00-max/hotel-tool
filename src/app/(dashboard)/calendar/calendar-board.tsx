@@ -202,76 +202,105 @@ export function CalendarBoard({
   const prevFrom = addDays(rangeFrom, -days);
   const nextFrom = addDays(rangeFrom, days);
 
+  const roomCountByType = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const room of rooms) {
+      map.set(room.room_type_id, (map.get(room.room_type_id) ?? 0) + 1);
+    }
+    return map;
+  }, [rooms]);
+
   return (
-    <div className="flex flex-col gap-4 p-4 sm:p-8">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
+    <div className="flex flex-col gap-3 p-4 sm:p-6">
+      {/* Eine gemeinsame Werkzeugleiste (Datum-Navigation, Zeitraum-Umschalter,
+       * Sofortsuche, "Neue Buchung") statt Suche separat in der Sidebar —
+       * so wie im echten Prototyp (docs/design/hotel-os-prototype-source.html,
+       * <header>-Block), nach Review korrigiert. */}
+      <div className="flex flex-wrap items-center gap-3 rounded-lg border border-line bg-surface px-3 py-2">
+        <div className="flex items-center gap-0.5 rounded-md bg-surface-2 p-0.5">
           <Link
             href={`/calendar?from=${prevFrom}&days=${days}`}
             aria-label="Zeitraum zurück"
-            className="flex min-h-9 min-w-9 items-center justify-center rounded-md border border-line bg-surface text-text hover:bg-surface-2"
+            className="flex min-h-8 min-w-8 items-center justify-center rounded text-text hover:bg-surface"
           >
             ←
           </Link>
           <Link
             href={`/calendar?from=${today}&days=${days}`}
-            className="flex min-h-9 items-center justify-center rounded-md border border-line bg-surface px-3 text-sm text-text hover:bg-surface-2"
+            className="flex min-h-8 items-center justify-center rounded px-3 text-xs font-medium text-text hover:bg-surface"
           >
             Heute
           </Link>
           <Link
             href={`/calendar?from=${nextFrom}&days=${days}`}
             aria-label="Zeitraum vor"
-            className="flex min-h-9 min-w-9 items-center justify-center rounded-md border border-line bg-surface text-text hover:bg-surface-2"
+            className="flex min-h-8 min-w-8 items-center justify-center rounded text-text hover:bg-surface"
           >
             →
           </Link>
         </div>
-        <div className="flex items-center gap-1 text-sm">
+        <div className="flex items-center gap-0.5 rounded-md bg-surface-2 p-0.5 text-xs">
           {ALLOWED_DAYS.map((d) => (
             <Link
               key={d}
               href={`/calendar?from=${rangeFrom}&days=${d}`}
-              className={`flex min-h-9 items-center justify-center rounded-md border px-3 ${
-                d === days ? "border-accent bg-accent text-on-accent" : "border-line bg-surface text-text-2 hover:bg-surface-2"
+              className={`flex min-h-8 items-center justify-center rounded px-3 ${
+                d === days ? "bg-accent text-on-accent" : "text-text-2 hover:bg-surface"
               }`}
             >
               {d}T
             </Link>
           ))}
         </div>
-      </div>
 
-      <div className="flex flex-col gap-4 sm:flex-row">
-      <aside className="flex shrink-0 flex-col gap-6 sm:w-56">
-        <div>
-          <label className="mb-1 block text-xs font-medium text-text-2" htmlFor="calendar-search">
-            Suche
-          </label>
+        <div className="flex-1" />
+
+        <div className="relative">
+          <span aria-hidden className="pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2 text-xs text-text-3">
+            ⌕
+          </span>
           <input
-            id="calendar-search"
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Gast, Zimmer oder Buchungsnr."
-            className="min-h-11 w-full rounded-md border border-line bg-surface px-3 text-sm text-text focus:border-focus focus:outline-none"
+            placeholder="Gast, Zimmer oder Buchungsnr. …"
+            aria-label="Suche"
+            className="min-h-9 w-56 rounded-md border border-line bg-surface-3 py-1.5 pr-3 pl-7 text-xs text-text focus:border-focus focus:outline-none"
           />
         </div>
 
+        {/* "Neue Buchung" existiert im Prototyp als Werkzeugleisten-Button —
+         * hier bewusst NICHT verkabelt: das manuelle Anlegen von Reservierungen
+         * ist explizit Schritt 3, nicht Schritt 2. Optisch schon an der
+         * richtigen Stelle, damit die Werkzeugleiste beim Schritt-3-Umbau
+         * nicht nochmal umgebaut werden muss. */}
+        <button
+          type="button"
+          disabled
+          title="Reservierungen manuell anlegen kommt in Schritt 3"
+          className="min-h-9 cursor-not-allowed rounded-md bg-accent px-3 text-xs font-semibold text-on-accent opacity-50"
+        >
+          Neue Buchung
+        </button>
+      </div>
+
+      <div className="flex flex-col gap-3 sm:flex-row">
+      <aside className="flex shrink-0 flex-col gap-5 sm:w-52">
         {roomTypes.length > 0 && (
           <div>
-            <p className="mb-2 text-xs font-medium text-text-2">Kategorien</p>
-            <ul className="flex flex-col gap-1">
+            <p className="mb-1.5 text-[10px] font-medium tracking-wide text-text-3 uppercase">Kategorien</p>
+            <ul className="flex flex-col gap-0.5">
               {roomTypes.map((rt) => (
                 <li key={rt.id}>
-                  <label className="flex min-h-8 cursor-pointer items-center gap-2 text-sm text-text">
+                  <label className="flex min-h-8 cursor-pointer items-center gap-2 text-xs text-text">
                     <input
                       type="checkbox"
                       checked={selectedTypeIds.has(rt.id)}
                       onChange={() => toggleType(rt.id)}
-                      className="h-4 w-4 rounded border-line"
+                      className="h-3.5 w-3.5 rounded border-line"
                     />
-                    {rt.name}
+                    <span className="flex-1">{rt.name}</span>
+                    <span className="font-mono text-[11px] text-text-3">{roomCountByType.get(rt.id) ?? 0}</span>
                   </label>
                 </li>
               ))}
@@ -280,7 +309,7 @@ export function CalendarBoard({
         )}
 
         <div>
-          <p className="mb-2 text-xs font-medium text-text-2">Legende</p>
+          <p className="mb-1.5 text-[10px] font-medium tracking-wide text-text-3 uppercase">Legende</p>
           <ul className="flex flex-col gap-1.5 text-xs text-text-2">
             <li className="flex items-center gap-2">
               <span className="inline-block h-3 w-5 shrink-0 rounded border-2 border-blue bg-blue-bg" /> Reserviert
@@ -304,7 +333,12 @@ export function CalendarBoard({
         </div>
       </aside>
 
-      <div className="min-w-0 flex-1 overflow-x-auto rounded-lg border border-line bg-surface shadow-[var(--shadow-token)]">
+      {/* `max-h-[70vh]` + `overflow-y-auto` machen dieses Element zum
+       * eigenen vertikalen Scroll-Viewport (statt der ganzen Seite) — nur
+       * dadurch kann `sticky top-0` auf der Datums-Kopfzeile unten
+       * überhaupt etwas bewirken. Ohne begrenzte Höhe würde der Container
+       * beliebig mitwachsen und nie selbst scrollen. */}
+      <div className="min-w-0 flex-1 overflow-x-auto overflow-y-auto rounded-lg border border-line bg-surface shadow-[var(--shadow-token)] max-h-[70vh]">
         {rooms.length === 0 ? (
           <p className="p-6 text-sm text-text-2">Noch keine Zimmer angelegt.</p>
         ) : visibleRooms.length === 0 ? (
@@ -317,12 +351,14 @@ export function CalendarBoard({
               gridTemplateRows: `64px repeat(${totalRows - 1}, auto)`,
             }}
           >
-            <div className="sticky left-0 z-10 border-b border-r border-line bg-surface-3" style={{ gridColumn: 1, gridRow: 1 }} />
+            {/* Ecke oben-links: sticky in BEIDEN Achsen (höchster z-index, da
+             * Schnittpunkt von Zimmerspalte + Datums-Kopfzeile). */}
+            <div className="sticky top-0 left-0 z-30 border-b border-r border-line bg-surface-3" style={{ gridColumn: 1, gridRow: 1 }} />
 
             {columns.map((day, i) => (
               <div
                 key={day}
-                className="border-b border-line bg-surface-3 px-2 py-2 text-center"
+                className="sticky top-0 z-20 border-b border-line bg-surface-3 px-2 py-2 text-center"
                 style={{ gridColumn: i + 2, gridRow: 1 }}
               >
                 <div className="text-xs font-medium text-text-2">
