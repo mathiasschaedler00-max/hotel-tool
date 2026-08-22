@@ -6,7 +6,8 @@ import { listReservationsInRange } from "@modules/pms/reservations/service";
 import { CalendarBoard } from "./calendar-board";
 import { DayList } from "./day-list";
 
-const DESKTOP_DAYS = 14;
+const DEFAULT_DESKTOP_DAYS = 14;
+const ALLOWED_DESKTOP_DAYS = [7, 14, 31] as const;
 const ISO_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 
 function addDays(iso: string, days: number): string {
@@ -38,7 +39,7 @@ function todayIso(): string {
 export default async function CalendarPage({
   searchParams,
 }: {
-  searchParams: Promise<{ from?: string; date?: string }>;
+  searchParams: Promise<{ from?: string; date?: string; days?: string }>;
 }) {
   const params = await searchParams;
   const hotelId = await getActiveHotelId();
@@ -53,7 +54,10 @@ export default async function CalendarPage({
 
   const today = todayIso();
   const rangeFrom = params.from && ISO_DATE_PATTERN.test(params.from) ? params.from : today;
-  const rangeToExclusive = addDays(rangeFrom, DESKTOP_DAYS);
+  const desktopDays = ALLOWED_DESKTOP_DAYS.includes(Number(params.days) as (typeof ALLOWED_DESKTOP_DAYS)[number])
+    ? Number(params.days)
+    : DEFAULT_DESKTOP_DAYS;
+  const rangeToExclusive = addDays(rangeFrom, desktopDays);
   const mobileDate = params.date && ISO_DATE_PATTERN.test(params.date) ? params.date : today;
   const mobileDateNextDay = addDays(mobileDate, 1);
 
@@ -80,7 +84,7 @@ export default async function CalendarPage({
           rooms={rooms}
           reservations={reservations}
           rangeFrom={rangeFrom}
-          days={DESKTOP_DAYS}
+          days={desktopDays}
           today={today}
         />
       </div>

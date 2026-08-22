@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import { formatDate, formatWeekdayShort } from "@lib/format";
 import type { Room } from "@modules/pms/rooms/service";
@@ -28,6 +29,21 @@ const DOT_COLOR_CLASSES: Record<string, string> = {
   yellow: "bg-yellow",
   red: "bg-red",
 };
+
+const ALLOWED_DAYS = [7, 14, 31] as const;
+
+/**
+ * Rein visueller Kapazitäts-Indikator (nicht in der Design-Referenz
+ * vorgegeben, aber sinnvolle Ergänzung zur reinen %-Zahl). Andere
+ * Bedeutung als die Statusfarben-Tabelle §2 (dort: Zimmer-/Buchungsstatus)
+ * — hier: reine Auslastungs-Kapazität, eigener Kontext, siehe §2 "Farbe =
+ * eindeutig eine Bedeutung PRO KONTEXT".
+ */
+function occupancyColorClass(pct: number): string {
+  if (pct >= 80) return "bg-red";
+  if (pct >= 50) return "bg-yellow";
+  return "bg-green";
+}
 
 /** Gleiche Farb-/Label-Zuordnung wie `room-list.tsx#StatusDot` (aus `room-status.ts` importiert, nicht neu definiert). */
 function RoomStatusDot({ status }: { status: RoomStatus }) {
@@ -178,8 +194,55 @@ export function CalendarBoard({
     });
   }
 
+  // Navigation: Vor/Zurück verschiebt um `days` (den aktuellen Fenster-
+  // Umfang), "Heute" behält den gewählten Umfang bei und setzt nur das
+  // Datum zurück. Linkbasiert (wie schon die mobile Tagesliste in
+  // `day-list.tsx`) statt Client-State — ein echter Server-Roundtrip mit
+  // frisch geladenen Daten, kein Re-Fetch nötig.
+  const prevFrom = addDays(rangeFrom, -days);
+  const nextFrom = addDays(rangeFrom, days);
+
   return (
-    <div className="flex flex-col gap-4 p-4 sm:flex-row sm:p-8">
+    <div className="flex flex-col gap-4 p-4 sm:p-8">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <Link
+            href={`/calendar?from=${prevFrom}&days=${days}`}
+            aria-label="Zeitraum zurück"
+            className="flex min-h-9 min-w-9 items-center justify-center rounded-md border border-line bg-surface text-text hover:bg-surface-2"
+          >
+            ←
+          </Link>
+          <Link
+            href={`/calendar?from=${today}&days=${days}`}
+            className="flex min-h-9 items-center justify-center rounded-md border border-line bg-surface px-3 text-sm text-text hover:bg-surface-2"
+          >
+            Heute
+          </Link>
+          <Link
+            href={`/calendar?from=${nextFrom}&days=${days}`}
+            aria-label="Zeitraum vor"
+            className="flex min-h-9 min-w-9 items-center justify-center rounded-md border border-line bg-surface text-text hover:bg-surface-2"
+          >
+            →
+          </Link>
+        </div>
+        <div className="flex items-center gap-1 text-sm">
+          {ALLOWED_DAYS.map((d) => (
+            <Link
+              key={d}
+              href={`/calendar?from=${rangeFrom}&days=${d}`}
+              className={`flex min-h-9 items-center justify-center rounded-md border px-3 ${
+                d === days ? "border-accent bg-accent text-on-accent" : "border-line bg-surface text-text-2 hover:bg-surface-2"
+              }`}
+            >
+              {d}T
+            </Link>
+          ))}
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-4 sm:flex-row">
       <aside className="flex shrink-0 flex-col gap-6 sm:w-56">
         <div>
           <label className="mb-1 block text-xs font-medium text-text-2" htmlFor="calendar-search">
@@ -251,7 +314,7 @@ export function CalendarBoard({
             className="relative grid"
             style={{
               gridTemplateColumns: `${ROOM_COL_PX}px repeat(${days}, minmax(${DAY_COL_MIN_PX}px, 1fr))`,
-              gridTemplateRows: `56px repeat(${totalRows - 1}, auto)`,
+              gridTemplateRows: `64px repeat(${totalRows - 1}, auto)`,
             }}
           >
             <div className="sticky left-0 z-10 border-b border-r border-line bg-surface-3" style={{ gridColumn: 1, gridRow: 1 }} />
@@ -266,6 +329,12 @@ export function CalendarBoard({
                   {formatWeekdayShort(day)} {formatDate(day)}
                 </div>
                 <div className="font-mono text-xs text-text-3">{occupancyByDay[i]}%</div>
+                <div className="mt-1 h-1 w-full overflow-hidden rounded-full bg-surface-2" aria-hidden>
+                  <div
+                    className={`h-full rounded-full ${occupancyColorClass(occupancyByDay[i])}`}
+                    style={{ width: `${occupancyByDay[i]}%` }}
+                  />
+                </div>
               </div>
             ))}
 
@@ -281,7 +350,7 @@ export function CalendarBoard({
               d.kind === "category" ? (
                 <div
                   key={`cat-${d.roomType.id}`}
-                  className="border-b border-line bg-surface-2 px-3 py-1.5 text-xs font-semibold tracking-wide text-text-2 uppercase"
+                  className="border-b border-line bg-surface-2 px-3 py-1 text-xs font-semibold tracking-wide text-text-2 uppercase"
                   style={{ gridColumn: "1 / -1", gridRow: d.row }}
                 >
                   {d.roomType.name}
@@ -289,7 +358,7 @@ export function CalendarBoard({
               ) : (
                 <div
                   key={`room-${d.room.id}`}
-                  className="sticky left-0 z-10 flex items-center gap-2 border-r border-b border-line bg-surface-3 px-3 py-2"
+                  className="sticky left-0 z-10 flex items-center gap-2 border-r border-b border-line bg-surface-3 px-3 py-1"
                   style={{ gridColumn: 1, gridRow: d.row }}
                 >
                   <RoomStatusDot status={d.room.status} />
@@ -314,6 +383,7 @@ export function CalendarBoard({
                 const guestName = reservation.guest
                   ? `${reservation.guest.first_name} ${reservation.guest.last_name}`
                   : "Ohne Gast";
+                const nights = daysBetween(reservation.check_in_date, reservation.check_out_date);
                 return (
                   <button
                     key={reservation.id}
@@ -325,13 +395,14 @@ export function CalendarBoard({
                     }`}
                     style={{ gridColumn: `${startCol} / span ${span}`, gridRow: rowIndex }}
                   >
-                    {guestName}
+                    {guestName} · {nights}N
                   </button>
                 );
               });
             })}
           </div>
         )}
+      </div>
       </div>
 
       {selectedReservation && (
