@@ -29,6 +29,15 @@ function daysBetween(a: string, b: string): number {
   return Math.round((Date.parse(`${b}T00:00:00Z`) - Date.parse(`${a}T00:00:00Z`)) / 86_400_000);
 }
 
+function weekdayOf(iso: string): number {
+  return new Date(`${iso}T00:00:00Z`).getUTCDay(); // 0 = So … 6 = Sa
+}
+
+function isWeekendDay(iso: string): boolean {
+  const wd = weekdayOf(iso);
+  return wd === 0 || wd === 6;
+}
+
 const DOT_COLOR_CLASSES: Record<string, string> = {
   green: "bg-green",
   blue: "bg-blue",
@@ -221,9 +230,13 @@ export function CalendarBoard({
   for (const roomType of roomTypes) {
     const roomsForType = roomsByType.get(roomType.id);
     if (!roomsForType || roomsForType.length === 0) continue;
-    rowDescriptors.push({ kind: "availability", row: rowCursor, roomType });
-    rowCursor++;
+    // Reihenfolge bewusst Kategorie ZUERST, dann Frei-Zeile (Review-Fund,
+    // 23.08.2026: umgekehrt war die Zuordnung uneindeutig — die Frei-Zeile
+    // wirkte wie der Abschluss der VORHERIGEN Gruppe statt der Kopf der
+    // nächsten).
     rowDescriptors.push({ kind: "category", row: rowCursor, roomType });
+    rowCursor++;
+    rowDescriptors.push({ kind: "availability", row: rowCursor, roomType });
     rowCursor++;
     for (const room of roomsForType) {
       rowDescriptors.push({ kind: "room", row: rowCursor, room });
@@ -563,9 +576,9 @@ export function CalendarBoard({
               <div
                 key={day}
                 title={`${formatWeekdayShort(day)} ${formatDate(day)} · ${occupancyByDay[i]}% belegt`}
-                className={`sticky top-0 z-20 border-b border-line bg-surface-3 text-center ${
-                  isCompact ? "px-0.5 py-2" : "px-2 py-2"
-                }`}
+                className={`sticky top-0 z-20 border-b border-l border-b-line text-center ${
+                  weekdayOf(day) === 1 ? "border-l-line" : "border-l-line-2"
+                } ${isWeekendDay(day) ? "bg-surface-2" : "bg-surface-3"} ${isCompact ? "px-0.5 py-2" : "px-2 py-2"}`}
                 style={{ gridColumn: i + 2, gridRow: 1 }}
               >
                 {isCompact ? (
@@ -587,6 +600,32 @@ export function CalendarBoard({
               </div>
             ))}
 
+            {/* Tagesraster (Review-Fund, 23.08.2026: die Fläche zwischen den
+             * Balken war leer, dadurch bei weiter rechts liegenden Buchungen
+             * schwer erkennbar, wo genau ein Tag beginnt/endet). Beides sind
+             * normale (nicht positionierte) Grid-Items — malen dadurch
+             * automatisch HINTER den sticky Kopf-/Zimmerspalten (die einen
+             * z-index tragen) und HINTER den Buchungsbalken (die später im
+             * DOM stehen), ganz ohne eigene z-index-Jonglage. */}
+            {columns.map((day, i) => (
+              <div
+                key={`gridline-${day}`}
+                aria-hidden
+                className={`pointer-events-none border-l ${weekdayOf(day) === 1 ? "border-l-line" : "border-l-line-2"}`}
+                style={{ gridColumn: i + 2, gridRow: `1 / ${totalRows + 1}` }}
+              />
+            ))}
+            {columns.map((day, i) =>
+              isWeekendDay(day) ? (
+                <div
+                  key={`weekend-${day}`}
+                  aria-hidden
+                  className="pointer-events-none bg-surface-2"
+                  style={{ gridColumn: i + 2, gridRow: `2 / ${totalRows + 1}` }}
+                />
+              ) : null
+            )}
+
             {todayColIndex !== null && (
               <div
                 aria-hidden
@@ -597,13 +636,17 @@ export function CalendarBoard({
 
             {rowDescriptors.map((d) => {
               if (d.kind === "availability") {
-                // Schmale Zeile ÜBER dem Kategorie-Band: pro Tag, wie viele
-                // Zimmer dieser Kategorie noch frei sind (Auftrag 22.08.2026).
+                // Schmale Zeile DIREKT UNTER dem Kategorie-Band (Review-Fund,
+                // 23.08.2026: darüber war die Zuordnung uneindeutig) — pro Tag,
+                // wie viele Zimmer dieser Kategorie noch frei sind. Eigene
+                // Hintergrundtönung (statt nur sehr blassem Text), damit die
+                // Zeile als eigenständige Info erkennbar ist — beantwortet die
+                // häufigste Frage am Telefon.
                 const freePerDay = availabilityByTypeAndDay.get(d.roomType.id) ?? [];
                 return (
                   <Fragment key={`avail-${d.roomType.id}`}>
                     <div
-                      className="sticky left-0 z-10 border-r border-b border-line bg-surface px-3 py-0.5 text-[10px] text-text-3"
+                      className="sticky left-0 z-10 border-r border-b border-line bg-surface-2 px-3 py-0.5 text-[10px] font-medium tracking-wide text-text-2 uppercase"
                       style={{ gridColumn: 1, gridRow: d.row }}
                     >
                       Frei
@@ -613,8 +656,8 @@ export function CalendarBoard({
                       return (
                         <div
                           key={day}
-                          className={`border-b border-line py-0.5 text-center font-mono text-[10px] ${
-                            free === 0 ? "font-semibold text-red" : "text-text-3"
+                          className={`border-b border-line bg-surface-2 py-0.5 text-center font-mono text-xs ${
+                            free === 0 ? "font-semibold text-red" : "font-medium text-text-2"
                           }`}
                           style={{ gridColumn: i + 2, gridRow: d.row }}
                         >
