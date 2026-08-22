@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import type { PoolClient } from "pg";
 import type { ModuleContext } from "@modules/_shared/context";
 import { executeWrite } from "@modules/_shared/write";
 import { ConflictError, NotFoundError } from "@modules/_shared/errors";
@@ -55,6 +56,36 @@ export async function getReservationById(ctx: Pick<ModuleContext, "hotelId">, id
 }
 
 /**
+ * Prueft, dass eine referenzierte Ressource (guest/room_type/room) wirklich
+ * zu `hotelId` gehoert, BEVOR sie in eine neue Reservierung uebernommen wird.
+ *
+ * Bugfix (gefunden im Phase-0-Abnahmetest, Punkt 2 "Mandantentrennung"):
+ * `createReservation()` hat `input.guestId`/`input.roomTypeId`/`input.roomId`
+ * bisher ungeprueft in die Insert-Values uebernommen. `ctx.hotelId` bestimmt
+ * zwar den `hotel_id`-Wert der neuen Reservierung selbst, aber nichts hat
+ * verhindert, dass ein Aufrufer mit gueltigem Hotel-A-Kontext eine Guest-/
+ * RoomType-/Room-ID referenziert, die tatsaechlich zu Hotel B gehoert — eine
+ * cross-tenant Referenz, die die zweite Verteidigungslinie (Vorgabe #2,
+ * RBAC/Modul-Ebene) haette abfangen muessen, aber nicht abgefangen hat.
+ * Wirft `NotFoundError` (nicht `ForbiddenError`) — aus Sicht von `ctx.hotelId`
+ * existiert die Ressource schlicht nicht, analog zu `getReservationById()` &
+ * Co., die dieselbe Semantik fuer nicht zum Hotel gehoerende IDs verwenden.
+ */
+async function assertBelongsToHotel(
+  client: PoolClient,
+  hotelId: string,
+  table: "guests" | "room_types" | "rooms",
+  id: string,
+  resourceLabel: string
+): Promise<void> {
+  const { rows } = await client.query(
+    `select 1 from ${table} where id = $1 and hotel_id = $2 and deleted_at is null`,
+    [id, hotelId]
+  );
+  if (rows.length === 0) throw new NotFoundError(resourceLabel);
+}
+
+/**
  * Legt eine neue Reservierung an (1 Reservation = 1 Room-Stay).
  * Muster: assertModuleEnabled → requirePermission → executeWrite.
  * Publiziert `reservation.created` (aktuell ohne Subscriber, siehe topics.ts).
@@ -73,6 +104,15 @@ export async function createReservation(ctx: ModuleContext, input: CreateReserva
     resourceType: "reservation",
     action: "reservation.created",
     mutate: async (client) => {
+      // Hotel-Zugehoerigkeit der referenzierten Ressourcen pruefen (siehe
+      // `assertBelongsToHotel()` oben) — VOR dem Insert, innerhalb derselben
+      // Transaktion, damit ein Fehlschlag hier den gesamten Write rollbackt.
+      await assertBelongsToHotel(client, ctx.hotelId, "guests", input.guestId, "guest");
+      await assertBelongsToHotel(client, ctx.hotelId, "room_types", input.roomTypeId, "room_type");
+      if (input.roomId) {
+        await assertBelongsToHotel(client, ctx.hotelId, "rooms", input.roomId, "room");
+      }
+
       const { rows } = await client.query<Reservation>(
         `insert into reservations
            (id, hotel_id, reservation_no, group_booking_id, guest_id, room_type_id, room_id,
