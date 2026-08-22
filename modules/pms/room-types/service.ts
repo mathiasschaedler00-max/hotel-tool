@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import type { ModuleContext } from "@modules/_shared/context";
 import { executeWrite } from "@modules/_shared/write";
-import { NotFoundError } from "@modules/_shared/errors";
+import { NotFoundError, ConflictError } from "@modules/_shared/errors";
 import { assertModuleEnabled } from "@modules/entitlements/service";
 import { requirePermission } from "@modules/rbac/permissions";
 import { createServiceClient } from "@lib/supabase/service";
@@ -120,5 +120,50 @@ export async function updateRoomType(ctx: ModuleContext, input: UpdateRoomTypeIn
       return { resourceId: input.roomTypeId, before, after: rows[0] };
     },
     event: { topic: EVENTS.ROOM_TYPE_UPDATED, payload: { roomTypeId: input.roomTypeId } },
+  });
+}
+
+/**
+ * Write: Kategorie deaktivieren (Auftrag 23.08.2026) — Soft-Delete wie
+ * überall sonst, kein Hard-Delete. Schutz: eine Kategorie mit noch aktiv
+ * zugeordneten Zimmern darf NICHT deaktiviert werden — `rooms.room_type_id`
+ * ist `not null`, ein deaktiviertes Zimmer würde sonst auf eine
+ * verschwundene Kategorie zeigen. Zimmer müssen erst umkategorisiert oder
+ * selbst außer Betrieb genommen werden.
+ */
+export async function deactivateRoomType(ctx: ModuleContext, roomTypeId: string): Promise<RoomType> {
+  await assertModuleEnabled(ctx.hotelId, "pms");
+  requirePermission(ctx, "pms.room_types.write");
+
+  return executeWrite<RoomType>(ctx, {
+    resourceType: "room_type",
+    action: "room_type.deactivated",
+    mutate: async (client) => {
+      const { rows: beforeRows } = await client.query<RoomType>(
+        `select * from room_types where id = $1 and hotel_id = $2 and deleted_at is null for update`,
+        [roomTypeId, ctx.hotelId]
+      );
+      const before = beforeRows[0];
+      if (!before) throw new NotFoundError("room_type");
+
+      const { rows: countRows } = await client.query<{ count: string }>(
+        `select count(*)::text as count from rooms where room_type_id = $1 and deleted_at is null`,
+        [roomTypeId]
+      );
+      const roomCount = Number(countRows[0].count);
+      if (roomCount > 0) {
+        throw new ConflictError(
+          `Kategorie hat noch ${roomCount} zugeordnete${roomCount === 1 ? "s" : ""} Zimmer — erst umkategorisieren oder außer Betrieb nehmen`,
+          { roomCount }
+        );
+      }
+
+      const { rows } = await client.query<RoomType>(
+        `update room_types set deleted_at = now() where id = $1 returning *`,
+        [roomTypeId]
+      );
+      return { resourceId: roomTypeId, before, after: rows[0] };
+    },
+    event: { topic: EVENTS.ROOM_TYPE_DEACTIVATED, payload: { roomTypeId } },
   });
 }

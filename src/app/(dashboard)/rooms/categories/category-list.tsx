@@ -83,7 +83,13 @@ export function CategoryList({
         )}
       </div>
 
-      {panelOpen && <CategoryEditPanel roomType={selected} onClose={closePanel} />}
+      {panelOpen && (
+        <CategoryEditPanel
+          roomType={selected}
+          roomCount={selected ? (roomCountByType[selected.id] ?? 0) : 0}
+          onClose={closePanel}
+        />
+      )}
     </div>
   );
 }

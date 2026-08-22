@@ -35,6 +35,7 @@ export const EVENTS = {
   /** Publisher: modules/pms/room-types/service.ts (createRoomType()/updateRoomType()). Gleiche Einordnung wie ROOM_*. */
   ROOM_TYPE_CREATED: "room_type.created",
   ROOM_TYPE_UPDATED: "room_type.updated",
+  ROOM_TYPE_DEACTIVATED: "room_type.deactivated",
 } as const;
 
 export type EventTopic = (typeof EVENTS)[keyof typeof EVENTS];

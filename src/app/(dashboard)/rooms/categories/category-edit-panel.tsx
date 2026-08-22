@@ -10,7 +10,15 @@ import type { RoomType } from "@modules/pms/room-types/service";
  * beim Absenden — gleiche Rundungslogik wie überall sonst (`Math.round`,
  * keine Fließkommafehler in der DB).
  */
-export function CategoryEditPanel({ roomType, onClose }: { roomType: RoomType | null; onClose: () => void }) {
+export function CategoryEditPanel({
+  roomType,
+  roomCount,
+  onClose,
+}: {
+  roomType: RoomType | null;
+  roomCount: number;
+  onClose: () => void;
+}) {
   const router = useRouter();
   const isCreating = roomType === null;
 
@@ -22,6 +30,7 @@ export function CategoryEditPanel({ roomType, onClose }: { roomType: RoomType | 
   const [description, setDescription] = useState(roomType?.description ?? "");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [confirmingDeactivate, setConfirmingDeactivate] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -54,6 +63,21 @@ export function CategoryEditPanel({ roomType, onClose }: { roomType: RoomType | 
     } catch (err) {
       setError(err instanceof Error ? err.message : "Fehler beim Speichern");
     } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleDeactivate() {
+    if (!roomType) return;
+    setSaving(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/v1/pms/room-types/${roomType.id}/deactivate`, { method: "POST" });
+      if (!res.ok) throw new Error((await res.json().catch(() => null))?.error?.message ?? `Status ${res.status}`);
+      router.refresh();
+      onClose();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Fehler beim Deaktivieren");
       setSaving(false);
     }
   }
@@ -157,6 +181,50 @@ export function CategoryEditPanel({ roomType, onClose }: { roomType: RoomType | 
           {saving ? "Speichert…" : isCreating ? "Anlegen" : "Speichern"}
         </button>
       </form>
+
+      {/* Löschschutz (Auftrag 23.08.2026): eine Kategorie mit noch aktiv
+       * zugeordneten Zimmern darf nicht deaktiviert werden — sonst würden
+       * diese Zimmer auf eine verschwundene Kategorie zeigen. Blockiert mit
+       * erklärendem Hinweis statt den Button einfach auszublenden. */}
+      {!isCreating && (
+        <div className="border-t border-line pt-3">
+          {roomCount > 0 ? (
+            <p className="rounded-md border border-line bg-surface-2 px-3 py-2 text-xs text-text-2">
+              Kann nicht deaktiviert werden — noch {roomCount} zugeordnete{roomCount === 1 ? "s" : ""} Zimmer. Erst
+              umkategorisieren oder außer Betrieb nehmen.
+            </p>
+          ) : !confirmingDeactivate ? (
+            <button
+              type="button"
+              onClick={() => setConfirmingDeactivate(true)}
+              className="min-h-9 w-full rounded-md border border-line px-3 text-sm text-text-2 hover:bg-surface-2"
+            >
+              Kategorie deaktivieren
+            </button>
+          ) : (
+            <div className="flex flex-col gap-2 rounded-md border border-red bg-red-bg p-3 text-xs text-red">
+              <p>Kategorie „{roomType.name}“ verschwindet aus Filter und Auswahl. Fortfahren?</p>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={handleDeactivate}
+                  disabled={saving}
+                  className="min-h-8 rounded-md bg-red px-3 font-semibold text-white hover:opacity-90 disabled:opacity-60"
+                >
+                  Ja, deaktivieren
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setConfirmingDeactivate(false)}
+                  className="min-h-8 rounded-md border border-line px-3 text-text-2 hover:bg-surface-2"
+                >
+                  Abbrechen
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </aside>
   );
 }
