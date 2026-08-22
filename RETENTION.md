@@ -1,9 +1,9 @@
 # Backup- & Aufbewahrungsdokumentation — Hotel Tool
 
-Status: **Platzhalter**. Es existiert noch kein echtes Supabase-Projekt (Phase
-0 arbeitet ohne Cloud-Ressourcen, siehe ARCHITECTURE.md) — diese Datei
-beschreibt die vorgesehene Praxis und wird mit echten Einträgen befüllt,
-sobald ein echtes Projekt (Region Frankfurt) existiert. Struktur analog zur
+Status: **Echtes Supabase-Projekt "HotelOS" existiert** (Region Frankfurt,
+`eu-central-1`, Projekt-Ref `qgpxgevccqywwxxqmqfk`), Stand 22.08.2026. Läuft
+aktuell auf dem **Free Plan** — kein PITR, keine automatischen täglichen
+Backups (siehe "Supabase-Plan-Anforderungen" unten). Struktur analog zur
 bestehenden `RETENTION.md`-Praxis im Referenzprojekt
 (`/Users/mathias/Ticketsytem v3/RETENTION.md`).
 
@@ -56,16 +56,26 @@ Supabase selbst, um Vendor-Lock-in-Risiko zu vermeiden (siehe ADR 0007).
 
 ### 2. Restore-Test (Pflichtbestandteil der Phase-0-Abnahme)
 
-Verifikationspunkt 7 des Architekturplans: Datenbestand in ein separates
-Scratch-Supabase-Projekt (Region Frankfurt) zurückspielen, Stichprobe
-vergleichen, Ergebnis unten protokollieren. **Noch nicht durchgeführt** — es
-gibt noch kein echtes Projekt, aus dem zurückgespielt werden könnte.
+Verifikationspunkt 7 des Architekturplans sah ein zweites Scratch-Supabase-
+Projekt als Restore-Ziel vor. Stattdessen **bewusst gegen eine lokale
+PostgreSQL-17-Instanz** getestet (kein zweites Cloud-Projekt, keine
+zusätzlichen Kosten/Account-Verpflichtung) — testet exakt dasselbe
+(Dump→Restore→Vergleich der eigenen Daten), nur ohne Supabase-eigene
+`auth`-Schema-Abhängigkeit.
+
+**Vorgehen:** `pg_dump --schema=public` von der echten HotelOS-DB (Frankfurt)
+→ Restore in eine frische lokale PostgreSQL-17-Instanz → Zeilenzahlen **und**
+Stichproben-Inhalt (Reservierungs-IDs, `reservation_no`, Status) Feld für Feld
+verglichen. FK-Constraints Richtung `auth.users` schlugen erwartungsgemäß fehl
+(Schema existiert lokal nicht, ist Supabase-intern) — alle **Daten** in
+`public` kamen aber vollständig und inhaltlich identisch an. Lokale
+Scratch-Instanz und Dump-Datei danach sofort gelöscht.
 
 #### Restore-Test-Log
 
 | Datum | Ergebnis | Nächste Fälligkeit |
 |---|---|---|
-| _(noch kein Eintrag — kein echtes Supabase-Projekt vorhanden)_ | — | — |
+| 22.08.2026 | ✅ Bestanden — alle 12 geprüften Tabellen zeilen- und inhaltsgleich (hotels, hotel_members, reservations, audit_log, events, tasks, ai_decision_log, guests, rooms, room_types, hotel_modules, modules) | Vor dem ersten echten Kundenbetrieb erneut prüfen, danach quartalsweise |
 
 ### 3. Health-Check (künftig)
 
