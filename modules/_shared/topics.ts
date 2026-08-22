@@ -19,6 +19,19 @@ export const EVENTS = {
   BOOKING_CHECKED_OUT: "booking.checked_out",
   /** Aktuell kein Subscriber — reserviert für spätere Verwendung (z. B. Channel-Manager-Sync). */
   RESERVATION_CREATED: "reservation.created",
+  /**
+   * Publisher: modules/pms/rooms/service.ts (createRoom()/updateRoom()/
+   * deactivateRoom()). Aktuell kein Subscriber — das Audit-Log deckt die
+   * Historie bereits automatisch ab (jeder `executeWrite()`-Aufruf schreibt
+   * unabhängig vom `event`-Feld einen Audit-Eintrag); diese Events sind für
+   * künftige Hintergrund-Reaktionen reserviert (z. B. Channel-Manager-Sync
+   * bei Stammdatenänderung), nicht für die Aktualität von Belegungsplan/
+   * Zimmerverwaltung selbst — beide lesen bei jedem Seitenaufruf direkt aus
+   * derselben `rooms`-Tabelle, dafür ist kein Event nötig.
+   */
+  ROOM_CREATED: "room.created",
+  ROOM_UPDATED: "room.updated",
+  ROOM_DEACTIVATED: "room.deactivated",
 } as const;
 
 export type EventTopic = (typeof EVENTS)[keyof typeof EVENTS];

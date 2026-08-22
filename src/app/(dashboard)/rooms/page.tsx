@@ -1,6 +1,7 @@
 import { getActiveHotelId } from "@lib/hotel-context";
 import { getHotelById } from "@modules/pms/hotels/service";
 import { listRooms } from "@modules/pms/rooms/service";
+import { listRoomTypes } from "@modules/pms/room-types/service";
 import { listReservationsInRange } from "@modules/pms/reservations/service";
 import { RoomList } from "./room-list";
 
@@ -36,9 +37,10 @@ export default async function RoomsPage() {
   }
 
   const today = todayIso();
-  const [hotel, rooms, reservationsToday] = await Promise.all([
+  const [hotel, rooms, roomTypes, reservationsToday] = await Promise.all([
     getHotelById(hotelId),
     listRooms({ hotelId }),
+    listRoomTypes({ hotelId }),
     listReservationsInRange({ hotelId }, today, addDays(today, 1)),
   ]);
 
@@ -50,10 +52,10 @@ export default async function RoomsPage() {
 
   return (
     <div className="min-h-full flex-1 bg-bg p-4 sm:p-8">
-      <div className="mx-auto max-w-2xl">
+      <div className="mx-auto max-w-5xl">
         <h1 className="mb-1 text-xl font-semibold text-text">{hotel.name}</h1>
         <p className="mb-6 text-sm text-text-2">Zimmerverwaltung</p>
-        <RoomList rooms={rooms} checkedInTodayRoomIds={checkedInTodayRoomIds} />
+        <RoomList rooms={rooms} roomTypes={roomTypes} checkedInTodayRoomIds={checkedInTodayRoomIds} />
       </div>
     </div>
   );

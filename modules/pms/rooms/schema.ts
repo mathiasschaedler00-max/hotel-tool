@@ -16,3 +16,27 @@ export const updateRoomStatusSchema = z.object({
 });
 
 export type UpdateRoomStatusInput = z.infer<typeof updateRoomStatusSchema>;
+
+/**
+ * Stammdaten (Screen 8 "Zimmerverwaltung") — bewusst OHNE Preis/max. Personen:
+ * die liegen an der Kategorie (`room_types.base_rate_cents`/`capacity_*`),
+ * nicht am einzelnen Zimmer. Ein Zimmer der Kategorie wechseln ändert damit
+ * automatisch Preis/Belegung, ohne zwei Wahrheiten am selben Zimmer zu
+ * pflegen (gleiche Überlegung wie bei Zimmer-Zustand vs. Buchungsstatus).
+ */
+export const createRoomSchema = z.object({
+  roomNumber: z.string().min(1),
+  floor: z.string().nullable().optional(),
+  roomTypeId: z.string().uuid(),
+});
+
+export type CreateRoomInput = z.infer<typeof createRoomSchema>;
+
+export const updateRoomSchema = z.object({
+  roomId: z.string().uuid(),
+  roomNumber: z.string().min(1),
+  floor: z.string().nullable(),
+  roomTypeId: z.string().uuid(),
+});
+
+export type UpdateRoomInput = z.infer<typeof updateRoomSchema>;

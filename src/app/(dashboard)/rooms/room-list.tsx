@@ -1,13 +1,17 @@
 "use client";
 
-import { useState } from "react";
-import { ROOM_STATUS_META, ROOM_STATUS_ORDER, getRoomDisplayStatus, type RoomStatus } from "./room-status";
+import { useMemo, useState } from "react";
+import { formatEuro } from "@lib/format";
+import type { RoomType } from "@modules/pms/room-types/service";
+import { getRoomDisplayStatus, type RoomStatus } from "./room-status";
+import { RoomEditPanel } from "./room-edit-panel";
 
 interface RoomRow {
   id: string;
   room_number: string;
   floor: string | null;
   status: RoomStatus;
+  room_type_id: string;
 }
 
 const DOT_COLOR_CLASSES: Record<string, string> = {
@@ -17,7 +21,6 @@ const DOT_COLOR_CLASSES: Record<string, string> = {
   red: "bg-red",
 };
 
-/** Zeigt den ABGELEITETEN Anzeigestatus (inkl. "Belegt", siehe room-status.ts#getRoomDisplayStatus) — nicht den rohen `rooms.status`. */
 function StatusDot({ status, isCheckedInToday }: { status: RoomStatus; isCheckedInToday: boolean }) {
   const meta = getRoomDisplayStatus(status, isCheckedInToday);
   const colorClass = DOT_COLOR_CLASSES[meta.color];
@@ -26,97 +29,144 @@ function StatusDot({ status, isCheckedInToday }: { status: RoomStatus; isChecked
       aria-hidden
       className={
         meta.filled
-          ? `inline-block h-3 w-3 rounded-full ${colorClass}`
-          : `inline-block h-3 w-3 rounded-full border-2 ${colorClass.replace("bg-", "border-")} bg-transparent`
+          ? `inline-block h-2.5 w-2.5 shrink-0 rounded-full ${colorClass}`
+          : `inline-block h-2.5 w-2.5 shrink-0 rounded-full border-2 bg-transparent ${colorClass.replace("bg-", "border-")}`
       }
     />
   );
 }
 
-function RoomCard({
-  room,
-  isCheckedInToday,
-  onStatusChange,
-}: {
-  room: RoomRow;
-  isCheckedInToday: boolean;
-  onStatusChange: (id: string, status: RoomStatus) => Promise<void>;
-}) {
-  const [saving, setSaving] = useState(false);
-  const [localStatus, setLocalStatus] = useState(room.status);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
-
-  async function handleChange(e: React.ChangeEvent<HTMLSelectElement>) {
-    const next = e.target.value as RoomStatus;
-    const previous = localStatus;
-    setLocalStatus(next);
-    setSaving(true);
-    setErrorMsg(null);
-    try {
-      await onStatusChange(room.id, next);
-    } catch (err) {
-      setLocalStatus(previous);
-      setErrorMsg(err instanceof Error ? err.message : "Fehler beim Speichern");
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  return (
-    <div className="flex flex-col gap-3 rounded-lg border border-line bg-surface p-4 shadow-[var(--shadow-token)] sm:flex-row sm:items-center sm:gap-4">
-      <div className="flex items-center gap-3 sm:min-w-16 sm:flex-col">
-        <span className="font-mono text-2xl font-semibold text-text">{room.room_number}</span>
-        {room.floor && <span className="text-xs text-text-3">Etage {room.floor}</span>}
-      </div>
-      <div className="flex flex-1 items-center gap-2">
-        <StatusDot status={localStatus} isCheckedInToday={isCheckedInToday} />
-        <span className="text-sm text-text-2">{getRoomDisplayStatus(localStatus, isCheckedInToday).label}</span>
-      </div>
-      <select
-        value={localStatus}
-        onChange={handleChange}
-        disabled={saving}
-        aria-label={`Status für Zimmer ${room.room_number} ändern`}
-        className="min-h-11 w-full rounded-md border border-line bg-surface-3 px-3 text-sm text-text disabled:opacity-60 sm:w-auto"
-      >
-        {ROOM_STATUS_ORDER.map((status) => (
-          <option key={status} value={status}>
-            {ROOM_STATUS_META[status].label}
-          </option>
-        ))}
-      </select>
-      {errorMsg && <span className="text-xs text-red">{errorMsg}</span>}
-    </div>
-  );
+function occupancyLabel(rt: RoomType): string {
+  return rt.capacity_children > 0 ? `${rt.capacity_adults}+${rt.capacity_children}` : `${rt.capacity_adults}`;
 }
 
-export function RoomList({ rooms, checkedInTodayRoomIds }: { rooms: RoomRow[]; checkedInTodayRoomIds: Set<string> }) {
-  async function handleStatusChange(id: string, status: RoomStatus) {
-    const res = await fetch(`/api/v1/pms/rooms/${id}/status`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status }),
-    });
-    if (!res.ok) {
-      const body = await res.json().catch(() => null);
-      throw new Error(body?.error?.message ?? `Status ${res.status}`);
-    }
-  }
+const TABLE_COLS = "88px 1fr 72px 100px 84px 1fr";
 
-  if (rooms.length === 0) {
-    return <p className="text-text-2">Noch keine Zimmer angelegt.</p>;
+/**
+ * Screen 8 "Zimmerverwaltung (Stammdaten)" — Auftrag 23.08.2026: kompakte,
+ * nach Kategorie gruppierte Tabelle statt großer Karten (Stammdatenpflege,
+ * nicht Tagesbetrieb — 40 Zimmer sollen überblickbar sein). Preis/Nacht und
+ * max. Personen kommen aus der Kategorie (`room_types`), nicht vom Zimmer
+ * selbst — siehe Kommentar in `modules/pms/rooms/schema.ts`.
+ */
+export function RoomList({
+  rooms,
+  roomTypes,
+  checkedInTodayRoomIds,
+}: {
+  rooms: RoomRow[];
+  roomTypes: RoomType[];
+  checkedInTodayRoomIds: Set<string>;
+}) {
+  const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
+  const [isCreating, setIsCreating] = useState(false);
+
+  const roomsByType = useMemo(() => {
+    const map = new Map<string, RoomRow[]>();
+    for (const room of rooms) {
+      const list = map.get(room.room_type_id) ?? [];
+      list.push(room);
+      map.set(room.room_type_id, list);
+    }
+    return map;
+  }, [rooms]);
+
+  const selectedRoom = rooms.find((r) => r.id === selectedRoomId) ?? null;
+  const panelOpen = selectedRoom !== null || isCreating;
+
+  function closePanel() {
+    setSelectedRoomId(null);
+    setIsCreating(false);
   }
 
   return (
-    <div className="flex flex-col gap-3">
-      {rooms.map((room) => (
-        <RoomCard
-          key={room.id}
-          room={room}
-          isCheckedInToday={checkedInTodayRoomIds.has(room.id)}
-          onStatusChange={handleStatusChange}
+    <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
+      <div className="min-w-0 flex-1">
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <p className="text-sm text-text-2">{rooms.length} Zimmer</p>
+          <button
+            type="button"
+            onClick={() => {
+              setSelectedRoomId(null);
+              setIsCreating(true);
+            }}
+            disabled={roomTypes.length === 0}
+            title={roomTypes.length === 0 ? "Erst eine Kategorie anlegen (aktuell nur per SQL möglich)" : undefined}
+            className="min-h-9 rounded-md bg-accent px-3 text-sm font-semibold text-on-accent hover:bg-accent-hi disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            Zimmer hinzufügen
+          </button>
+        </div>
+
+        {rooms.length === 0 ? (
+          <p className="text-text-2">Noch keine Zimmer angelegt.</p>
+        ) : (
+          <div className="overflow-x-auto rounded-lg border border-line bg-surface">
+            <div className="min-w-[560px]">
+              <div
+                className="grid gap-x-3 border-b border-line bg-surface-2 px-3 py-2 text-[10px] font-medium tracking-wide text-text-3 uppercase"
+                style={{ gridTemplateColumns: TABLE_COLS }}
+              >
+                <span>Nummer</span>
+                <span>Kategorie</span>
+                <span>Etage</span>
+                <span className="text-right">Preis/Nacht</span>
+                <span className="text-right">Max. Pers.</span>
+                <span>Zustand</span>
+              </div>
+
+              {roomTypes.map((rt) => {
+                const roomsForType = roomsByType.get(rt.id);
+                if (!roomsForType || roomsForType.length === 0) return null;
+                return (
+                  <div key={rt.id}>
+                    <div className="border-b border-line bg-surface-2 px-3 py-1 text-xs font-semibold tracking-wide text-text-2 uppercase">
+                      {rt.name} · {roomsForType.length}
+                    </div>
+                    {roomsForType.map((room) => {
+                      const isCheckedInToday = checkedInTodayRoomIds.has(room.id);
+                      const meta = getRoomDisplayStatus(room.status, isCheckedInToday);
+                      return (
+                        <button
+                          key={room.id}
+                          type="button"
+                          onClick={() => {
+                            setIsCreating(false);
+                            setSelectedRoomId(room.id);
+                          }}
+                          className={`grid w-full items-center gap-x-3 border-b border-line px-3 py-2.5 text-left text-sm hover:bg-surface-2 ${
+                            selectedRoomId === room.id ? "bg-surface-2" : ""
+                          }`}
+                          style={{ gridTemplateColumns: TABLE_COLS }}
+                        >
+                          <span className="font-mono font-semibold text-text">{room.room_number}</span>
+                          <span className="truncate text-text-2">{rt.name}</span>
+                          <span className="text-text-3">{room.floor ?? "—"}</span>
+                          <span className="text-right font-mono text-text-2">{formatEuro(rt.base_rate_cents)}</span>
+                          <span className="text-right font-mono text-text-2">{occupancyLabel(rt)}</span>
+                          <span className="flex items-center gap-2 text-text-2">
+                            <StatusDot status={room.status} isCheckedInToday={isCheckedInToday} />
+                            {meta.label}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {panelOpen && (
+        <RoomEditPanel
+          room={selectedRoom}
+          roomTypes={roomTypes}
+          isCheckedInToday={selectedRoom ? checkedInTodayRoomIds.has(selectedRoom.id) : false}
+          onClose={closePanel}
         />
-      ))}
+      )}
     </div>
   );
 }

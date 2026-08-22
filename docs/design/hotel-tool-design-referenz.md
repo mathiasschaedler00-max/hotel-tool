@@ -131,6 +131,15 @@ Icons müssen eindeutig sein (Spa = Lotus/Wellness-Symbol, Housekeeping = Bett/H
 ### Screen 7 – KI-Rezeption Chat-Ansicht (Desktop, 1440px)
 Drei Spalten. Links: Posteingang aller Kanäle (WhatsApp/Mail/Web-Chat-Icons), pro Eintrag Gastname, Kanalicon, Nachrichten-Vorschau, Ungelesen-Punkt. Mitte: ausgewählte Konversation als Chatverlauf – Gast-Nachrichten (weiß/hell) und KI-Antworten (violett, gelabelt "KI-ANTWORT") klar unterscheidbar, mit Zeitstempel. Rechts: Gast-Kontext-Panel (wie Detail-Panel aus Screen 1/2: Name, Kanal, Zimmer, aktuelle Buchung, Verlauf, Link "Im Belegungsplan öffnen"). Unten: KI-Antwortvorschlag als eigene violette Karte über dem Eingabefeld mit **Senden / Bearbeiten / Verwerfen**, UND zusätzlich ein separates freies Eingabefeld "Eigene Nachricht schreiben..." mit eigenem Senden-Button für den Fall, dass die Mitarbeiterin ganz ohne KI-Vorschlag antworten will.
 
+### Screen 8 – Zimmerverwaltung (Stammdaten) (Desktop, 1440px)
+Desktop, ergänzt 23.08.2026. **Zweck: Stammdatenpflege (Zimmer anlegen, Kategorie, Preis, Belegung), nicht Tagesbetrieb** — deshalb bewusst kein Kartenlayout wie in Screen 4 (Housekeeping), sondern eine kompakte, nach Kategorie gruppierte Tabelle (Kategorie-Header mit Anzahl, wie im Belegungsplan), damit 40+ Zimmer überblickbar bleiben statt sieben Karten pro Bildschirm. Spalten: Nummer (Mono) · Kategorie · Etage · Preis/Nacht · max. Personen · Zustand. "Zimmer hinzufügen"-Button oben rechts (Kupfer). Zeile klickbar → Seiten-Panel rechts (wie Detail-Panel Screen 1/2) zum Bearbeiten aller Stammdaten (Nummer, Etage, Kategorie) sowie des Zimmer-Zustands.
+
+**Preis/Nacht und max. Personen sind Kategorie-Eigenschaften** (`room_types.base_rate_cents`/`capacity_*`), keine Felder am einzelnen Zimmer — ein Zimmer wechselt seinen Preis, indem man seine Kategorie ändert, nicht durch einen eigenen Preis-Eintrag. Das ist die Quelle für "Rate/Nacht" im Detail-Panel des Belegungsplans (Screen 1/2) und die Vorbelegung bei neuen Buchungen (Schritt 3).
+
+Zimmer-Zustand-Dropdown ("Zimmerzustand") zeigt **ausschließlich** die vier Werte aus §3.1 (frei/Reinigung/Wartung/gesperrt) — "Belegt" ist dort bewusst nicht wählbar, sondern wird als separate Info-Zeile ("Belegt · Gast im Haus") angezeigt, sobald eine `checked_in`-Reservierung heute läuft (exakt dieselbe Ableitung wie der Punkt im Belegungsplan, §3.1/§3.2 nie vermischen). Wird der Zustand eines aktuell belegten Zimmers auf Wartung/gesperrt gesetzt, erscheint zuerst eine inline Rückfrage (kein natives Browser-`confirm()`) statt der Aktion.
+
+"Außer Betrieb nehmen" (statt Löschen) im selben Panel: Zimmer verschwindet aus Belegungsplan und Buchbarkeit, bleibt aber für Historie/Auswertungen (insbesondere fiskalisch) erhalten — Soft-Delete, kein Hard-Delete, wie überall sonst im System.
+
 ---
 
 ## 6. Wichtige Verhaltensregeln (übergreifend, gelten für die Implementierung)
@@ -140,7 +149,7 @@ Drei Spalten. Links: Posteingang aller Kanäle (WhatsApp/Mail/Web-Chat-Icons), p
 3. **Leere/Lade-/Offline-Zustände für jeden Screen mitdenken**, nicht nur den "glücklichen Pfad".
 4. **Beträge nie kommentarlos weglassen** – lieber "0,00 €" grau zeigen als das Feld verschwinden zu lassen (verhindert den Eindruck eines Anzeigefehlers).
 5. **Jede zerstörerische Aktion** (Storno, Löschen) braucht eine Bestätigung.
-6. **Responsive-Grundsatz**: Backoffice-Screens (1, 2, 3, 5-Desktop, 7) primär Desktop/1440px; Mitarbeiter- und Gäste-Screens (4, 5-Mobile, 6) primär Mobile/390px.
+6. **Responsive-Grundsatz**: Backoffice-Screens (1, 2, 3, 5-Desktop, 7, 8) primär Desktop/1440px; Mitarbeiter- und Gäste-Screens (4, 5-Mobile, 6) primär Mobile/390px.
 7. **Datenkonsistenz zwischen Screens**: Kennzahlen, die auf mehreren Screens auftauchen (z.B. "offene Aufgaben"), müssen aus derselben Datenquelle stammen – das war in der Prototyp-Phase mit Zufallsdaten gelegentlich inkonsistent, ist aber sobald echte Daten aus dem Backend kommen automatisch gelöst, da es dieselbe Quelle ist.
 8. **Statuskonzepte nie vermischen** (siehe §3): Zimmer-Zustand, Buchungsstatus und Zeitraum-Sperre sind drei getrennte Felder in drei getrennten Tabellen. Wenn eine Aufzählung in diesem Dokument oder im Masterplan Werte aus mehreren dieser Konzepte in einer Zeile listet, ist das eine Abkürzung der Beschreibung – **niemals** eine Vorgabe für ein gemeinsames Datenbankfeld oder ein gemeinsames Dropdown. Im Zweifel nachfragen statt zusammenlegen.
 9. **Kopfbereiche als zusammenhängende Werkzeugleiste** (siehe Screen 1): Navigation, Zeitraumwahl, Suche und Primäraktion gehören nebeneinander in eine obere Leiste, nicht über Sidebar und Kopfzeile verteilt.
