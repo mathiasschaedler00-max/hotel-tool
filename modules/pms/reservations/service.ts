@@ -7,7 +7,23 @@ import { assertModuleEnabled } from "@modules/entitlements/service";
 import { requirePermission } from "@modules/rbac/permissions";
 import { assertBelongsToHotel } from "@modules/_shared/tenant-guard";
 import { createServiceClient } from "@lib/supabase/service";
+import { getPoolForReads } from "@lib/db/pool";
+import type { Room } from "@modules/pms/rooms/service";
 import type { CreateReservationInput, CheckOutInput } from "./schema";
+
+/**
+ * Postgres-Fehlercode für eine verletzte EXCLUDE-Constraint (siehe Migration
+ * `20260823010000_no_double_booking_constraint.sql`). `pg` wirft rohe
+ * Fehlerobjekte mit `.code` = SQLSTATE, kein eigener Fehlertyp — deshalb hier
+ * ein einfacher Typ-Guard statt `instanceof`.
+ */
+function isExclusionViolation(e: unknown): boolean {
+  return typeof e === "object" && e !== null && "code" in e && (e as { code: unknown }).code === "23P01";
+}
+
+function nightsBetween(checkInDate: string, checkOutDate: string): number {
+  return Math.round((Date.parse(`${checkOutDate}T00:00:00Z`) - Date.parse(`${checkInDate}T00:00:00Z`)) / 86_400_000);
+}
 
 export interface Reservation {
   id: string;
@@ -155,6 +171,21 @@ export async function listReservationsInRange(
  * Legt eine neue Reservierung an (1 Reservation = 1 Room-Stay).
  * Muster: assertModuleEnabled → requirePermission → executeWrite.
  * Publiziert `reservation.created` (aktuell ohne Subscriber, siehe topics.ts).
+ *
+ * `rate_cents`: Vorbelegung aus `room_types.base_rate_cents` × Nächte (Auftrag
+ * Schritt 3 — vorher stand hier immer 0, jede Buchung "kostete" nichts), im
+ * Formular überschreibbar via `input.rateCents`. Bewusst NUR beim Anlegen
+ * berechnet und dann als eigener, unabhängiger Wert gespeichert — eine
+ * spätere Preisänderung an der Kategorie darf bestehende Reservierungen
+ * NICHT rückwirkend verändern (siehe modules/pms/room-types/service.ts,
+ * gleiche Überlegung dort schon für die Kategorien-Verwaltung bestätigt).
+ *
+ * Überbuchungsschutz: die `no_double_booking`-EXCLUDE-Constraint (Migration
+ * `20260823010000_...`) verweigert den Insert hart, wenn `room_id` im
+ * gewünschten Zeitraum schon eine `confirmed`/`checked_in`-Reservierung hat —
+ * auch bei zwei gleichzeitigen Requests (das kann reine Anwendungslogik
+ * nicht garantieren). SQLSTATE 23P01 wird hier in einen lesbaren
+ * `ConflictError` (409) übersetzt.
  */
 export async function createReservation(ctx: ModuleContext, input: CreateReservationInput): Promise<Reservation> {
   await assertModuleEnabled(ctx.hotelId, "pms");
@@ -180,35 +211,89 @@ export async function createReservation(ctx: ModuleContext, input: CreateReserva
         await assertBelongsToHotel(client, ctx.hotelId, "rooms", input.roomId, "room");
       }
 
-      const { rows } = await client.query<Reservation>(
-        `insert into reservations
-           (id, hotel_id, reservation_no, group_booking_id, guest_id, room_type_id, room_id,
-            check_in_date, check_out_date, status, source, adults, children, notes)
-         values ($1,$2,$3,$4,$5,$6,$7,$8,$9,'confirmed',$10,$11,$12,$13)
-         returning *`,
-        [
-          reservationId,
-          ctx.hotelId,
-          reservationNo,
-          input.groupBookingId ?? null,
-          input.guestId,
-          input.roomTypeId,
-          input.roomId ?? null,
-          input.checkInDate,
-          input.checkOutDate,
-          input.source,
-          input.adults,
-          input.children,
-          input.notes ?? null,
-        ]
-      );
-      return { resourceId: reservationId, after: rows[0] };
+      let rateCents = input.rateCents;
+      if (rateCents === undefined) {
+        const { rows: typeRows } = await client.query<{ base_rate_cents: number }>(
+          `select base_rate_cents from room_types where id = $1`,
+          [input.roomTypeId]
+        );
+        const nights = nightsBetween(input.checkInDate, input.checkOutDate);
+        rateCents = (typeRows[0]?.base_rate_cents ?? 0) * nights;
+      }
+
+      try {
+        const { rows } = await client.query<Reservation>(
+          `insert into reservations
+             (id, hotel_id, reservation_no, group_booking_id, guest_id, room_type_id, room_id,
+              check_in_date, check_out_date, status, source, adults, children, rate_cents, notes)
+           values ($1,$2,$3,$4,$5,$6,$7,$8,$9,'confirmed',$10,$11,$12,$13,$14)
+           returning *`,
+          [
+            reservationId,
+            ctx.hotelId,
+            reservationNo,
+            input.groupBookingId ?? null,
+            input.guestId,
+            input.roomTypeId,
+            input.roomId ?? null,
+            input.checkInDate,
+            input.checkOutDate,
+            input.source,
+            input.adults,
+            input.children,
+            rateCents,
+            input.notes ?? null,
+          ]
+        );
+        return { resourceId: reservationId, after: rows[0] };
+      } catch (e) {
+        if (isExclusionViolation(e)) {
+          throw new ConflictError("Zimmer ist im gewählten Zeitraum bereits belegt", {
+            roomId: input.roomId,
+            checkInDate: input.checkInDate,
+            checkOutDate: input.checkOutDate,
+          });
+        }
+        throw e;
+      }
     },
     event: {
       topic: EVENTS.RESERVATION_CREATED,
       payload: { reservationId, hotelId: ctx.hotelId },
     },
   });
+}
+
+/**
+ * Read: freie Zimmer im Zeitraum `[from, to)`, optional auf eine Kategorie
+ * eingeschränkt — freundliche Vorabprüfung fürs Buchungsformular, damit die
+ * Oberfläche gar nicht erst belegte Zimmer anbietet. Der eigentliche Schutz
+ * bleibt die `no_double_booking`-Constraint (siehe `createReservation()`) —
+ * diese Funktion ist bewusst nur UX, kein zweiter Durchsetzungsort.
+ */
+export async function listAvailableRooms(
+  ctx: Pick<ModuleContext, "hotelId">,
+  from: string,
+  to: string,
+  roomTypeId?: string
+): Promise<Room[]> {
+  await assertModuleEnabled(ctx.hotelId, "pms");
+
+  const pool = getPoolForReads();
+  const { rows } = await pool.query<Room>(
+    `select r.* from rooms r
+     where r.hotel_id = $1 and r.deleted_at is null
+       and ($2::uuid is null or r.room_type_id = $2)
+       and not exists (
+         select 1 from reservations res
+         where res.room_id = r.id and res.deleted_at is null
+           and res.status in ('confirmed', 'checked_in')
+           and daterange(res.check_in_date, res.check_out_date, '[)') && daterange($3::date, $4::date, '[)')
+       )
+     order by r.room_number`,
+    [ctx.hotelId, roomTypeId ?? null, from, to]
+  );
+  return rows;
 }
 
 /**

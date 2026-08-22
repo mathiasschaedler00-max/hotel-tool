@@ -18,6 +18,8 @@ export const createReservationSchema = z
     children: z.number().int().min(0).default(0),
     source: z.enum(["direct", "channel_manager", "phone", "walk_in"]).default("direct"),
     notes: z.string().optional(),
+    /** Vorbelegung aus room_types.base_rate_cents × Nächte, hier überschreibbar (Auftrag Schritt 3). */
+    rateCents: z.number().int().min(0).optional(),
   })
   .refine((v) => v.checkOutDate > v.checkInDate, {
     message: "checkOutDate muss nach checkInDate liegen",

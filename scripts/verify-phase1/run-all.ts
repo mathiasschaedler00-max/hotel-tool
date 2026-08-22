@@ -10,6 +10,7 @@ import { printFinalReport, closeSharedPool } from "./_lib";
 import { setupFixtures } from "../verify-foundation/01-setup";
 import { testCrossTenantFoliosPayments } from "./01-cross-tenant-folios-payments";
 import { testRoomManagement } from "./02-room-management";
+import { testOverbookingProtection } from "./03-overbooking-protection";
 import { getBoss } from "@lib/queue/boss";
 
 async function main(): Promise<void> {
@@ -29,6 +30,12 @@ async function main(): Promise<void> {
     await testRoomManagement();
   } catch (e) {
     console.error("Schritt 1 (Zimmerverwaltung + Kategorien) abgebrochen:", e instanceof Error ? e.message : e);
+  }
+
+  try {
+    await testOverbookingProtection();
+  } catch (e) {
+    console.error("Schritt 3 (Überbuchungsschutz) abgebrochen:", e instanceof Error ? e.message : e);
   }
 
   printFinalReport();
