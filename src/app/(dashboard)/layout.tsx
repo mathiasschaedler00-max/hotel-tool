@@ -47,7 +47,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
         </ul>
       </nav>
 
-      <main className="min-h-full flex-1 bg-bg">{children}</main>
+      <main className="min-h-full min-w-0 flex-1 bg-bg">{children}</main>
     </div>
   );
 }
