@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { formatDate, formatWeekdayShort } from "@lib/format";
 import type { Room } from "@modules/pms/rooms/service";
 import type { RoomType } from "@modules/pms/room-types/service";
@@ -69,6 +69,7 @@ function RoomStatusDot({ status, isCheckedInToday }: { status: RoomStatus; isChe
 }
 
 type RowDescriptor =
+  | { kind: "availability"; row: number; roomType: RoomType }
   | { kind: "category"; row: number; roomType: RoomType }
   | { kind: "room"; row: number; room: Room };
 
@@ -220,6 +221,8 @@ export function CalendarBoard({
   for (const roomType of roomTypes) {
     const roomsForType = roomsByType.get(roomType.id);
     if (!roomsForType || roomsForType.length === 0) continue;
+    rowDescriptors.push({ kind: "availability", row: rowCursor, roomType });
+    rowCursor++;
     rowDescriptors.push({ kind: "category", row: rowCursor, roomType });
     rowCursor++;
     for (const room of roomsForType) {
@@ -265,6 +268,46 @@ export function CalendarBoard({
     }
     return map;
   }, [rooms]);
+
+  const roomTypeIdByRoomId = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const room of rooms) map.set(room.id, room.room_type_id);
+    return map;
+  }, [rooms]);
+
+  // Verfügbarkeitszeile pro Kategorie: "wie viele Zimmer dieser Kategorie
+  // sind an diesem Tag noch frei" — die häufigste Frage am Telefon (Auftrag
+  // 22.08.2026). Wie occupancyByDay bewusst über das VOLLE Hotel-Inventar
+  // gerechnet (roomCountByType), nicht durch Kategorie-Filter/Suche
+  // beeinflusst. Eine unzugewiesene Reservierung (room_id null) belegt
+  // trotzdem ein Kontingent ihrer Kategorie — zählt hier mit, sonst würde
+  // die Zahl mehr freie Zimmer zeigen, als tatsächlich verkaufbar sind.
+  const availabilityByTypeAndDay = useMemo(() => {
+    const map = new Map<string, number[]>();
+    for (const rt of roomTypes) {
+      const total = roomCountByType.get(rt.id) ?? 0;
+      const freePerDay = columns.map((day) => {
+        const occupied = reservationsInRange.filter((r) => {
+          if (r.status !== "confirmed" && r.status !== "checked_in") return false;
+          if (!(r.check_in_date <= day && day < r.check_out_date)) return false;
+          const resRoomTypeId = r.room_id ? roomTypeIdByRoomId.get(r.room_id) : r.room_type_id;
+          return resRoomTypeId === rt.id;
+        }).length;
+        return Math.max(0, total - occupied);
+      });
+      map.set(rt.id, freePerDay);
+    }
+    return map;
+  }, [roomTypes, roomCountByType, columns, reservationsInRange, roomTypeIdByRoomId]);
+
+  // Nicht zugewiesene Buchungen (room_id null — z. B. später von OTAs, die
+  // nur eine Kategorie buchen): brauchen einen sichtbaren Platz, sonst gehen
+  // sie unter (Auftrag 22.08.2026). Zuweisung selbst (Drag & Drop) ist
+  // Schritt 3 — hier nur Sichtbarkeit + Klick fürs Detail-Panel.
+  const unassignedReservations = useMemo(
+    () => reservationsInRange.filter((r) => r.room_id === null && isVisibleOnCalendar(r.status)),
+    [reservationsInRange]
+  );
 
   return (
     <div className="flex h-full flex-col gap-3 p-4 sm:p-6">
@@ -407,6 +450,38 @@ export function CalendarBoard({
       )}
       </div>
 
+      {/* Nicht zugewiesene Buchungen (room_id null): brauchen einen
+       * sichtbaren Platz, sonst gehen sie unter (Auftrag 22.08.2026).
+       * Zuweisung per Drag & Drop kommt in Schritt 3 — hier nur Sichtbarkeit
+       * + Klick fürs bestehende Detail-Panel. Ausgeblendet bei 0, um die
+       * Werkzeugleiste im (heute noch häufigsten) Normalfall nicht unnötig
+       * zu belasten. */}
+      {unassignedReservations.length > 0 && (
+        <div className="flex shrink-0 flex-wrap items-center gap-2 rounded-lg border border-line bg-surface px-3 py-2">
+          <span className="text-xs font-semibold text-text-2">Nicht zugewiesen: {unassignedReservations.length}</span>
+          <span className="text-[11px] text-text-3">(Zuweisung per Drag &amp; Drop kommt in Schritt 3)</span>
+          <div className="flex flex-1 flex-wrap gap-2">
+            {unassignedReservations.map((r) => {
+              const guestName = r.guest ? `${r.guest.first_name} ${r.guest.last_name}` : "Ohne Gast";
+              const roomType = roomTypes.find((rt) => rt.id === r.room_type_id);
+              const meta = RESERVATION_STATUS_META[r.status as keyof typeof RESERVATION_STATUS_META];
+              return (
+                <button
+                  key={r.id}
+                  type="button"
+                  onClick={() => setSelectedReservationId(r.id)}
+                  className={`rounded px-2 py-1 text-left text-xs font-medium ${meta.barClassName} ${
+                    selectedReservationId === r.id ? "ring-2 ring-accent" : ""
+                  }`}
+                >
+                  {guestName} · {roomType?.name ?? "?"} · {formatDate(r.check_in_date)}–{formatDate(r.check_out_date)}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       <div className="flex min-h-0 flex-1 flex-col gap-3 sm:flex-row">
       <aside className="flex shrink-0 flex-col gap-5 overflow-y-auto sm:w-52">
         {roomTypes.length > 0 && (
@@ -520,8 +595,37 @@ export function CalendarBoard({
               />
             )}
 
-            {rowDescriptors.map((d) =>
-              d.kind === "category" ? (
+            {rowDescriptors.map((d) => {
+              if (d.kind === "availability") {
+                // Schmale Zeile ÜBER dem Kategorie-Band: pro Tag, wie viele
+                // Zimmer dieser Kategorie noch frei sind (Auftrag 22.08.2026).
+                const freePerDay = availabilityByTypeAndDay.get(d.roomType.id) ?? [];
+                return (
+                  <Fragment key={`avail-${d.roomType.id}`}>
+                    <div
+                      className="sticky left-0 z-10 border-r border-b border-line bg-surface px-3 py-0.5 text-[10px] text-text-3"
+                      style={{ gridColumn: 1, gridRow: d.row }}
+                    >
+                      Frei
+                    </div>
+                    {columns.map((day, i) => {
+                      const free = freePerDay[i] ?? 0;
+                      return (
+                        <div
+                          key={day}
+                          className={`border-b border-line py-0.5 text-center font-mono text-[10px] ${
+                            free === 0 ? "font-semibold text-red" : "text-text-3"
+                          }`}
+                          style={{ gridColumn: i + 2, gridRow: d.row }}
+                        >
+                          {free}
+                        </div>
+                      );
+                    })}
+                  </Fragment>
+                );
+              }
+              if (d.kind === "category") {
                 // Die Zeile selbst spannt bewusst die volle Gitterbreite (Band
                 // bleibt beim horizontalen Scrollen durchgängig sichtbar) —
                 // nur das Label bekommt zusätzlich sein eigenes `sticky
@@ -529,16 +633,19 @@ export function CalendarBoard({
                 // Divs (die bei Spalte 1 liegt) aus dem sichtbaren Bereich,
                 // sobald man über die Zimmerspalte hinausscrollt (Review-Fund,
                 // 22.08.2026).
-                <div
-                  key={`cat-${d.roomType.id}`}
-                  className="border-b border-line bg-surface-2 py-1"
-                  style={{ gridColumn: "1 / -1", gridRow: d.row }}
-                >
-                  <div className="sticky left-0 z-10 w-fit px-3 text-xs font-semibold tracking-wide text-text-2 uppercase">
-                    {d.roomType.name}
+                return (
+                  <div
+                    key={`cat-${d.roomType.id}`}
+                    className="border-b border-line bg-surface-2 py-1"
+                    style={{ gridColumn: "1 / -1", gridRow: d.row }}
+                  >
+                    <div className="sticky left-0 z-10 w-fit px-3 text-xs font-semibold tracking-wide text-text-2 uppercase">
+                      {d.roomType.name}
+                    </div>
                   </div>
-                </div>
-              ) : (
+                );
+              }
+              return (
                 <div
                   key={`room-${d.room.id}`}
                   className="sticky left-0 z-10 flex items-center gap-2 border-r border-b border-line bg-surface-3 px-3 py-1"
@@ -548,8 +655,8 @@ export function CalendarBoard({
                   <span className="font-mono text-sm font-semibold text-text">{d.room.room_number}</span>
                   {d.room.floor && <span className="text-xs text-text-3">Etage {d.room.floor}</span>}
                 </div>
-              )
-            )}
+              );
+            })}
 
             {visibleRooms.flatMap((room) => {
               const rowIndex = roomRowIndex.get(room.id);
