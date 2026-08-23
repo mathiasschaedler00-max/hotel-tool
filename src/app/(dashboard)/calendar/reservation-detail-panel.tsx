@@ -6,7 +6,7 @@ import { formatDate, formatEuro, formatDateTime } from "@lib/format";
 import type { Room } from "@modules/pms/rooms/service";
 import type { RoomType } from "@modules/pms/room-types/service";
 import type { ReservationWithDetails } from "@modules/pms/reservations/service";
-import { RESERVATION_STATUS_LABELS } from "./reservation-status";
+import { RESERVATION_STATUS_LABELS, EDITABLE_RESERVATION_STATUSES } from "./reservation-status";
 
 interface HistoryEntry {
   action: string;
@@ -30,9 +30,6 @@ const STATUS_CHIP_CLASSES: Record<string, string> = {
   cancelled: "border border-red bg-red-bg text-red",
   no_show: "border border-red bg-red-bg text-red",
 };
-
-/** Status, in denen eine Reservierung noch bearbeitet/verschoben/storniert werden kann. */
-const EDITABLE_STATUSES = new Set(["confirmed", "checked_in"]);
 
 function daysBetween(a: string, b: string): number {
   return Math.round((Date.parse(`${b}T00:00:00Z`) - Date.parse(`${a}T00:00:00Z`)) / 86_400_000);
@@ -66,7 +63,7 @@ export function ReservationDetailPanel({
   const statusLabel = RESERVATION_STATUS_LABELS[reservation.status] ?? reservation.status;
   const chipClass = STATUS_CHIP_CLASSES[reservation.status] ?? "border border-line bg-surface-2 text-text-2";
   const roomType = roomTypes.find((rt) => rt.id === reservation.room_type_id) ?? null;
-  const canEdit = EDITABLE_STATUSES.has(reservation.status);
+  const canEdit = EDITABLE_RESERVATION_STATUSES.has(reservation.status);
 
   const [state, setState] = useState<LoadState>({ status: "loading" });
   const [mode, setMode] = useState<Mode>("view");

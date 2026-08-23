@@ -20,6 +20,9 @@ export const RESERVATION_STATUS_META: Record<
 
 const VISIBLE_ON_CALENDAR = new Set(["confirmed", "checked_in", "checked_out"]);
 
+/** Bearbeiten/Verschieben/Stornieren/Drag&Drop nur bei aktiven Buchungen — geteilt zwischen Detail-Panel und Belegungsplan. */
+export const EDITABLE_RESERVATION_STATUSES = new Set(["confirmed", "checked_in"]);
+
 /** cancelled/no_show werden laut Design-Referenz §2 im Belegungsplan nicht als Balken gerendert. */
 export function isVisibleOnCalendar(status: string): boolean {
   return VISIBLE_ON_CALENDAR.has(status);

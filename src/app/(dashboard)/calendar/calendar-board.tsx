@@ -2,14 +2,16 @@
 
 import Link from "next/link";
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { formatDate, formatWeekdayShort } from "@lib/format";
 import type { Room } from "@modules/pms/rooms/service";
 import type { RoomType } from "@modules/pms/room-types/service";
 import type { ReservationWithDetails } from "@modules/pms/reservations/service";
 import { getRoomDisplayStatus, type RoomStatus } from "../rooms/room-status";
-import { RESERVATION_STATUS_META, isVisibleOnCalendar } from "./reservation-status";
+import { RESERVATION_STATUS_META, isVisibleOnCalendar, EDITABLE_RESERVATION_STATUSES } from "./reservation-status";
 import { ReservationDetailPanel } from "./reservation-detail-panel";
 import { NewReservationPanel } from "./new-reservation-panel";
+import { GroupBookingPanel } from "./group-booking-panel";
 
 const ROOM_COL_PX = 168;
 const DAY_COL_MIN_PX = 68;
@@ -118,10 +120,26 @@ export function CalendarBoard({
   const isCompact = days > COMPACT_THRESHOLD_DAYS;
   const dayColPx = isCompact ? DAY_COL_COMPACT_PX : DAY_COL_MIN_PX;
 
+  const router = useRouter();
   const [selectedTypeIds, setSelectedTypeIds] = useState<Set<string>>(() => new Set(roomTypes.map((rt) => rt.id)));
   const [query, setQuery] = useState("");
   const [selectedReservationId, setSelectedReservationId] = useState<string | null>(null);
   const [isCreatingReservation, setIsCreatingReservation] = useState(false);
+  const [isCreatingGroup, setIsCreatingGroup] = useState(false);
+
+  // Drag & Drop im Gitter (Auftrag Schritt 3): Handler sitzen bewusst EINMAL
+  // am äußeren Grid-Container statt pro Zelle — ein natives `dragover`/`drop`
+  // feuert immer auf dem obersten Element unter dem Zeiger (meist ein
+  // Buchungsbalken, kein Zellen-Div), Balken und Zellen sind aber Geschwister
+  // im selben flachen Grid, kein Bubbling zwischen ihnen möglich. Die
+  // tatsächliche Zieltag/-zimmer-Ermittlung misst deshalb die real
+  // gerenderten Positionen der Tages-Kopfzellen/Zimmerzeilen nach (robust
+  // gegen `1fr`-Spaltenverbreiterung und Kompakt-Modus), statt mit einer
+  // angenommenen festen Spaltenbreite zu rechnen.
+  const dayHeaderRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const roomRowRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+  const [draggingReservationId, setDraggingReservationId] = useState<string | null>(null);
+  const [moveError, setMoveError] = useState<string | null>(null);
 
   // "Zeitraum wählen": bewusst KEIN schwebendes Popover mehr (Review-Fund,
   // 22.08.2026: hat auch nach dem Klick-daneben-schließt-Fix noch das Gitter
@@ -324,6 +342,66 @@ export function CalendarBoard({
     [reservationsInRange]
   );
 
+  async function handleGridDrop(e: React.DragEvent<HTMLDivElement>) {
+    e.preventDefault();
+    const reservationId = e.dataTransfer.getData("text/plain");
+    const reservation = reservations.find((r) => r.id === reservationId);
+    if (!reservation) return;
+
+    const dropY = e.clientY;
+    let targetRoomId: string | null = null;
+    for (const [roomId, el] of roomRowRefs.current) {
+      const rect = el.getBoundingClientRect();
+      if (dropY >= rect.top && dropY < rect.bottom) {
+        targetRoomId = roomId;
+        break;
+      }
+    }
+    if (!targetRoomId) return;
+
+    let newCheckIn: string;
+    let newCheckOut: string;
+    if (reservation.room_id === null) {
+      // Nicht zugewiesene Buchung: der Chip hat keine eigene Tagesspalte im
+      // Gitter, die X-Position beim Ablegen ist rein zufällig — nur die
+      // Zimmerzeile zählt, Datum bleibt unangetastet (reines Zuweisen).
+      newCheckIn = reservation.check_in_date;
+      newCheckOut = reservation.check_out_date;
+    } else {
+      const dropX = e.clientX;
+      let dayIndex = -1;
+      for (let i = 0; i < dayHeaderRefs.current.length; i++) {
+        const el = dayHeaderRefs.current[i];
+        if (!el) continue;
+        const rect = el.getBoundingClientRect();
+        if (dropX >= rect.left && dropX < rect.right) {
+          dayIndex = i;
+          break;
+        }
+      }
+      if (dayIndex === -1) return;
+      const nights = daysBetween(reservation.check_in_date, reservation.check_out_date);
+      newCheckIn = columns[dayIndex];
+      newCheckOut = addDays(newCheckIn, nights);
+    }
+    if (targetRoomId === reservation.room_id && newCheckIn === reservation.check_in_date) return;
+
+    setMoveError(null);
+    try {
+      const res = await fetch(`/api/v1/pms/reservations/${reservation.id}/move`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ roomId: targetRoomId, checkInDate: newCheckIn, checkOutDate: newCheckOut }),
+      });
+      if (!res.ok) {
+        throw new Error((await res.json().catch(() => null))?.error?.message ?? `Status ${res.status}`);
+      }
+      router.refresh();
+    } catch (err) {
+      setMoveError(err instanceof Error ? err.message : "Fehler beim Verschieben");
+    }
+  }
+
   return (
     <div className="flex h-full flex-col gap-3 p-4 sm:p-6">
       {/* Eine gemeinsame Werkzeugleiste (Datum-Navigation, Zeitraum-Umschalter,
@@ -411,6 +489,7 @@ export function CalendarBoard({
           type="button"
           onClick={() => {
             setSelectedReservationId(null);
+            setIsCreatingGroup(false);
             setIsCreatingReservation(true);
           }}
           disabled={roomTypes.length === 0}
@@ -418,6 +497,19 @@ export function CalendarBoard({
           className="min-h-9 rounded-md bg-accent px-3 text-xs font-semibold text-on-accent hover:bg-accent-hi disabled:cursor-not-allowed disabled:opacity-50"
         >
           Neue Buchung
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            setSelectedReservationId(null);
+            setIsCreatingReservation(false);
+            setIsCreatingGroup(true);
+          }}
+          disabled={roomTypes.length === 0}
+          title={roomTypes.length === 0 ? "Erst eine Kategorie anlegen" : undefined}
+          className="min-h-9 rounded-md border border-line px-3 text-xs font-semibold text-text hover:bg-surface-2 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          Gruppe anlegen
         </button>
       </div>
 
@@ -464,31 +556,51 @@ export function CalendarBoard({
       )}
       </div>
 
+      {moveError && (
+        <div className="flex shrink-0 items-center justify-between gap-3 rounded-lg border border-red bg-red-bg px-3 py-2 text-xs text-red">
+          <span>{moveError}</span>
+          <button type="button" onClick={() => setMoveError(null)} className="font-semibold hover:opacity-80">
+            ×
+          </button>
+        </div>
+      )}
+
       {/* Nicht zugewiesene Buchungen (room_id null): brauchen einen
-       * sichtbaren Platz, sonst gehen sie unter (Auftrag 22.08.2026).
-       * Zuweisung per Drag & Drop kommt in Schritt 3 — hier nur Sichtbarkeit
-       * + Klick fürs bestehende Detail-Panel. Ausgeblendet bei 0, um die
-       * Werkzeugleiste im (heute noch häufigsten) Normalfall nicht unnötig
-       * zu belasten. */}
+       * sichtbaren Platz, sonst gehen sie unter (Auftrag 22.08.2026). Per
+       * Drag auf eine Zimmerzeile im Gitter zuweisbar (Schritt 3) — derselbe
+       * `handleGridDrop` wie beim Verschieben, da room_id dort ohnehin nur
+       * gegen die Zielzeile verglichen wird (null-Fall inklusive). */}
       {unassignedReservations.length > 0 && (
         <div className="flex shrink-0 flex-wrap items-center gap-2 rounded-lg border border-line bg-surface px-3 py-2">
           <span className="text-xs font-semibold text-text-2">Nicht zugewiesen: {unassignedReservations.length}</span>
-          <span className="text-[11px] text-text-3">(Zuweisung per Drag &amp; Drop kommt in Schritt 3)</span>
+          <span className="text-[11px] text-text-3">(auf eine Zimmerzeile ziehen zum Zuweisen)</span>
           <div className="flex flex-1 flex-wrap gap-2">
             {unassignedReservations.map((r) => {
               const guestName = r.guest ? `${r.guest.first_name} ${r.guest.last_name}` : "Ohne Gast";
               const roomType = roomTypes.find((rt) => rt.id === r.room_type_id);
               const meta = RESERVATION_STATUS_META[r.status as keyof typeof RESERVATION_STATUS_META];
+              const canDrag = EDITABLE_RESERVATION_STATUSES.has(r.status);
               return (
                 <button
                   key={r.id}
                   type="button"
+                  draggable={canDrag}
+                  onDragStart={(e) => {
+                    if (!canDrag) return;
+                    e.dataTransfer.setData("text/plain", r.id);
+                    e.dataTransfer.effectAllowed = "move";
+                    setDraggingReservationId(r.id);
+                  }}
+                  onDragEnd={() => setDraggingReservationId(null)}
                   onClick={() => {
                     setIsCreatingReservation(false);
+                    setIsCreatingGroup(false);
                     setSelectedReservationId(r.id);
                   }}
                   className={`rounded px-2 py-1 text-left text-xs font-medium ${meta.barClassName} ${
-                    selectedReservationId === r.id ? "ring-2 ring-accent" : ""
+                    canDrag ? "cursor-grab active:cursor-grabbing" : ""
+                  } ${selectedReservationId === r.id ? "ring-2 ring-accent" : ""} ${
+                    draggingReservationId === r.id ? "opacity-40" : ""
                   }`}
                 >
                   {guestName} · {roomType?.name ?? "?"} · {formatDate(r.check_in_date)}–{formatDate(r.check_out_date)}
@@ -571,6 +683,8 @@ export function CalendarBoard({
               gridTemplateColumns: `${ROOM_COL_PX}px repeat(${days}, minmax(${dayColPx}px, 1fr))`,
               gridTemplateRows: `64px repeat(${totalRows - 1}, auto)`,
             }}
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={handleGridDrop}
           >
             {/* Ecke oben-links: sticky in BEIDEN Achsen (höchster z-index, da
              * Schnittpunkt von Zimmerspalte + Datums-Kopfzeile). */}
@@ -579,6 +693,9 @@ export function CalendarBoard({
             {columns.map((day, i) => (
               <div
                 key={day}
+                ref={(el) => {
+                  dayHeaderRefs.current[i] = el;
+                }}
                 title={`${formatWeekdayShort(day)} ${formatDate(day)} · ${occupancyByDay[i]}% belegt`}
                 className={`sticky top-0 z-20 border-b border-l border-b-line text-center ${
                   weekdayOf(day) === 1 ? "border-l-line" : "border-l-line-2"
@@ -695,6 +812,10 @@ export function CalendarBoard({
               return (
                 <div
                   key={`room-${d.room.id}`}
+                  ref={(el) => {
+                    if (el) roomRowRefs.current.set(d.room.id, el);
+                    else roomRowRefs.current.delete(d.room.id);
+                  }}
                   className="sticky left-0 z-10 flex items-center gap-2 border-r border-b border-line bg-surface-3 px-3 py-1"
                   style={{ gridColumn: 1, gridRow: d.row }}
                 >
@@ -722,19 +843,31 @@ export function CalendarBoard({
                   : "Ohne Gast";
                 const nights = daysBetween(reservation.check_in_date, reservation.check_out_date);
                 const barLabel = `${guestName} · ${meta.label} · ${reservation.reservation_no}`;
+                const canDrag = EDITABLE_RESERVATION_STATUSES.has(reservation.status);
                 return (
                   <button
                     key={reservation.id}
                     type="button"
+                    draggable={canDrag}
+                    onDragStart={(e) => {
+                      if (!canDrag) return;
+                      e.dataTransfer.setData("text/plain", reservation.id);
+                      e.dataTransfer.effectAllowed = "move";
+                      setDraggingReservationId(reservation.id);
+                    }}
+                    onDragEnd={() => setDraggingReservationId(null)}
                     onClick={() => {
                       setIsCreatingReservation(false);
+                      setIsCreatingGroup(false);
                       setSelectedReservationId(reservation.id);
                     }}
                     aria-label={barLabel}
-                    title={isCompact ? barLabel : undefined}
+                    title={isCompact ? barLabel : canDrag ? `${barLabel} · zum Verschieben ziehen` : barLabel}
                     className={`m-1 block w-full min-w-0 truncate rounded text-left text-xs font-medium ${meta.barClassName} ${
                       isCompact ? "px-1 py-1" : "px-2 py-1"
-                    } ${selectedReservationId === reservation.id ? "ring-2 ring-accent" : ""}`}
+                    } ${canDrag ? "cursor-grab active:cursor-grabbing" : ""} ${
+                      selectedReservationId === reservation.id ? "ring-2 ring-accent" : ""
+                    } ${draggingReservationId === reservation.id ? "opacity-40" : ""}`}
                     style={{ gridColumn: `${startCol} / span ${span}`, gridRow: rowIndex }}
                   >
                     {/* Ab COMPACT_THRESHOLD_DAYS reine Farbbalken ohne Text (Auftrag
@@ -774,6 +907,14 @@ export function CalendarBoard({
           defaultCheckIn={today}
           defaultCheckOut={addDays(today, 1)}
           onClose={() => setIsCreatingReservation(false)}
+        />
+      )}
+      {isCreatingGroup && (
+        <GroupBookingPanel
+          roomTypes={roomTypes}
+          defaultCheckIn={today}
+          defaultCheckOut={addDays(today, 1)}
+          onClose={() => setIsCreatingGroup(false)}
         />
       )}
       </div>
