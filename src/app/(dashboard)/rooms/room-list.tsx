@@ -130,60 +130,86 @@ export function RoomList({
         {rooms.length === 0 ? (
           <p className="text-text-2">Noch keine Zimmer angelegt.</p>
         ) : (
-          <div className="overflow-x-auto rounded-lg border border-line bg-surface">
-            <div className="min-w-[560px]">
-              <div
-                className="grid gap-x-3 border-b border-line bg-surface-2 px-3 py-2 text-[10px] font-medium tracking-wide text-text-3 uppercase"
-                style={{ gridTemplateColumns: TABLE_COLS }}
-              >
-                <span>Nummer</span>
-                <span>Kategorie</span>
-                <span>Etage</span>
-                <span className="text-right">Preis/Nacht</span>
-                <span className="text-right">Max. Pers.</span>
-                <span>Zustand</span>
-              </div>
+          <div className="rounded-lg border border-line bg-surface">
+            {/* Spaltenkopf nur ab sm — mobil gibt es keine Tabelle, sondern
+             * gestapelte Zeilen (Review-Fund 23.08.2026: bei 390px war die
+             * Tabelle abgeschnitten, "Zustand" komplett unsichtbar und der
+             * Preis mitten im Betrag gekappt). */}
+            <div
+              className="hidden gap-x-3 border-b border-line bg-surface-2 px-3 py-2 text-[10px] font-medium tracking-wide text-text-3 uppercase sm:grid"
+              style={{ gridTemplateColumns: TABLE_COLS }}
+            >
+              <span>Nummer</span>
+              <span>Kategorie</span>
+              <span>Etage</span>
+              <span className="text-right">Preis/Nacht</span>
+              <span className="text-right">Max. Pers.</span>
+              <span>Zustand</span>
+            </div>
 
-              {roomTypes.map((rt) => {
-                const roomsForType = roomsByType.get(rt.id);
-                if (!roomsForType || roomsForType.length === 0) return null;
-                return (
-                  <div key={rt.id}>
-                    <div className="border-b border-line bg-surface-2 px-3 py-1 text-xs font-semibold tracking-wide text-text-2 uppercase">
-                      {rt.name} · {roomsForType.length}
-                    </div>
-                    {roomsForType.map((room) => {
-                      const isCheckedInToday = checkedInTodayRoomIds.has(room.id);
-                      const meta = getRoomDisplayStatus(room.status, isCheckedInToday);
-                      return (
-                        <button
-                          key={room.id}
-                          type="button"
-                          onClick={() => {
-                            setIsCreating(false);
-                            setSelectedRoomId(room.id);
-                          }}
-                          className={`grid w-full items-center gap-x-3 border-b border-line px-3 py-2.5 text-left text-sm hover:bg-surface-2 ${
-                            selectedRoomId === room.id ? "bg-surface-2" : ""
-                          }`}
-                          style={{ gridTemplateColumns: TABLE_COLS }}
-                        >
+            {roomTypes.map((rt) => {
+              const roomsForType = roomsByType.get(rt.id);
+              if (!roomsForType || roomsForType.length === 0) return null;
+              return (
+                <div key={rt.id}>
+                  <div className="border-b border-line bg-surface-2 px-3 py-1 text-xs font-semibold tracking-wide text-text-2 uppercase">
+                    {rt.name} · {roomsForType.length}
+                  </div>
+                  {roomsForType.map((room) => {
+                    const isCheckedInToday = checkedInTodayRoomIds.has(room.id);
+                    const meta = getRoomDisplayStatus(room.status, isCheckedInToday);
+                    return (
+                      <button
+                        key={room.id}
+                        type="button"
+                        onClick={() => {
+                          setIsCreating(false);
+                          setSelectedRoomId(room.id);
+                        }}
+                        className={`block w-full border-b border-line px-3 py-2.5 text-left text-sm hover:bg-surface-2 sm:grid sm:items-center sm:gap-x-3 ${
+                          selectedRoomId === room.id ? "bg-surface-2" : ""
+                        }`}
+                        style={{ gridTemplateColumns: TABLE_COLS }}
+                      >
+                        {/* Mobil: Nummer + Zustand in einer Zeile, darunter die
+                         * Details — ab sm greifen die Grid-Spalten und die
+                         * Wrapper werden transparent (display:contents). */}
+                        <span className="flex items-center justify-between gap-3 sm:contents">
                           <span className="font-mono font-semibold text-text">{room.room_number}</span>
-                          <span className="truncate text-text-2">{rt.name}</span>
-                          <span className="text-text-3">{room.floor ?? "—"}</span>
-                          <span className="text-right font-mono text-text-2">{formatEuro(rt.base_rate_cents)}</span>
-                          <span className="text-right font-mono text-text-2">{occupancyLabel(rt)}</span>
-                          <span className="flex items-center gap-2 text-text-2">
+                          <span className="flex items-center gap-2 text-text-2 sm:order-last">
                             <StatusDot status={room.status} isCheckedInToday={isCheckedInToday} />
                             {meta.label}
                           </span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                );
-              })}
-            </div>
+                        </span>
+                        <span className="mt-1 flex items-center gap-2 text-xs text-text-3 sm:contents">
+                          <span className="truncate sm:text-sm sm:text-text-2">{rt.name}</span>
+                          <span aria-hidden className="sm:hidden">
+                            ·
+                          </span>
+                          <span className="sm:text-sm sm:text-text-3">
+                            <span className="sm:hidden">Etage </span>
+                            {room.floor ?? "—"}
+                          </span>
+                          <span aria-hidden className="sm:hidden">
+                            ·
+                          </span>
+                          <span className="font-mono sm:text-right sm:text-sm sm:text-text-2">
+                            {formatEuro(rt.base_rate_cents)}
+                          </span>
+                          <span aria-hidden className="sm:hidden">
+                            ·
+                          </span>
+                          <span className="font-mono sm:text-right sm:text-sm sm:text-text-2">
+                            {occupancyLabel(rt)}
+                            <span className="sm:hidden"> Pers.</span>
+                          </span>
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              );
+            })}
           </div>
         )}
 

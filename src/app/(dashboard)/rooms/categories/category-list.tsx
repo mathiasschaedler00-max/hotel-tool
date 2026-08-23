@@ -67,39 +67,51 @@ export function CategoryList({
         {roomTypes.length === 0 ? (
           <p className="text-text-2">Noch keine Kategorien angelegt.</p>
         ) : (
-          <div className="overflow-x-auto rounded-lg border border-line bg-surface">
-            <div className="min-w-[440px]">
-              <div
-                className="grid gap-x-3 border-b border-line bg-surface-2 px-3 py-2 text-[10px] font-medium tracking-wide text-text-3 uppercase"
+          <div className="rounded-lg border border-line bg-surface">
+            {/* Spaltenkopf nur ab sm — mobil gestapelte Zeilen statt Tabelle
+             * (Review-Fund 23.08.2026: bei 390px war die Spalte "Zimmer"
+             * abgeschnitten und der Name gekürzt). */}
+            <div
+              className="hidden gap-x-3 border-b border-line bg-surface-2 px-3 py-2 text-[10px] font-medium tracking-wide text-text-3 uppercase sm:grid"
+              style={{ gridTemplateColumns: TABLE_COLS }}
+            >
+              <span>Name</span>
+              <span className="text-right">Preis/Nacht</span>
+              <span className="text-right">Max. Pers.</span>
+              <span className="text-right">Zimmer</span>
+            </div>
+            {roomTypes.map((rt) => (
+              <button
+                key={rt.id}
+                type="button"
+                onClick={() => {
+                  setIsCreating(false);
+                  setSelectedId(rt.id);
+                }}
+                className={`block w-full border-b border-line px-3 py-2.5 text-left text-sm hover:bg-surface-2 sm:grid sm:items-center sm:gap-x-3 ${
+                  selectedId === rt.id ? "bg-surface-2" : ""
+                }`}
                 style={{ gridTemplateColumns: TABLE_COLS }}
               >
-                <span>Name</span>
-                <span className="text-right">Preis/Nacht</span>
-                <span className="text-right">Max. Pers.</span>
-                <span className="text-right">Zimmer</span>
-              </div>
-              {roomTypes.map((rt) => (
-                <button
-                  key={rt.id}
-                  type="button"
-                  onClick={() => {
-                    setIsCreating(false);
-                    setSelectedId(rt.id);
-                  }}
-                  className={`grid w-full items-center gap-x-3 border-b border-line px-3 py-2.5 text-left text-sm hover:bg-surface-2 ${
-                    selectedId === rt.id ? "bg-surface-2" : ""
-                  }`}
-                  style={{ gridTemplateColumns: TABLE_COLS }}
-                >
-                  <span className="truncate text-text">{rt.name}</span>
-                  <span className="text-right font-mono text-text-2">{formatEuro(rt.base_rate_cents)}</span>
-                  <span className="text-right font-mono text-text-2">
+                <span className="flex items-center justify-between gap-3 sm:contents">
+                  <span className="text-text sm:truncate">{rt.name}</span>
+                  <span className="font-mono text-text-2 sm:text-right">{formatEuro(rt.base_rate_cents)}</span>
+                </span>
+                <span className="mt-1 flex items-center gap-2 text-xs text-text-3 sm:contents">
+                  <span className="font-mono sm:text-right sm:text-sm sm:text-text-2">
                     {rt.capacity_children > 0 ? `${rt.capacity_adults}+${rt.capacity_children}` : rt.capacity_adults}
+                    <span className="sm:hidden"> Pers.</span>
                   </span>
-                  <span className="text-right font-mono text-text-3">{roomCountByType[rt.id] ?? 0}</span>
-                </button>
-              ))}
-            </div>
+                  <span aria-hidden className="sm:hidden">
+                    ·
+                  </span>
+                  <span className="font-mono sm:text-right sm:text-sm sm:text-text-3">
+                    {roomCountByType[rt.id] ?? 0}
+                    <span className="sm:hidden"> Zimmer</span>
+                  </span>
+                </span>
+              </button>
+            ))}
           </div>
         )}
 
