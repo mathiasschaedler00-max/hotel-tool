@@ -187,16 +187,29 @@ export function CalendarBoard({
     [reservations, rangeFrom, rangeToExclusive]
   );
 
+  // Vorschau während der Verschieben-Bestätigung (Auftrag 23.08.2026): der
+  // Balken soll schon an der Zielposition erscheinen, solange die Nachfrage
+  // oben offen ist — bestätigt sich das mit "Ja", stimmt die Anzeige schon;
+  // bricht man ab, war es nie mehr als eine Vorschau (kein Server-Schreiben).
+  const displayReservationsInRange = useMemo(() => {
+    if (!pendingMove) return reservationsInRange;
+    return reservationsInRange.map((r) =>
+      r.id === pendingMove.reservationId
+        ? { ...r, room_id: pendingMove.targetRoomId, check_in_date: pendingMove.newCheckIn, check_out_date: pendingMove.newCheckOut }
+        : r
+    );
+  }, [reservationsInRange, pendingMove]);
+
   const reservationsByRoom = useMemo(() => {
     const map = new Map<string, ReservationWithDetails[]>();
-    for (const r of reservationsInRange) {
+    for (const r of displayReservationsInRange) {
       if (!r.room_id) continue;
       const list = map.get(r.room_id) ?? [];
       list.push(r);
       map.set(r.room_id, list);
     }
     return map;
-  }, [reservationsInRange]);
+  }, [displayReservationsInRange]);
 
   const normalizedQuery = query.trim().toLowerCase();
 
@@ -350,8 +363,8 @@ export function CalendarBoard({
   // sie unter (Auftrag 22.08.2026). Zuweisung selbst (Drag & Drop) ist
   // Schritt 3 — hier nur Sichtbarkeit + Klick fürs Detail-Panel.
   const unassignedReservations = useMemo(
-    () => reservationsInRange.filter((r) => r.room_id === null && isVisibleOnCalendar(r.status)),
-    [reservationsInRange]
+    () => displayReservationsInRange.filter((r) => r.room_id === null && isVisibleOnCalendar(r.status)),
+    [displayReservationsInRange]
   );
 
   async function handleGridDrop(e: React.DragEvent<HTMLDivElement>) {
@@ -927,7 +940,8 @@ export function CalendarBoard({
                   : "Ohne Gast";
                 const nights = daysBetween(reservation.check_in_date, reservation.check_out_date);
                 const barLabel = `${guestName} · ${meta.label} · ${reservation.reservation_no}`;
-                const canDrag = EDITABLE_RESERVATION_STATUSES.has(reservation.status);
+                const isPendingPreview = pendingMove?.reservationId === reservation.id;
+                const canDrag = EDITABLE_RESERVATION_STATUSES.has(reservation.status) && !isPendingPreview;
                 return (
                   <button
                     key={reservation.id}
@@ -945,12 +959,16 @@ export function CalendarBoard({
                       setIsCreatingGroup(false);
                       setSelectedReservationId(reservation.id);
                     }}
-                    aria-label={barLabel}
+                    aria-label={isPendingPreview ? `${barLabel} · Verschieben noch nicht bestätigt` : barLabel}
                     title={isCompact ? barLabel : canDrag ? `${barLabel} · zum Verschieben ziehen` : barLabel}
                     className={`m-1 block w-full min-w-0 truncate rounded text-left text-xs font-medium ${meta.barClassName} ${
                       isCompact ? "px-1 py-1" : "px-2 py-1"
                     } ${canDrag ? "cursor-grab active:cursor-grabbing" : ""} ${
-                      selectedReservationId === reservation.id ? "ring-2 ring-accent" : ""
+                      isPendingPreview
+                        ? "animate-pulse border-2 border-dashed border-accent"
+                        : selectedReservationId === reservation.id
+                          ? "ring-2 ring-accent"
+                          : ""
                     } ${draggingReservationId === reservation.id ? "opacity-40" : ""}`}
                     style={{ gridColumn: `${startCol} / span ${span}`, gridRow: rowIndex }}
                   >
