@@ -29,6 +29,21 @@ export function isExclusionViolation(e: unknown): boolean {
   return typeof e === "object" && e !== null && "code" in e && (e as { code: unknown }).code === "23P01";
 }
 
+/**
+ * SQLSTATE 23514 = check_violation, hier immer `chk_reservations_dates`
+ * (`check_out_date > check_in_date`). Greift, wenn nur eines der beiden
+ * Felder verschoben wird und der daraus resultierende Zeitraum ungültig
+ * wird — `moveReservationSchema`s Refine sieht das nicht, weil es nur
+ * prüft, wenn BEIDE Felder im Request stehen (Review-Fund, 23.08.2026: gab
+ * bis dahin einen rohen 500 statt einer verständlichen Meldung).
+ */
+function isDateRangeInvalid(e: unknown): boolean {
+  return typeof e === "object" && e !== null && "code" in e && (e as { code: unknown }).code === "23514";
+}
+
+/** Reservierungen in diesen Status können noch bearbeitet/verschoben werden — storniert/abgereist ist endgültig. */
+const EDITABLE_RESERVATION_STATUSES = new Set(["confirmed", "checked_in"]);
+
 export function nightsBetween(checkInDate: string, checkOutDate: string): number {
   return Math.round((Date.parse(`${checkOutDate}T00:00:00Z`) - Date.parse(`${checkInDate}T00:00:00Z`)) / 86_400_000);
 }
@@ -371,6 +386,11 @@ export async function updateReservation(ctx: ModuleContext, input: UpdateReserva
       );
       const before = beforeRows[0];
       if (!before) throw new NotFoundError("reservation");
+      if (!EDITABLE_RESERVATION_STATUSES.has(before.status)) {
+        throw new ConflictError(`Reservierung kann im Status "${before.status}" nicht bearbeitet werden`, {
+          currentStatus: before.status,
+        });
+      }
 
       const { rows } = await client.query<Reservation>(
         `update reservations set adults = $2, children = $3, notes = $4, rate_cents = $5 where id = $1 returning *`,
@@ -408,10 +428,21 @@ export async function moveReservation(ctx: ModuleContext, input: MoveReservation
       );
       const before = beforeRows[0];
       if (!before) throw new NotFoundError("reservation");
+      if (!EDITABLE_RESERVATION_STATUSES.has(before.status)) {
+        throw new ConflictError(`Reservierung kann im Status "${before.status}" nicht verschoben werden`, {
+          currentStatus: before.status,
+        });
+      }
 
       const nextRoomId = input.roomId !== undefined ? input.roomId : before.room_id;
       const nextCheckIn = input.checkInDate ?? before.check_in_date;
       const nextCheckOut = input.checkOutDate ?? before.check_out_date;
+      if (nextCheckOut <= nextCheckIn) {
+        throw new ConflictError("checkOutDate muss nach checkInDate liegen", {
+          checkInDate: nextCheckIn,
+          checkOutDate: nextCheckOut,
+        });
+      }
       if (nextRoomId) {
         await assertBelongsToHotel(client, ctx.hotelId, "rooms", nextRoomId, "room");
       }
@@ -426,6 +457,12 @@ export async function moveReservation(ctx: ModuleContext, input: MoveReservation
         if (isExclusionViolation(e)) {
           throw new ConflictError("Zimmer ist im gewählten Zeitraum bereits belegt", {
             roomId: nextRoomId,
+            checkInDate: nextCheckIn,
+            checkOutDate: nextCheckOut,
+          });
+        }
+        if (isDateRangeInvalid(e)) {
+          throw new ConflictError("checkOutDate muss nach checkInDate liegen", {
             checkInDate: nextCheckIn,
             checkOutDate: nextCheckOut,
           });
