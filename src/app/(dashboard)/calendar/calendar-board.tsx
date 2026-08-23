@@ -12,6 +12,7 @@ import { RESERVATION_STATUS_META, isVisibleOnCalendar, EDITABLE_RESERVATION_STAT
 import { ReservationDetailPanel } from "./reservation-detail-panel";
 import { NewReservationPanel } from "./new-reservation-panel";
 import { GroupBookingPanel } from "./group-booking-panel";
+import { CheckInModal } from "./check-in-modal";
 
 const ROOM_COL_PX = 168;
 const DAY_COL_MIN_PX = 68;
@@ -126,6 +127,9 @@ export function CalendarBoard({
   const [selectedReservationId, setSelectedReservationId] = useState<string | null>(null);
   const [isCreatingReservation, setIsCreatingReservation] = useState(false);
   const [isCreatingGroup, setIsCreatingGroup] = useState(false);
+  // Check-in-Ablauf (Schritt 4, Design-Screen 3) — Vollseiten-Modal über
+  // allem, daher eigener State statt eines weiteren Seiten-Panels.
+  const [checkInReservationId, setCheckInReservationId] = useState<string | null>(null);
 
   // Drag & Drop im Gitter (Auftrag Schritt 3, vereinfacht 23.08.2026: Ziehen
   // ändert bewusst NUR das Zimmer, nie den Zeitraum — eine Tagesspalte ist
@@ -302,6 +306,9 @@ export function CalendarBoard({
     : null;
   const selectedRoom = selectedReservation?.room_id
     ? (rooms.find((r) => r.id === selectedReservation.room_id) ?? null)
+    : null;
+  const checkInReservation = checkInReservationId
+    ? (reservations.find((r) => r.id === checkInReservationId) ?? null)
     : null;
 
   function toggleType(id: string) {
@@ -974,6 +981,8 @@ export function CalendarBoard({
           reservation={selectedReservation}
           room={selectedRoom}
           roomTypes={roomTypes}
+          today={today}
+          onStartCheckIn={() => setCheckInReservationId(selectedReservation.id)}
           onClose={() => setSelectedReservationId(null)}
         />
       )}
@@ -994,6 +1003,15 @@ export function CalendarBoard({
         />
       )}
       </div>
+
+      {checkInReservation && (
+        <CheckInModal
+          reservation={checkInReservation}
+          roomTypes={roomTypes}
+          rooms={rooms}
+          onClose={() => setCheckInReservationId(null)}
+        />
+      )}
     </div>
   );
 }

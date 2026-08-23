@@ -149,11 +149,29 @@ export async function updateGuest(ctx: ModuleContext, input: UpdateGuestInput): 
       const before = beforeRows[0];
       if (!before) throw new NotFoundError("guest");
 
-      const { rows } = await client.query<Guest>(
-        `update guests set first_name = $2, last_name = $3, email = $4, phone = $5, nationality = $6
-         where id = $1 returning ${GUEST_COLUMNS}`,
-        [input.guestId, input.firstName, input.lastName, input.email, input.phone, input.nationality]
-      );
+      // `document_number_encrypted` bewusst nur setzen, wenn eine neue Nummer
+      // mitkommt — ohne Reveal-Flow kann sie nicht gelesen und damit auch
+      // nicht als Teil eines Voll-Replace zurückgeschrieben werden.
+      const { rows } = input.documentNumber
+        ? await client.query<Guest>(
+            `update guests set first_name = $2, last_name = $3, email = $4, phone = $5, nationality = $6,
+                    document_number_encrypted = $7
+             where id = $1 returning ${GUEST_COLUMNS}`,
+            [
+              input.guestId,
+              input.firstName,
+              input.lastName,
+              input.email,
+              input.phone,
+              input.nationality,
+              encryptDocumentNumber(input.documentNumber),
+            ]
+          )
+        : await client.query<Guest>(
+            `update guests set first_name = $2, last_name = $3, email = $4, phone = $5, nationality = $6
+             where id = $1 returning ${GUEST_COLUMNS}`,
+            [input.guestId, input.firstName, input.lastName, input.email, input.phone, input.nationality]
+          );
       return { resourceId: input.guestId, before, after: rows[0] };
     },
   });

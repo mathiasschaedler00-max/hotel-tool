@@ -20,6 +20,14 @@ export const updateGuestSchema = z.object({
   email: z.string().email().nullable(),
   phone: z.string().nullable(),
   nationality: z.string().nullable(),
+  /**
+   * Ausweis-/Passnummer nachtragen (Meldedaten-Station beim Check-in,
+   * Schritt 4). Bewusst KEIN Teil des Voll-Replace: `undefined` lässt eine
+   * bereits gespeicherte Nummer unangetastet — sie kann mangels
+   * Reveal-Flow gar nicht ausgelesen und damit auch nicht
+   * zurückgeschrieben werden. Nur ein nicht-leerer String überschreibt.
+   */
+  documentNumber: z.string().min(1).optional(),
 });
 
 export type UpdateGuestInput = z.infer<typeof updateGuestSchema>;
