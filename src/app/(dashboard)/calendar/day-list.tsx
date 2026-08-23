@@ -66,17 +66,6 @@ export function DayList({
     }
   }
 
-  // Für den Zimmer-Punkt: "Belegt" (blau) ist rein abgeleitet aus dem
-  // TATSÄCHLICHEN Heute, unabhängig vom gerade angezeigten `date` (siehe
-  // room-status.ts#getRoomDisplayStatus) — der Punkt zeigt immer den realen
-  // Ist-Zustand des Zimmers, auch wenn man sich einen anderen Tag ansieht.
-  const checkedInTodayRoomIds = new Set<string>();
-  for (const r of reservations) {
-    if (r.status === "checked_in" && r.room_id && r.check_in_date <= today && today < r.check_out_date) {
-      checkedInTodayRoomIds.add(r.room_id);
-    }
-  }
-
   const occupiedCount = rooms.filter((room) => {
     const r = reservationByRoom.get(room.id);
     return r && (r.status === "confirmed" || r.status === "checked_in");
@@ -130,16 +119,30 @@ export function DayList({
                 statusText = `Anreise heute · ${nights} ${nights === 1 ? "Nacht" : "Nächte"}`;
               } else if (reservation.check_out_date === date) {
                 statusText = "Abreise heute";
-              } else {
+              } else if (reservation.status === "checked_in") {
                 statusText = `In-House · bis ${formatDate(reservation.check_out_date)}`;
+              } else {
+                // Review-Fund, 23.08.2026: eine bloß bestätigte (nicht
+                // eingecheckte) Buchung zeigte hier fälschlich "In-House" —
+                // das behauptet einen physischen Check-in, der nie
+                // stattgefunden hat.
+                statusText = `Reserviert · bis ${formatDate(reservation.check_out_date)}`;
               }
             } else {
               statusText = room.status === "available" ? "Frei" : ROOM_STATUS_META[room.status].label;
             }
 
+            // Der Punkt gehört zum gerade angezeigten `date`, nicht zum
+            // realen Heute (Review-Fund, 23.08.2026: bei Navigation auf
+            // einen anderen Tag zeigte der Punkt weiterhin "belegt", obwohl
+            // der Text daneben schon "Frei" sagte — derselbe Tag, zwei
+            // widersprüchliche Aussagen). "Belegt" (blau) gilt exakt dann,
+            // wenn die für DIESEN Tag gültige Reservierung eingecheckt ist.
+            const isCheckedInOnViewedDate = reservation?.status === "checked_in";
+
             return (
               <li key={room.id} className="flex items-center gap-3 rounded-lg border border-line bg-surface p-3">
-                <StatusDot status={room.status} isCheckedInToday={checkedInTodayRoomIds.has(room.id)} />
+                <StatusDot status={room.status} isCheckedInToday={isCheckedInOnViewedDate} />
                 <span className="w-10 shrink-0 font-mono text-sm font-semibold text-text">{room.room_number}</span>
                 {/* Zeilenumbruch statt Kürzen (`truncate`) — das Abreisedatum ist
                  * eine für den Betrieb kritische Information und darf nicht
