@@ -12,7 +12,10 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   try {
     const ctx = await getModuleContext(req, "pms");
     const { id } = await params;
-    const input = checkOutSchema.parse({ reservationId: id });
+    // Body ist optional — der Verifikations-Abnahmepunkt ruft ohne auf, die
+    // Oberfläche schickt `allowOpenBalance`/`overrideReason` mit.
+    const body = await req.json().catch(() => ({}));
+    const input = checkOutSchema.parse({ ...body, reservationId: id });
     const reservation = await checkOut(ctx, input);
     return ok(reservation);
   } catch (e) {

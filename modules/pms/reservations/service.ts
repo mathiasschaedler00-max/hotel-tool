@@ -1,16 +1,20 @@
 import { randomUUID } from "node:crypto";
+import type { PoolClient } from "pg";
 import type { ModuleContext } from "@modules/_shared/context";
 import { executeWrite } from "@modules/_shared/write";
-import { ConflictError, NotFoundError } from "@modules/_shared/errors";
+import { ConflictError, NotFoundError, ValidationError } from "@modules/_shared/errors";
 import { EVENTS } from "@modules/_shared/topics";
 import { assertModuleEnabled } from "@modules/entitlements/service";
 import { requirePermission } from "@modules/rbac/permissions";
 import { assertBelongsToHotel } from "@modules/_shared/tenant-guard";
+import { writeAudit } from "@modules/audit/service";
 import { createServiceClient } from "@lib/supabase/service";
 import { getPoolForReads } from "@lib/db/pool";
 import type { Room } from "@modules/pms/rooms/service";
 import type {
   CreateReservationInput,
+  CheckInInput,
+  AssignRoomInput,
   CheckOutInput,
   UpdateReservationInput,
   MoveReservationInput,
@@ -110,8 +114,24 @@ function describeAuditAction(action: string, newData: Record<string, unknown> | 
       const label = source ? (RESERVATION_SOURCE_LABELS[source] ?? source) : undefined;
       return label ? `Buchung eingegangen · ${label}` : "Buchung eingegangen";
     }
+    case "reservation.checked_in":
+      return "Check-in";
+    case "reservation.checked_in_with_override":
+      return "Check-in · Zimmerstatus übersteuert";
+    case "reservation.room_assigned":
+      return "Zimmer zugewiesen";
+    case "room.status_overridden_at_checkin": {
+      const reason = newData?.reason as string | undefined;
+      return reason ? `Zimmerstatus übersteuert · ${reason}` : "Zimmerstatus übersteuert";
+    }
     case "reservation.checked_out":
       return "Check-out";
+    case "reservation.checked_out_with_open_balance":
+      return "Check-out · trotz offenem Saldo freigegeben";
+    case "reservation.open_balance_overridden": {
+      const reason = newData?.reason as string | undefined;
+      return reason ? `Offener Saldo freigegeben · ${reason}` : "Offener Saldo freigegeben";
+    }
     case "reservation.updated":
       return "Belegungsdaten geändert";
     case "reservation.moved":
@@ -329,8 +349,228 @@ export async function listAvailableRooms(
 }
 
 /**
+ * Zimmerzustände, in denen ein Zimmer OHNE Übersteuerung belegt werden darf.
+ * `cleaning` fehlt hier bewusst: ein noch nicht gereinigtes Zimmer ist der
+ * klassische Fall, in dem die Rezeption bewusst entscheiden muss (Design-
+ * Referenz §5, Screen 3.3) — nicht etwas, das still durchgewinkt wird.
+ */
+const ROOM_STATUS_READY_FOR_GUEST = new Set(["available"]);
+
+const ROOM_STATUS_LABELS_DE: Record<string, string> = {
+  available: "frei",
+  cleaning: "in Reinigung",
+  maintenance: "in Wartung",
+  blocked: "gesperrt",
+};
+
+interface RoomRow {
+  id: string;
+  room_number: string;
+  status: string;
+}
+
+/**
+ * Gemeinsame Housekeeping-Sicherheitsprüfung für Check-in und Zimmerzuteilung.
+ *
+ * ⚠️ Kern der Plan-Warnung zu Schritt 4: Wird übersteuert, MUSS der
+ * Zimmerstatus mitkorrigiert werden. Sonst zeigt der Belegungsplan weiter
+ * "in Reinigung", obwohl ein Gast im Zimmer ist — Belegungsplan und
+ * Housekeeping laufen dauerhaft auseinander. Der Override erzeugt zusätzlich
+ * einen eigenen Audit-Eintrag (wer, wann, warum), er verschwindet also nicht
+ * still im normalen Check-in-Eintrag.
+ */
+async function assertRoomUsableForGuest(
+  client: PoolClient,
+  ctx: ModuleContext,
+  roomId: string,
+  override: { allowed: boolean; reason?: string }
+): Promise<void> {
+  const { rows } = await client.query<RoomRow>(
+    `select id, room_number, status from rooms where id = $1 and hotel_id = $2 and deleted_at is null for update`,
+    [roomId, ctx.hotelId]
+  );
+  const room = rows[0];
+  if (!room) throw new NotFoundError("room");
+  if (ROOM_STATUS_READY_FOR_GUEST.has(room.status)) return;
+
+  const label = ROOM_STATUS_LABELS_DE[room.status] ?? room.status;
+  if (!override.allowed) {
+    throw new ConflictError(`Zimmer ${room.room_number} ist ${label} — anderes Zimmer wählen oder ausdrücklich übersteuern`, {
+      roomId,
+      roomNumber: room.room_number,
+      roomStatus: room.status,
+      requiresOverride: true,
+    });
+  }
+  if (!override.reason) {
+    throw new ValidationError({ overrideReason: "erforderlich" }, "Übersteuerung braucht eine Begründung");
+  }
+
+  await client.query(`update rooms set status = 'available' where id = $1`, [roomId]);
+  await writeAudit(client, ctx, {
+    action: "room.status_overridden_at_checkin",
+    resourceType: "room",
+    resourceId: roomId,
+    before: { status: room.status },
+    after: { status: "available", reason: override.reason },
+  });
+}
+
+/**
+ * Check-in (Schritt 4) — schließt die bis hierhin tote Kette: ohne diese
+ * Funktion konnte nie etwas den Status `checked_in` erreichen, wodurch
+ * `checkOut()` unerreichbar war.
+ *
+ * Setzt bewusst NICHT `rooms.status`: seit der Statuskorrektur in Schritt 1
+ * kennt `rooms.status` nur die vier Housekeeping-Zustände; "Belegt" ist ein
+ * abgeleiteter Anzeigewert aus `reservations.status` (siehe
+ * `src/app/(dashboard)/rooms/room-status.ts#getRoomDisplayStatus`). Der
+ * ursprüngliche Plan sprach hier von `'occupied'` — den Wert gibt es im
+ * Datenmodell nicht mehr, die neuere Entscheidung gewinnt.
+ *
+ * Öffnet das Folio in DERSELBEN Transaktion (nicht per Event), damit es
+ * keinen Moment gibt, in dem ein Gast eingecheckt ist, aber nichts auf sein
+ * Zimmer gebucht werden kann.
+ */
+export async function checkIn(ctx: ModuleContext, input: CheckInInput): Promise<Reservation> {
+  await assertModuleEnabled(ctx.hotelId, "pms");
+  requirePermission(ctx, "pms.reservations.write");
+
+  return executeWrite<Reservation>(ctx, {
+    resourceType: "reservation",
+    action: input.overrideRoomStatus ? "reservation.checked_in_with_override" : "reservation.checked_in",
+    mutate: async (client) => {
+      const { rows: beforeRows } = await client.query<Reservation>(
+        `select * from reservations where id = $1 and hotel_id = $2 and deleted_at is null for update`,
+        [input.reservationId, ctx.hotelId]
+      );
+      const before = beforeRows[0];
+      if (!before) throw new NotFoundError("reservation");
+      if (before.status !== "confirmed") {
+        throw new ConflictError(`Reservierung kann im Status "${before.status}" nicht eingecheckt werden`, {
+          currentStatus: before.status,
+        });
+      }
+
+      const roomId = input.roomId ?? before.room_id;
+      if (!roomId) {
+        throw new ConflictError("Reservierung hat kein Zimmer — vor dem Check-in eines zuweisen", {
+          reservationId: input.reservationId,
+        });
+      }
+      if (input.roomId && input.roomId !== before.room_id) {
+        await assertBelongsToHotel(client, ctx.hotelId, "rooms", input.roomId, "room");
+      }
+      await assertRoomUsableForGuest(client, ctx, roomId, {
+        allowed: input.overrideRoomStatus,
+        reason: input.overrideReason,
+      });
+
+      let rows;
+      try {
+        ({ rows } = await client.query<Reservation>(
+          `update reservations set status = 'checked_in', room_id = $2 where id = $1 returning *`,
+          [input.reservationId, roomId]
+        ));
+      } catch (e) {
+        if (isExclusionViolation(e)) {
+          throw new ConflictError("Zimmer ist im gewählten Zeitraum bereits belegt", { roomId });
+        }
+        throw e;
+      }
+
+      // Folio nur eröffnen, wenn noch keines offen ist — ein zweiter
+      // Check-in-Versuch nach einem Fehler darf keine Karteileiche erzeugen.
+      const { rows: folioRows } = await client.query<{ id: string }>(
+        `select id from folios where reservation_id = $1 and hotel_id = $2 and deleted_at is null limit 1`,
+        [input.reservationId, ctx.hotelId]
+      );
+      if (folioRows.length === 0) {
+        const folioId = randomUUID();
+        await client.query(
+          `insert into folios (id, hotel_id, reservation_id, guest_id, status) values ($1,$2,$3,$4,'open')`,
+          [folioId, ctx.hotelId, input.reservationId, before.guest_id]
+        );
+        await writeAudit(client, ctx, {
+          action: "folio.opened",
+          resourceType: "folio",
+          resourceId: folioId,
+          after: { reservationId: input.reservationId, guestId: before.guest_id, openedBy: "check_in" },
+        });
+      }
+
+      return { resourceId: input.reservationId, before, after: rows[0] };
+    },
+    event: {
+      topic: EVENTS.BOOKING_CHECKED_IN,
+      payload: { reservationId: input.reservationId, hotelId: ctx.hotelId },
+    },
+  });
+}
+
+/**
+ * Weist einer Reservierung ein Zimmer zu, ohne einzuchecken (z. B.
+ * Vorbereitung am Vortag). Dieselbe Housekeeping-Prüfung und derselbe
+ * Override-Pfad wie beim Check-in.
+ */
+export async function assignRoom(ctx: ModuleContext, input: AssignRoomInput): Promise<Reservation> {
+  await assertModuleEnabled(ctx.hotelId, "pms");
+  requirePermission(ctx, "pms.reservations.write");
+
+  return executeWrite<Reservation>(ctx, {
+    resourceType: "reservation",
+    action: "reservation.room_assigned",
+    mutate: async (client) => {
+      const { rows: beforeRows } = await client.query<Reservation>(
+        `select * from reservations where id = $1 and hotel_id = $2 and deleted_at is null for update`,
+        [input.reservationId, ctx.hotelId]
+      );
+      const before = beforeRows[0];
+      if (!before) throw new NotFoundError("reservation");
+      if (!EDITABLE_RESERVATION_STATUSES.has(before.status)) {
+        throw new ConflictError(`Reservierung kann im Status "${before.status}" kein Zimmer zugewiesen bekommen`, {
+          currentStatus: before.status,
+        });
+      }
+
+      await assertBelongsToHotel(client, ctx.hotelId, "rooms", input.roomId, "room");
+      await assertRoomUsableForGuest(client, ctx, input.roomId, {
+        allowed: input.overrideRoomStatus,
+        reason: input.overrideReason,
+      });
+
+      let rows;
+      try {
+        ({ rows } = await client.query<Reservation>(
+          `update reservations set room_id = $2 where id = $1 returning *`,
+          [input.reservationId, input.roomId]
+        ));
+      } catch (e) {
+        if (isExclusionViolation(e)) {
+          throw new ConflictError("Zimmer ist im gewählten Zeitraum bereits belegt", { roomId: input.roomId });
+        }
+        throw e;
+      }
+      return { resourceId: input.reservationId, before, after: rows[0] };
+    },
+    event: {
+      topic: EVENTS.RESERVATION_ROOM_ASSIGNED,
+      payload: { reservationId: input.reservationId, hotelId: ctx.hotelId },
+    },
+  });
+}
+
+/**
  * Checkt eine Reservierung aus. Publiziert `booking.checked_out` — Subscriber:
  * `modules/housekeeping/tasks/jobs.ts` erzeugt daraus eine Reinigungsaufgabe.
+ *
+ * Setzt zusätzlich `rooms.status = 'cleaning'` (Plan Schritt 4, "Check-out
+ * härten"): der Housekeeping-Job erzeugt zwar die Aufgabe, ließ das Zimmer
+ * bisher aber auf seinem alten Status stehen — Belegungsplan und
+ * Housekeeping liefen dadurch auseinander. Der Statuswechsel gehört in
+ * dieselbe Transaktion wie der Check-out, nicht in den asynchronen Job:
+ * zwischen Check-out und Job-Ausführung dürfte das Zimmer sonst kurz als
+ * frei buchbar erscheinen.
  */
 export async function checkOut(ctx: ModuleContext, input: CheckOutInput): Promise<Reservation> {
   await assertModuleEnabled(ctx.hotelId, "pms");
@@ -338,7 +578,7 @@ export async function checkOut(ctx: ModuleContext, input: CheckOutInput): Promis
 
   return executeWrite<Reservation>(ctx, {
     resourceType: "reservation",
-    action: "reservation.checked_out",
+    action: input.allowOpenBalance ? "reservation.checked_out_with_open_balance" : "reservation.checked_out",
     mutate: async (client) => {
       const { rows: existingRows } = await client.query<Reservation>(
         `select * from reservations where id = $1 and hotel_id = $2 and deleted_at is null for update`,
@@ -347,16 +587,52 @@ export async function checkOut(ctx: ModuleContext, input: CheckOutInput): Promis
       const before = existingRows[0];
       if (!before) throw new NotFoundError("reservation");
       if (before.status !== "checked_in") {
+        throw new ConflictError(`Reservierung kann im Status "${before.status}" nicht ausgecheckt werden`, {
+          currentStatus: before.status,
+        });
+      }
+
+      // Saldo-Prüfung gegen das Folio (Plan Schritt 4). Solange Schritt 5
+      // keine Postings erzeugt, ist der Saldo immer 0 — die Prüfung ist
+      // trotzdem echt und greift automatisch, sobald es Buchungen gibt.
+      const { rows: balanceRows } = await client.query<{ balance_cents: string }>(
+        `select coalesce(sum(case when p.posting_type = 'payment' then -p.amount_cents else p.amount_cents end), 0)::text as balance_cents
+           from folio_postings p
+           join folios f on f.id = p.folio_id
+          where f.reservation_id = $1 and f.hotel_id = $2 and f.deleted_at is null and p.deleted_at is null`,
+        [input.reservationId, ctx.hotelId]
+      );
+      const openBalanceCents = Number(balanceRows[0]?.balance_cents ?? 0);
+      if (openBalanceCents > 0 && !input.allowOpenBalance) {
         throw new ConflictError(
-          `Reservation must be checked_in to check out (current status: ${before.status})`,
-          { currentStatus: before.status }
+          `Offener Saldo von ${(openBalanceCents / 100).toFixed(2)} € — erst ausgleichen oder Check-out ausdrücklich freigeben`,
+          { openBalanceCents, requiresOverride: true }
         );
+      }
+      if (openBalanceCents > 0 && input.allowOpenBalance) {
+        if (!input.overrideReason) {
+          throw new ValidationError({ overrideReason: "erforderlich" }, "Freigabe trotz offenem Saldo braucht eine Begründung");
+        }
+        await writeAudit(client, ctx, {
+          action: "reservation.open_balance_overridden",
+          resourceType: "reservation",
+          resourceId: input.reservationId,
+          after: { openBalanceCents, reason: input.overrideReason },
+        });
       }
 
       const { rows } = await client.query<Reservation>(
         `update reservations set status = 'checked_out' where id = $1 returning *`,
         [input.reservationId]
       );
+
+      if (before.room_id) {
+        await client.query(`update rooms set status = 'cleaning' where id = $1 and hotel_id = $2`, [
+          before.room_id,
+          ctx.hotelId,
+        ]);
+      }
+
       return { resourceId: input.reservationId, before, after: rows[0] };
     },
     event: {

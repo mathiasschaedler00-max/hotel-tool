@@ -17,6 +17,17 @@
 export const EVENTS = {
   /** Publisher: modules/pms/reservations/service.ts (checkOut()). */
   BOOKING_CHECKED_OUT: "booking.checked_out",
+  /**
+   * Publisher: modules/pms/reservations/service.ts (checkIn(), Schritt 4).
+   * Aktuell kein Subscriber — reserviert für spätere Reaktionen (z. B.
+   * Willkommens-Nachricht, Schlüsselkarten-Anbindung). Das Folio wird
+   * bewusst NICHT über dieses Event geöffnet, sondern synchron in derselben
+   * Transaktion wie der Check-in: ein eingecheckter Gast ohne Folio wäre ein
+   * inkonsistenter Zwischenzustand, den niemand sehen darf.
+   */
+  BOOKING_CHECKED_IN: "booking.checked_in",
+  /** Publisher: modules/pms/reservations/service.ts (assignRoom()). Kein Subscriber, Audit-Log deckt die Historie ab. */
+  RESERVATION_ROOM_ASSIGNED: "reservation.room_assigned",
   /** Aktuell kein Subscriber — reserviert für spätere Verwendung (z. B. Channel-Manager-Sync). */
   RESERVATION_CREATED: "reservation.created",
   /** Publisher: modules/pms/reservations/service.ts. Gleiche Einordnung wie ROOM_*: kein Subscriber nötig, Audit-Log deckt Historie ab. */

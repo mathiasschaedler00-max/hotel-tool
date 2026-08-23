@@ -12,6 +12,7 @@ import { testCrossTenantFoliosPayments } from "./01-cross-tenant-folios-payments
 import { testRoomManagement } from "./02-room-management";
 import { testOverbookingProtection } from "./03-overbooking-protection";
 import { testReservationLifecycle } from "./04-reservation-lifecycle";
+import { testCheckInOut } from "./05-check-in-out";
 import { getBoss } from "@lib/queue/boss";
 
 async function main(): Promise<void> {
@@ -43,6 +44,12 @@ async function main(): Promise<void> {
     await testReservationLifecycle();
   } catch (e) {
     console.error("Schritt 3 (Reservierungs-Lebenszyklus) abgebrochen:", e instanceof Error ? e.message : e);
+  }
+
+  try {
+    await testCheckInOut();
+  } catch (e) {
+    console.error("Schritt 4 (Check-in/Check-out) abgebrochen:", e instanceof Error ? e.message : e);
   }
 
   printFinalReport();

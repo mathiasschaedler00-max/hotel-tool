@@ -28,8 +28,49 @@ export const createReservationSchema = z
 
 export type CreateReservationInput = z.infer<typeof createReservationSchema>;
 
+/**
+ * Check-in (Schritt 4). `roomId` ist optional: ist der Reservierung schon ein
+ * Zimmer zugewiesen, reicht die `reservationId`; sonst wird hier zugeteilt.
+ *
+ * `overrideRoomStatus` ist der bewusste Übersteuerungs-Fall aus der
+ * Design-Referenz §5/Screen 3.3 ("Trotzdem zuweisen (geprüft)"): Das Zimmer
+ * ist laut Housekeeping nicht frei, die Rezeption weiß es aber besser. Wird
+ * er gesetzt, MUSS der Zimmerstatus mitkorrigiert werden — sonst laufen
+ * Belegungsplan und Housekeeping dauerhaft auseinander (siehe Plan-Warnung
+ * "Explizite Backend-Kopplung, leicht zu übersehen").
+ */
+export const checkInSchema = z.object({
+  reservationId: z.string().uuid(),
+  roomId: z.string().uuid().optional(),
+  overrideRoomStatus: z.boolean().default(false),
+  overrideReason: z.string().min(1).optional(),
+});
+
+export type CheckInInput = z.infer<typeof checkInSchema>;
+
+/**
+ * Zimmerzuteilung ohne Check-in (z. B. Vorbereitung am Vortag). Dieselbe
+ * Housekeeping-Prüfung wie beim Check-in — ein Zimmer in Wartung/gesperrt
+ * wird nur mit ausdrücklichem Override zugewiesen.
+ */
+export const assignRoomSchema = z.object({
+  reservationId: z.string().uuid(),
+  roomId: z.string().uuid(),
+  overrideRoomStatus: z.boolean().default(false),
+  overrideReason: z.string().min(1).optional(),
+});
+
+export type AssignRoomInput = z.infer<typeof assignRoomSchema>;
+
+/**
+ * `allowOpenBalance` ist der bewusste Override statt stillem Durchwinken
+ * (Plan Schritt 4): steht bei der Abreise noch ein Saldo offen, blockiert
+ * der Check-out — die Rezeption kann ihn mit Begründung trotzdem freigeben.
+ */
 export const checkOutSchema = z.object({
   reservationId: z.string().uuid(),
+  allowOpenBalance: z.boolean().default(false),
+  overrideReason: z.string().min(1).optional(),
 });
 
 export type CheckOutInput = z.infer<typeof checkOutSchema>;

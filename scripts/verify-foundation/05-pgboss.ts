@@ -97,7 +97,7 @@ export async function testPgBoss(fixtures: Fixtures, writePath: WritePathResult)
       requestId: randomUUID(),
       module: "pms",
     };
-    const checkedOut = await checkOut(ctx, { reservationId: writePath.reservationId });
+    const checkedOut = await checkOut(ctx, { reservationId: writePath.reservationId, allowOpenBalance: false });
     details.push(`checkOut() aufgerufen -> status=${checkedOut.status}.`);
 
     // --- events-Eintrag fuer booking.checked_out ---
