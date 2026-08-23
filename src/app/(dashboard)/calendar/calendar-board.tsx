@@ -140,6 +140,18 @@ export function CalendarBoard({
   const roomRowRefs = useRef<Map<string, HTMLDivElement>>(new Map());
   const [draggingReservationId, setDraggingReservationId] = useState<string | null>(null);
   const [moveError, setMoveError] = useState<string | null>(null);
+  // Bestätigung vor dem eigentlichen Verschieben (Auftrag 23.08.2026): ein
+  // Drag per Maus ist unpräzise/leicht daneben — bevor ein Drop wirklich die
+  // Buchung verschiebt, erst nachfragen statt sofort zu übernehmen.
+  const [pendingMove, setPendingMove] = useState<{
+    reservationId: string;
+    targetRoomId: string;
+    guestName: string;
+    targetRoomLabel: string;
+    newCheckIn: string;
+    newCheckOut: string;
+  } | null>(null);
+  const [movingPending, setMovingPending] = useState(false);
 
   // "Zeitraum wählen": bewusst KEIN schwebendes Popover mehr (Review-Fund,
   // 22.08.2026: hat auch nach dem Klick-daneben-schließt-Fix noch das Gitter
@@ -386,19 +398,46 @@ export function CalendarBoard({
     }
     if (targetRoomId === reservation.room_id && newCheckIn === reservation.check_in_date) return;
 
+    const targetRoom = rooms.find((r) => r.id === targetRoomId);
+    const guestName = reservation.guest
+      ? `${reservation.guest.first_name} ${reservation.guest.last_name}`
+      : "Ohne Gast";
     setMoveError(null);
+    setPendingMove({
+      reservationId: reservation.id,
+      targetRoomId,
+      guestName,
+      targetRoomLabel: targetRoom
+        ? `${targetRoom.room_number}${targetRoom.floor ? ` · Etage ${targetRoom.floor}` : ""}`
+        : "?",
+      newCheckIn,
+      newCheckOut,
+    });
+  }
+
+  async function confirmPendingMove() {
+    if (!pendingMove) return;
+    setMovingPending(true);
     try {
-      const res = await fetch(`/api/v1/pms/reservations/${reservation.id}/move`, {
+      const res = await fetch(`/api/v1/pms/reservations/${pendingMove.reservationId}/move`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ roomId: targetRoomId, checkInDate: newCheckIn, checkOutDate: newCheckOut }),
+        body: JSON.stringify({
+          roomId: pendingMove.targetRoomId,
+          checkInDate: pendingMove.newCheckIn,
+          checkOutDate: pendingMove.newCheckOut,
+        }),
       });
       if (!res.ok) {
         throw new Error((await res.json().catch(() => null))?.error?.message ?? `Status ${res.status}`);
       }
+      setPendingMove(null);
       router.refresh();
     } catch (err) {
       setMoveError(err instanceof Error ? err.message : "Fehler beim Verschieben");
+      setPendingMove(null);
+    } finally {
+      setMovingPending(false);
     }
   }
 
@@ -556,6 +595,33 @@ export function CalendarBoard({
       )}
       </div>
 
+      {pendingMove && (
+        <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 rounded-lg border border-accent bg-surface px-3 py-2 text-sm text-text">
+          <span>
+            <strong>{pendingMove.guestName}</strong> wirklich nach Zimmer {pendingMove.targetRoomLabel} verschieben ·{" "}
+            {formatDate(pendingMove.newCheckIn)}–{formatDate(pendingMove.newCheckOut)}?
+          </span>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={confirmPendingMove}
+              disabled={movingPending}
+              className="min-h-8 rounded-md bg-accent px-3 text-xs font-semibold text-on-accent hover:bg-accent-hi disabled:opacity-60"
+            >
+              {movingPending ? "Verschiebt…" : "Ja, verschieben"}
+            </button>
+            <button
+              type="button"
+              onClick={() => setPendingMove(null)}
+              disabled={movingPending}
+              className="min-h-8 rounded-md border border-line px-3 text-xs text-text-2 hover:bg-surface-2"
+            >
+              Abbrechen
+            </button>
+          </div>
+        </div>
+      )}
+
       {moveError && (
         <div className="flex shrink-0 items-center justify-between gap-3 rounded-lg border border-red bg-red-bg px-3 py-2 text-xs text-red">
           <span>{moveError}</span>
@@ -697,8 +763,8 @@ export function CalendarBoard({
                   dayHeaderRefs.current[i] = el;
                 }}
                 title={`${formatWeekdayShort(day)} ${formatDate(day)} · ${occupancyByDay[i]}% belegt`}
-                className={`sticky top-0 z-20 border-b border-l border-b-line text-center ${
-                  weekdayOf(day) === 1 ? "border-l-line" : "border-l-line-2"
+                className={`sticky top-0 z-20 border-b border-b-line border-l-line text-center ${
+                  weekdayOf(day) === 1 ? "border-l-2" : "border-l"
                 } ${isWeekendDay(day) ? "bg-surface-2" : "bg-surface-3"} ${isCompact ? "px-0.5 py-2" : "px-2 py-2"}`}
                 style={{ gridColumn: i + 2, gridRow: 1 }}
               >
@@ -727,12 +793,18 @@ export function CalendarBoard({
              * normale (nicht positionierte) Grid-Items — malen dadurch
              * automatisch HINTER den sticky Kopf-/Zimmerspalten (die einen
              * z-index tragen) und HINTER den Buchungsbalken (die später im
-             * DOM stehen), ganz ohne eigene z-index-Jonglage. */}
+             * DOM stehen), ganz ohne eigene z-index-Jonglage.
+             *
+             * Zweiter Review-Fund, 23.08.2026: `border-l-line-2` (#eae3d8) ist
+             * auf `--surface` (#ffffff) praktisch nicht wahrnehmbar — die
+             * Linie war im Code da, aber im Browser de facto unsichtbar.
+             * Jetzt durchgängig das kräftigere `--line`, Wochenstart (Montag)
+             * zusätzlich als 2px statt 1px hervorgehoben. */}
             {columns.map((day, i) => (
               <div
                 key={`gridline-${day}`}
                 aria-hidden
-                className={`pointer-events-none border-l ${weekdayOf(day) === 1 ? "border-l-line" : "border-l-line-2"}`}
+                className={`pointer-events-none border-l-line ${weekdayOf(day) === 1 ? "border-l-2" : "border-l"}`}
                 style={{ gridColumn: i + 2, gridRow: `1 / ${totalRows + 1}` }}
               />
             ))}
@@ -810,19 +882,31 @@ export function CalendarBoard({
                 );
               }
               return (
-                <div
-                  key={`room-${d.room.id}`}
-                  ref={(el) => {
-                    if (el) roomRowRefs.current.set(d.room.id, el);
-                    else roomRowRefs.current.delete(d.room.id);
-                  }}
-                  className="sticky left-0 z-10 flex items-center gap-2 border-r border-b border-line bg-surface-3 px-3 py-1"
-                  style={{ gridColumn: 1, gridRow: d.row }}
-                >
-                  <RoomStatusDot status={d.room.status} isCheckedInToday={checkedInTodayRoomIds.has(d.room.id)} />
-                  <span className="font-mono text-sm font-semibold text-text">{d.room.room_number}</span>
-                  {d.room.floor && <span className="text-xs text-text-3">Etage {d.room.floor}</span>}
-                </div>
+                <Fragment key={`room-${d.room.id}`}>
+                  {/* Volle Zeilenbreite (Review-Fund, 23.08.2026: die
+                   * Zimmerzeile hatte nur in der sticky Zimmerspalte selbst
+                   * eine untere Linie — über den Tagesspalten fehlte sie
+                   * komplett, dadurch waren Zimmerzeilen im leeren Bereich
+                   * nicht voneinander zu unterscheiden). Nicht positioniert,
+                   * malt automatisch HINTER den Buchungsbalken (später im DOM). */}
+                  <div
+                    aria-hidden
+                    className="pointer-events-none border-b border-b-line"
+                    style={{ gridColumn: "1 / -1", gridRow: d.row }}
+                  />
+                  <div
+                    ref={(el) => {
+                      if (el) roomRowRefs.current.set(d.room.id, el);
+                      else roomRowRefs.current.delete(d.room.id);
+                    }}
+                    className="sticky left-0 z-10 flex items-center gap-2 border-r border-b border-line bg-surface-3 px-3 py-1"
+                    style={{ gridColumn: 1, gridRow: d.row }}
+                  >
+                    <RoomStatusDot status={d.room.status} isCheckedInToday={checkedInTodayRoomIds.has(d.room.id)} />
+                    <span className="font-mono text-sm font-semibold text-text">{d.room.room_number}</span>
+                    {d.room.floor && <span className="text-xs text-text-3">Etage {d.room.floor}</span>}
+                  </div>
+                </Fragment>
               );
             })}
 
