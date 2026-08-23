@@ -127,16 +127,18 @@ export function CalendarBoard({
   const [isCreatingReservation, setIsCreatingReservation] = useState(false);
   const [isCreatingGroup, setIsCreatingGroup] = useState(false);
 
-  // Drag & Drop im Gitter (Auftrag Schritt 3): Handler sitzen bewusst EINMAL
-  // am äußeren Grid-Container statt pro Zelle — ein natives `dragover`/`drop`
-  // feuert immer auf dem obersten Element unter dem Zeiger (meist ein
-  // Buchungsbalken, kein Zellen-Div), Balken und Zellen sind aber Geschwister
-  // im selben flachen Grid, kein Bubbling zwischen ihnen möglich. Die
-  // tatsächliche Zieltag/-zimmer-Ermittlung misst deshalb die real
-  // gerenderten Positionen der Tages-Kopfzellen/Zimmerzeilen nach (robust
-  // gegen `1fr`-Spaltenverbreiterung und Kompakt-Modus), statt mit einer
-  // angenommenen festen Spaltenbreite zu rechnen.
-  const dayHeaderRefs = useRef<(HTMLDivElement | null)[]>([]);
+  // Drag & Drop im Gitter (Auftrag Schritt 3, vereinfacht 23.08.2026: Ziehen
+  // ändert bewusst NUR das Zimmer, nie den Zeitraum — eine Tagesspalte ist
+  // ein schmales, leicht um eins verfehltes Ziel, eine Zimmerzeile dagegen
+  // groß und eindeutig. Zeitraum ändern bleibt dem "Verschieben"-Formular mit
+  // echten Datumsfeldern im Detail-Panel vorbehalten). Handler sitzt bewusst
+  // EINMAL am äußeren Grid-Container statt pro Zelle — ein natives
+  // `dragover`/`drop` feuert immer auf dem obersten Element unter dem Zeiger
+  // (meist ein Buchungsbalken, kein Zellen-Div), Balken und Zimmerzeile sind
+  // aber Geschwister im selben flachen Grid, kein Bubbling zwischen ihnen
+  // möglich. Die Ziel-Zimmer-Ermittlung misst deshalb die real gerenderte
+  // Position der Zimmerzeilen nach (robust gegen `1fr`-Spaltenverbreiterung
+  // und Kompakt-Modus), statt mit einer angenommenen festen Höhe zu rechnen.
   const roomRowRefs = useRef<Map<string, HTMLDivElement>>(new Map());
   const [draggingReservationId, setDraggingReservationId] = useState<string | null>(null);
   const [moveError, setMoveError] = useState<string | null>(null);
@@ -148,8 +150,8 @@ export function CalendarBoard({
     targetRoomId: string;
     guestName: string;
     targetRoomLabel: string;
-    newCheckIn: string;
-    newCheckOut: string;
+    checkInDate: string;
+    checkOutDate: string;
   } | null>(null);
   const [movingPending, setMovingPending] = useState(false);
 
@@ -188,15 +190,15 @@ export function CalendarBoard({
   );
 
   // Vorschau während der Verschieben-Bestätigung (Auftrag 23.08.2026): der
-  // Balken soll schon an der Zielposition erscheinen, solange die Nachfrage
-  // oben offen ist — bestätigt sich das mit "Ja", stimmt die Anzeige schon;
-  // bricht man ab, war es nie mehr als eine Vorschau (kein Server-Schreiben).
+  // Balken soll schon in der Zielzeile erscheinen, solange die Nachfrage oben
+  // offen ist — bestätigt sich das mit "Ja", stimmt die Anzeige schon; bricht
+  // man ab, war es nie mehr als eine Vorschau (kein Server-Schreiben). Nur
+  // das Zimmer ändert sich (Drag & Drop bewegt nie den Zeitraum), daher genügt
+  // es, `room_id` zu überschreiben.
   const displayReservationsInRange = useMemo(() => {
     if (!pendingMove) return reservationsInRange;
     return reservationsInRange.map((r) =>
-      r.id === pendingMove.reservationId
-        ? { ...r, room_id: pendingMove.targetRoomId, check_in_date: pendingMove.newCheckIn, check_out_date: pendingMove.newCheckOut }
-        : r
+      r.id === pendingMove.reservationId ? { ...r, room_id: pendingMove.targetRoomId } : r
     );
   }, [reservationsInRange, pendingMove]);
 
@@ -367,7 +369,7 @@ export function CalendarBoard({
     [displayReservationsInRange]
   );
 
-  async function handleGridDrop(e: React.DragEvent<HTMLDivElement>) {
+  function handleGridDrop(e: React.DragEvent<HTMLDivElement>) {
     e.preventDefault();
     const reservationId = e.dataTransfer.getData("text/plain");
     const reservation = reservations.find((r) => r.id === reservationId);
@@ -382,34 +384,7 @@ export function CalendarBoard({
         break;
       }
     }
-    if (!targetRoomId) return;
-
-    let newCheckIn: string;
-    let newCheckOut: string;
-    if (reservation.room_id === null) {
-      // Nicht zugewiesene Buchung: der Chip hat keine eigene Tagesspalte im
-      // Gitter, die X-Position beim Ablegen ist rein zufällig — nur die
-      // Zimmerzeile zählt, Datum bleibt unangetastet (reines Zuweisen).
-      newCheckIn = reservation.check_in_date;
-      newCheckOut = reservation.check_out_date;
-    } else {
-      const dropX = e.clientX;
-      let dayIndex = -1;
-      for (let i = 0; i < dayHeaderRefs.current.length; i++) {
-        const el = dayHeaderRefs.current[i];
-        if (!el) continue;
-        const rect = el.getBoundingClientRect();
-        if (dropX >= rect.left && dropX < rect.right) {
-          dayIndex = i;
-          break;
-        }
-      }
-      if (dayIndex === -1) return;
-      const nights = daysBetween(reservation.check_in_date, reservation.check_out_date);
-      newCheckIn = columns[dayIndex];
-      newCheckOut = addDays(newCheckIn, nights);
-    }
-    if (targetRoomId === reservation.room_id && newCheckIn === reservation.check_in_date) return;
+    if (!targetRoomId || targetRoomId === reservation.room_id) return;
 
     const targetRoom = rooms.find((r) => r.id === targetRoomId);
     const guestName = reservation.guest
@@ -423,8 +398,8 @@ export function CalendarBoard({
       targetRoomLabel: targetRoom
         ? `${targetRoom.room_number}${targetRoom.floor ? ` · Etage ${targetRoom.floor}` : ""}`
         : "?",
-      newCheckIn,
-      newCheckOut,
+      checkInDate: reservation.check_in_date,
+      checkOutDate: reservation.check_out_date,
     });
   }
 
@@ -435,11 +410,7 @@ export function CalendarBoard({
       const res = await fetch(`/api/v1/pms/reservations/${pendingMove.reservationId}/move`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          roomId: pendingMove.targetRoomId,
-          checkInDate: pendingMove.newCheckIn,
-          checkOutDate: pendingMove.newCheckOut,
-        }),
+        body: JSON.stringify({ roomId: pendingMove.targetRoomId }),
       });
       if (!res.ok) {
         throw new Error((await res.json().catch(() => null))?.error?.message ?? `Status ${res.status}`);
@@ -612,7 +583,7 @@ export function CalendarBoard({
         <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 rounded-lg border border-accent bg-surface px-3 py-2 text-sm text-text">
           <span>
             <strong>{pendingMove.guestName}</strong> wirklich nach Zimmer {pendingMove.targetRoomLabel} verschieben ·{" "}
-            {formatDate(pendingMove.newCheckIn)}–{formatDate(pendingMove.newCheckOut)}?
+            {formatDate(pendingMove.checkInDate)}–{formatDate(pendingMove.checkOutDate)} (Zeitraum bleibt gleich)?
           </span>
           <div className="flex gap-2">
             <button
@@ -772,9 +743,6 @@ export function CalendarBoard({
             {columns.map((day, i) => (
               <div
                 key={day}
-                ref={(el) => {
-                  dayHeaderRefs.current[i] = el;
-                }}
                 title={`${formatWeekdayShort(day)} ${formatDate(day)} · ${occupancyByDay[i]}% belegt`}
                 className={`sticky top-0 z-20 border-b border-b-line border-l-line text-center ${
                   weekdayOf(day) === 1 ? "border-l-2" : "border-l"
@@ -812,15 +780,13 @@ export function CalendarBoard({
              * auf `--surface` (#ffffff) praktisch nicht wahrnehmbar — die
              * Linie war im Code da, aber im Browser de facto unsichtbar.
              * Jetzt durchgängig das kräftigere `--line`, Wochenstart (Montag)
-             * zusätzlich als 2px statt 1px hervorgehoben. */}
-            {columns.map((day, i) => (
-              <div
-                key={`gridline-${day}`}
-                aria-hidden
-                className={`pointer-events-none border-l-line ${weekdayOf(day) === 1 ? "border-l-2" : "border-l"}`}
-                style={{ gridColumn: i + 2, gridRow: `1 / ${totalRows + 1}` }}
-              />
-            ))}
+             * zusätzlich als 2px statt 1px hervorgehoben.
+             *
+             * Dritter Review-Fund, 23.08.2026: die Wochenend-Tönung stand im
+             * DOM NACH dem Tagesraster und hat dessen Linie zwischen Samstag
+             * und Sonntag dadurch komplett überdeckt (spätere Grid-Items
+             * malen über frühere) — jetzt zuerst die Tönung, danach die
+             * Linien, damit sie immer sichtbar bleiben. */}
             {columns.map((day, i) =>
               isWeekendDay(day) ? (
                 <div
@@ -831,6 +797,14 @@ export function CalendarBoard({
                 />
               ) : null
             )}
+            {columns.map((day, i) => (
+              <div
+                key={`gridline-${day}`}
+                aria-hidden
+                className={`pointer-events-none border-l-line ${weekdayOf(day) === 1 ? "border-l-2" : "border-l"}`}
+                style={{ gridColumn: i + 2, gridRow: `1 / ${totalRows + 1}` }}
+              />
+            ))}
 
             {todayColIndex !== null && (
               <div
@@ -960,7 +934,7 @@ export function CalendarBoard({
                       setSelectedReservationId(reservation.id);
                     }}
                     aria-label={isPendingPreview ? `${barLabel} · Verschieben noch nicht bestätigt` : barLabel}
-                    title={isCompact ? barLabel : canDrag ? `${barLabel} · zum Verschieben ziehen` : barLabel}
+                    title={isCompact ? barLabel : canDrag ? `${barLabel} · zum Zimmerwechsel ziehen` : barLabel}
                     className={`m-1 block w-full min-w-0 truncate rounded text-left text-xs font-medium ${meta.barClassName} ${
                       isCompact ? "px-1 py-1" : "px-2 py-1"
                     } ${canDrag ? "cursor-grab active:cursor-grabbing" : ""} ${
