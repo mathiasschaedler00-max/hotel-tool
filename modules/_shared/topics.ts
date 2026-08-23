@@ -38,6 +38,7 @@ export const EVENTS = {
   ROOM_CREATED: "room.created",
   ROOM_UPDATED: "room.updated",
   ROOM_DEACTIVATED: "room.deactivated",
+  ROOM_REACTIVATED: "room.reactivated",
   /** Publisher: modules/pms/room-types/service.ts (createRoomType()/updateRoomType()). Gleiche Einordnung wie ROOM_*. */
   ROOM_TYPE_CREATED: "room_type.created",
   ROOM_TYPE_UPDATED: "room_type.updated",

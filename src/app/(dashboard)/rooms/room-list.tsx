@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { formatEuro } from "@lib/format";
 import type { RoomType } from "@modules/pms/room-types/service";
 import { getRoomDisplayStatus, type RoomStatus } from "./room-status";
@@ -52,15 +53,37 @@ const TABLE_COLS = "88px 1fr 72px 100px 84px 1fr";
  */
 export function RoomList({
   rooms,
+  deactivatedRooms,
   roomTypes,
   checkedInTodayRoomIds,
 }: {
   rooms: RoomRow[];
+  deactivatedRooms: RoomRow[];
   roomTypes: RoomType[];
   checkedInTodayRoomIds: Set<string>;
 }) {
+  const router = useRouter();
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
   const [isCreating, setIsCreating] = useState(false);
+  const [showDeactivated, setShowDeactivated] = useState(false);
+  const [reactivatingId, setReactivatingId] = useState<string | null>(null);
+  const [reactivateError, setReactivateError] = useState<string | null>(null);
+
+  const roomTypeById = useMemo(() => new Map(roomTypes.map((rt) => [rt.id, rt])), [roomTypes]);
+
+  async function handleReactivate(roomId: string) {
+    setReactivatingId(roomId);
+    setReactivateError(null);
+    try {
+      const res = await fetch(`/api/v1/pms/rooms/${roomId}/reactivate`, { method: "POST" });
+      if (!res.ok) throw new Error((await res.json().catch(() => null))?.error?.message ?? `Status ${res.status}`);
+      router.refresh();
+    } catch (err) {
+      setReactivateError(err instanceof Error ? err.message : "Fehler beim Reaktivieren");
+    } finally {
+      setReactivatingId(null);
+    }
+  }
 
   const roomsByType = useMemo(() => {
     const map = new Map<string, RoomRow[]>();
@@ -161,6 +184,48 @@ export function RoomList({
                 );
               })}
             </div>
+          </div>
+        )}
+
+        {deactivatedRooms.length > 0 && (
+          <div className="mt-3">
+            <button
+              type="button"
+              onClick={() => setShowDeactivated((v) => !v)}
+              className="text-sm text-text-2 underline hover:text-text"
+            >
+              {showDeactivated ? "Außer Betrieb genommene Zimmer verbergen" : `Außer Betrieb genommene Zimmer anzeigen (${deactivatedRooms.length})`}
+            </button>
+
+            {showDeactivated && (
+              <div className="mt-2 overflow-x-auto rounded-lg border border-line bg-surface">
+                <div className="min-w-[420px]">
+                  {deactivatedRooms.map((room) => {
+                    const rt = roomTypeById.get(room.room_type_id);
+                    return (
+                      <div
+                        key={room.id}
+                        className="flex items-center justify-between gap-3 border-b border-line px-3 py-2.5 text-sm last:border-b-0"
+                      >
+                        <span className="flex items-center gap-3">
+                          <span className="font-mono font-semibold text-text-2">{room.room_number}</span>
+                          <span className="text-text-3">{rt?.name ?? "—"}</span>
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => handleReactivate(room.id)}
+                          disabled={reactivatingId === room.id}
+                          className="min-h-8 rounded-md border border-line px-3 text-sm text-text-2 hover:bg-surface-2 disabled:opacity-60"
+                        >
+                          {reactivatingId === room.id ? "Aktiviert…" : "Wieder aktivieren"}
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+            {reactivateError && <p className="mt-2 text-xs text-red">{reactivateError}</p>}
           </div>
         )}
       </div>

@@ -36,6 +36,21 @@ export async function listRooms(ctx: Pick<ModuleContext, "hotelId">): Promise<Ro
   return (data ?? []) as Room[];
 }
 
+/** Read: außer Betrieb genommene Zimmer — einzige Stelle, an der sie noch sichtbar sind (Voraussetzung für `reactivateRoom()`). */
+export async function listDeactivatedRooms(ctx: Pick<ModuleContext, "hotelId">): Promise<Room[]> {
+  await assertModuleEnabled(ctx.hotelId, "pms");
+
+  const service = createServiceClient();
+  const { data, error } = await service
+    .from("rooms")
+    .select("*")
+    .eq("hotel_id", ctx.hotelId)
+    .not("deleted_at", "is", null)
+    .order("room_number", { ascending: true });
+  if (error) throw error;
+  return (data ?? []) as Room[];
+}
+
 /**
  * Write: Zimmerstatus ändern (z. B. "out_of_order" bei einem Wartungsfall).
  * TODO: Geschäftsregeln aus Teil A ergänzen (z. B. darf ein Zimmer mit aktiver
@@ -156,5 +171,30 @@ export async function deactivateRoom(ctx: ModuleContext, roomId: string): Promis
       return { resourceId: roomId, before, after: rows[0] };
     },
     event: { topic: EVENTS.ROOM_DEACTIVATED, payload: { roomId } },
+  });
+}
+
+/** Write: Gegenstück zu `deactivateRoom()` — macht das Zimmer wieder sichtbar/buchbar. */
+export async function reactivateRoom(ctx: ModuleContext, roomId: string): Promise<Room> {
+  await assertModuleEnabled(ctx.hotelId, "pms");
+  requirePermission(ctx, "pms.rooms.write");
+
+  return executeWrite<Room>(ctx, {
+    resourceType: "room",
+    action: "room.reactivated",
+    mutate: async (client) => {
+      const { rows: beforeRows } = await client.query<Room>(
+        `select * from rooms where id = $1 and hotel_id = $2 and deleted_at is not null for update`,
+        [roomId, ctx.hotelId]
+      );
+      const before = beforeRows[0];
+      if (!before) throw new NotFoundError("room");
+
+      const { rows } = await client.query<Room>(`update rooms set deleted_at = null where id = $1 returning *`, [
+        roomId,
+      ]);
+      return { resourceId: roomId, before, after: rows[0] };
+    },
+    event: { topic: EVENTS.ROOM_REACTIVATED, payload: { roomId } },
   });
 }

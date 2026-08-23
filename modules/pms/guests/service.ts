@@ -122,7 +122,10 @@ export async function searchGuests(ctx: Pick<ModuleContext, "hotelId">, query: s
   const { rows } = await pool.query<Guest>(
     `select ${GUEST_COLUMNS} from guests
      where hotel_id = $1 and deleted_at is null
-       and (first_name ilike $2 or last_name ilike $2 or email ilike $2)
+       and (
+         first_name ilike $2 or last_name ilike $2 or email ilike $2
+         or (first_name || ' ' || last_name) ilike $2
+       )
      order by last_name, first_name
      limit 20`,
     [ctx.hotelId, pattern]
