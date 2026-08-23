@@ -8,6 +8,11 @@ import { createServiceClient } from "@lib/supabase/service";
 import { EVENTS } from "@modules/_shared/topics";
 import type { CreateRoomTypeInput, UpdateRoomTypeInput } from "./schema";
 
+/** SQLSTATE 23505 = unique_violation — hier immer `idx_room_types_hotel_name` (Kategoriename schon vergeben). */
+function isRoomTypeNameTaken(e: unknown): boolean {
+  return typeof e === "object" && e !== null && "code" in e && (e as { code?: string }).code === "23505";
+}
+
 export interface RoomType {
   id: string;
   hotel_id: string;
@@ -41,6 +46,21 @@ export async function listRoomTypes(ctx: Pick<ModuleContext, "hotelId">): Promis
   return (data ?? []) as RoomType[];
 }
 
+/** Read: außer Betrieb genommene Kategorien — einzige Stelle, an der sie noch sichtbar sind (Voraussetzung für `reactivateRoomType()`). */
+export async function listDeactivatedRoomTypes(ctx: Pick<ModuleContext, "hotelId">): Promise<RoomType[]> {
+  await assertModuleEnabled(ctx.hotelId, "pms");
+
+  const service = createServiceClient();
+  const { data, error } = await service
+    .from("room_types")
+    .select("*")
+    .eq("hotel_id", ctx.hotelId)
+    .not("deleted_at", "is", null)
+    .order("name", { ascending: true });
+  if (error) throw error;
+  return (data ?? []) as RoomType[];
+}
+
 /**
  * Write: neue Zimmerkategorie anlegen.
  * `pms.room_types.write` ist nicht wörtlich in der Plan-Matrix gelistet
@@ -58,21 +78,29 @@ export async function createRoomType(ctx: ModuleContext, input: CreateRoomTypeIn
     resourceType: "room_type",
     action: "room_type.created",
     mutate: async (client) => {
-      const { rows } = await client.query<RoomType>(
-        `insert into room_types (id, hotel_id, name, code, capacity_adults, capacity_children, base_rate_cents, description)
-         values ($1,$2,$3,$4,$5,$6,$7,$8)
-         returning *`,
-        [
-          roomTypeId,
-          ctx.hotelId,
-          input.name,
-          input.code ?? null,
-          input.capacityAdults,
-          input.capacityChildren,
-          input.baseRateCents,
-          input.description ?? null,
-        ]
-      );
+      let rows;
+      try {
+        ({ rows } = await client.query<RoomType>(
+          `insert into room_types (id, hotel_id, name, code, capacity_adults, capacity_children, base_rate_cents, description)
+           values ($1,$2,$3,$4,$5,$6,$7,$8)
+           returning *`,
+          [
+            roomTypeId,
+            ctx.hotelId,
+            input.name,
+            input.code ?? null,
+            input.capacityAdults,
+            input.capacityChildren,
+            input.baseRateCents,
+            input.description ?? null,
+          ]
+        ));
+      } catch (e) {
+        if (isRoomTypeNameTaken(e)) {
+          throw new ConflictError(`Kategorie "${input.name}" existiert bereits`, { name: input.name });
+        }
+        throw e;
+      }
       return { resourceId: roomTypeId, after: rows[0] };
     },
     event: { topic: EVENTS.ROOM_TYPE_CREATED, payload: { roomTypeId, name: input.name } },
@@ -101,22 +129,30 @@ export async function updateRoomType(ctx: ModuleContext, input: UpdateRoomTypeIn
       const before = beforeRows[0];
       if (!before) throw new NotFoundError("room_type");
 
-      const { rows } = await client.query<RoomType>(
-        `update room_types set
-           name = $2, code = $3, capacity_adults = $4, capacity_children = $5,
-           base_rate_cents = $6, description = $7
-         where id = $1
-         returning *`,
-        [
-          input.roomTypeId,
-          input.name,
-          input.code ?? null,
-          input.capacityAdults,
-          input.capacityChildren,
-          input.baseRateCents,
-          input.description ?? null,
-        ]
-      );
+      let rows;
+      try {
+        ({ rows } = await client.query<RoomType>(
+          `update room_types set
+             name = $2, code = $3, capacity_adults = $4, capacity_children = $5,
+             base_rate_cents = $6, description = $7
+           where id = $1
+           returning *`,
+          [
+            input.roomTypeId,
+            input.name,
+            input.code ?? null,
+            input.capacityAdults,
+            input.capacityChildren,
+            input.baseRateCents,
+            input.description ?? null,
+          ]
+        ));
+      } catch (e) {
+        if (isRoomTypeNameTaken(e)) {
+          throw new ConflictError(`Kategorie "${input.name}" existiert bereits`, { name: input.name });
+        }
+        throw e;
+      }
       return { resourceId: input.roomTypeId, before, after: rows[0] };
     },
     event: { topic: EVENTS.ROOM_TYPE_UPDATED, payload: { roomTypeId: input.roomTypeId } },
@@ -165,5 +201,42 @@ export async function deactivateRoomType(ctx: ModuleContext, roomTypeId: string)
       return { resourceId: roomTypeId, before, after: rows[0] };
     },
     event: { topic: EVENTS.ROOM_TYPE_DEACTIVATED, payload: { roomTypeId } },
+  });
+}
+
+/** Write: Gegenstück zu `deactivateRoomType()` — macht die Kategorie wieder sichtbar/nutzbar. */
+export async function reactivateRoomType(ctx: ModuleContext, roomTypeId: string): Promise<RoomType> {
+  await assertModuleEnabled(ctx.hotelId, "pms");
+  requirePermission(ctx, "pms.room_types.write");
+
+  return executeWrite<RoomType>(ctx, {
+    resourceType: "room_type",
+    action: "room_type.reactivated",
+    mutate: async (client) => {
+      const { rows: beforeRows } = await client.query<RoomType>(
+        `select * from room_types where id = $1 and hotel_id = $2 and deleted_at is not null for update`,
+        [roomTypeId, ctx.hotelId]
+      );
+      const before = beforeRows[0];
+      if (!before) throw new NotFoundError("room_type");
+
+      let rows;
+      try {
+        ({ rows } = await client.query<RoomType>(
+          `update room_types set deleted_at = null where id = $1 returning *`,
+          [roomTypeId]
+        ));
+      } catch (e) {
+        if (isRoomTypeNameTaken(e)) {
+          throw new ConflictError(
+            `Kategorie "${before.name}" existiert inzwischen wieder — erst umbenennen`,
+            { name: before.name }
+          );
+        }
+        throw e;
+      }
+      return { resourceId: roomTypeId, before, after: rows[0] };
+    },
+    event: { topic: EVENTS.ROOM_TYPE_REACTIVATED, payload: { roomTypeId } },
   });
 }

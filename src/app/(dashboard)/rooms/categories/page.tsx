@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getActiveHotelId } from "@lib/hotel-context";
 import { getHotelById } from "@modules/pms/hotels/service";
-import { listRoomTypes } from "@modules/pms/room-types/service";
+import { listRoomTypes, listDeactivatedRoomTypes } from "@modules/pms/room-types/service";
 import { listRooms } from "@modules/pms/rooms/service";
 import { CategoryList } from "./category-list";
 
@@ -25,9 +25,10 @@ export default async function CategoriesPage() {
     );
   }
 
-  const [hotel, roomTypes, rooms] = await Promise.all([
+  const [hotel, roomTypes, deactivatedRoomTypes, rooms] = await Promise.all([
     getHotelById(hotelId),
     listRoomTypes({ hotelId }),
+    listDeactivatedRoomTypes({ hotelId }),
     listRooms({ hotelId }),
   ]);
 
@@ -45,7 +46,11 @@ export default async function CategoriesPage() {
         </Link>
         <h1 className="mb-1 text-xl font-semibold text-text">{hotel.name}</h1>
         <p className="mb-6 text-sm text-text-2">Kategorien-Verwaltung</p>
-        <CategoryList roomTypes={roomTypes} roomCountByType={roomCountByType} />
+        <CategoryList
+          roomTypes={roomTypes}
+          deactivatedRoomTypes={deactivatedRoomTypes}
+          roomCountByType={roomCountByType}
+        />
       </div>
     </div>
   );

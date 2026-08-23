@@ -1,13 +1,18 @@
 import { randomUUID } from "node:crypto";
 import type { ModuleContext } from "@modules/_shared/context";
 import { executeWrite } from "@modules/_shared/write";
-import { NotFoundError } from "@modules/_shared/errors";
+import { NotFoundError, ConflictError } from "@modules/_shared/errors";
 import { assertModuleEnabled } from "@modules/entitlements/service";
 import { requirePermission } from "@modules/rbac/permissions";
 import { assertBelongsToHotel } from "@modules/_shared/tenant-guard";
 import { EVENTS } from "@modules/_shared/topics";
 import { createServiceClient } from "@lib/supabase/service";
 import type { CreateRoomInput, UpdateRoomInput, UpdateRoomStatusInput, roomStatusValues } from "./schema";
+
+/** SQLSTATE 23505 = unique_violation — hier immer `idx_rooms_hotel_number` (Zimmernummer schon vergeben). */
+function isRoomNumberTaken(e: unknown): boolean {
+  return typeof e === "object" && e !== null && "code" in e && (e as { code?: string }).code === "23505";
+}
 
 export interface Room {
   id: string;
@@ -99,12 +104,22 @@ export async function createRoom(ctx: ModuleContext, input: CreateRoomInput): Pr
     mutate: async (client) => {
       await assertBelongsToHotel(client, ctx.hotelId, "room_types", input.roomTypeId, "room_type");
 
-      const { rows } = await client.query<Room>(
-        `insert into rooms (id, hotel_id, room_type_id, room_number, floor)
-         values ($1, $2, $3, $4, $5)
-         returning *`,
-        [roomId, ctx.hotelId, input.roomTypeId, input.roomNumber, input.floor ?? null]
-      );
+      let rows;
+      try {
+        ({ rows } = await client.query<Room>(
+          `insert into rooms (id, hotel_id, room_type_id, room_number, floor)
+           values ($1, $2, $3, $4, $5)
+           returning *`,
+          [roomId, ctx.hotelId, input.roomTypeId, input.roomNumber, input.floor ?? null]
+        ));
+      } catch (e) {
+        if (isRoomNumberTaken(e)) {
+          throw new ConflictError(`Zimmernummer ${input.roomNumber} ist bereits vergeben`, {
+            roomNumber: input.roomNumber,
+          });
+        }
+        throw e;
+      }
       return { resourceId: roomId, after: rows[0] };
     },
     event: { topic: EVENTS.ROOM_CREATED, payload: { roomId, roomNumber: input.roomNumber } },
@@ -133,10 +148,20 @@ export async function updateRoom(ctx: ModuleContext, input: UpdateRoomInput): Pr
 
       await assertBelongsToHotel(client, ctx.hotelId, "room_types", input.roomTypeId, "room_type");
 
-      const { rows } = await client.query<Room>(
-        `update rooms set room_number = $2, floor = $3, room_type_id = $4 where id = $1 returning *`,
-        [input.roomId, input.roomNumber, input.floor, input.roomTypeId]
-      );
+      let rows;
+      try {
+        ({ rows } = await client.query<Room>(
+          `update rooms set room_number = $2, floor = $3, room_type_id = $4 where id = $1 returning *`,
+          [input.roomId, input.roomNumber, input.floor, input.roomTypeId]
+        ));
+      } catch (e) {
+        if (isRoomNumberTaken(e)) {
+          throw new ConflictError(`Zimmernummer ${input.roomNumber} ist bereits vergeben`, {
+            roomNumber: input.roomNumber,
+          });
+        }
+        throw e;
+      }
       return { resourceId: input.roomId, before, after: rows[0] };
     },
     event: { topic: EVENTS.ROOM_UPDATED, payload: { roomId: input.roomId } },
@@ -190,9 +215,20 @@ export async function reactivateRoom(ctx: ModuleContext, roomId: string): Promis
       const before = beforeRows[0];
       if (!before) throw new NotFoundError("room");
 
-      const { rows } = await client.query<Room>(`update rooms set deleted_at = null where id = $1 returning *`, [
-        roomId,
-      ]);
+      let rows;
+      try {
+        ({ rows } = await client.query<Room>(`update rooms set deleted_at = null where id = $1 returning *`, [
+          roomId,
+        ]));
+      } catch (e) {
+        if (isRoomNumberTaken(e)) {
+          throw new ConflictError(
+            `Zimmernummer ${before.room_number} ist inzwischen an ein anderes Zimmer vergeben — erst umbenennen`,
+            { roomNumber: before.room_number }
+          );
+        }
+        throw e;
+      }
       return { resourceId: roomId, before, after: rows[0] };
     },
     event: { topic: EVENTS.ROOM_REACTIVATED, payload: { roomId } },
