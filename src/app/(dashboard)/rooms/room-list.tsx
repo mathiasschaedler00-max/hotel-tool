@@ -198,31 +198,29 @@ export function RoomList({
             </button>
 
             {showDeactivated && (
-              <div className="mt-2 overflow-x-auto rounded-lg border border-line bg-surface">
-                <div className="min-w-[420px]">
-                  {deactivatedRooms.map((room) => {
-                    const rt = roomTypeById.get(room.room_type_id);
-                    return (
-                      <div
-                        key={room.id}
-                        className="flex items-center justify-between gap-3 border-b border-line px-3 py-2.5 text-sm last:border-b-0"
+              <div className="mt-2 rounded-lg border border-line bg-surface">
+                {deactivatedRooms.map((room) => {
+                  const rt = roomTypeById.get(room.room_type_id);
+                  return (
+                    <div
+                      key={room.id}
+                      className="flex flex-col gap-2 border-b border-line px-3 py-2.5 text-sm last:border-b-0 sm:flex-row sm:items-center sm:justify-between"
+                    >
+                      <span className="flex items-center gap-3">
+                        <span className="font-mono font-semibold text-text-2">{room.room_number}</span>
+                        <span className="text-text-3">{rt?.name ?? "—"}</span>
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handleReactivate(room.id)}
+                        disabled={reactivatingId === room.id}
+                        className="min-h-9 rounded-md border border-line px-3 text-sm text-text-2 hover:bg-surface-2 disabled:opacity-60"
                       >
-                        <span className="flex items-center gap-3">
-                          <span className="font-mono font-semibold text-text-2">{room.room_number}</span>
-                          <span className="text-text-3">{rt?.name ?? "—"}</span>
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => handleReactivate(room.id)}
-                          disabled={reactivatingId === room.id}
-                          className="min-h-8 rounded-md border border-line px-3 text-sm text-text-2 hover:bg-surface-2 disabled:opacity-60"
-                        >
-                          {reactivatingId === room.id ? "Aktiviert…" : "Wieder aktivieren"}
-                        </button>
-                      </div>
-                    );
-                  })}
-                </div>
+                        {reactivatingId === room.id ? "Aktiviert…" : "Wieder aktivieren"}
+                      </button>
+                    </div>
+                  );
+                })}
               </div>
             )}
             {reactivateError && <p className="mt-2 text-xs text-red">{reactivateError}</p>}
